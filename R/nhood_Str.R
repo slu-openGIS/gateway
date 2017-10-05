@@ -14,13 +14,15 @@
 #' @source \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
 #'
 #' @examples
-#' if (require("dplyr") {
+#' if (requireNamespace("dplyr", quietly = TRUE)) {
+#'
 #'     neighborhoods <- data.frame(
 #'         id = c(1, 2, 3, 4, 5),
 #'         nhoodNum = c(1, 2, 4, 5, 3)
 #'     )
 #'
-#' neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+#'     neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+#'     table(neighborhoods$nhood)
 #' }
 #'
 #' @export

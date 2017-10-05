@@ -22,13 +22,15 @@ This is a function for converting a vector of City of St. Louis neighborhood num
 to either string or factor format.
 }
 \examples{
-if (require("dplyr") {
+if (requireNamespace("dplyr", quietly = TRUE)) {
+
     neighborhoods <- data.frame(
         id = c(1, 2, 3, 4, 5),
         nhoodNum = c(1, 2, 4, 5, 3)
     )
 
-neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+    neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+    table(neighborhoods$nhood)
 }
 
 }
