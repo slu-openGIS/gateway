@@ -19,7 +19,8 @@
 #'
 #'     neighborhoods <- data.frame(
 #'         id = c(1, 2, 3, 4, 5),
-#'         nhoodStr = c("Patch", "Bevo", "Bevo Mill", "Lindenwood Park", "Carondelet")
+#'         nhoodStr = c("Patch", "Bevo", "Bevo Mill", "Lindenwood Park", "Carondelet"),
+#'         stringsAsFactors = FALSE
 #'     )
 #'
 #'     neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_num(nhoodStr))
@@ -27,12 +28,12 @@
 #' }
 #'
 #' @export
-nhood_num <- function(var, asFactor = TRUE) {
+nhood_num <- function(var) {
   corrected <- lettercase::str_ucfirst(var)
 
   nhood <- ifelse(corrected == "Carondelet", 1, NA)
-  nhood <- ifelse(corrected == "Patch", 2, NA)
-  nhood <- ifelse(corrected == "Holly Hills", 3, NA)
+  nhood <- ifelse(corrected == "Patch", 2, nhood)
+  nhood <- ifelse(corrected == "Holly Hills", 3, nhood)
   nhood <- ifelse(corrected == "Boulevard Heights", 4, nhood)
   nhood <- ifelse(corrected == "Bevo Mill" |
                     corrected == "Bevo", 5, nhood)

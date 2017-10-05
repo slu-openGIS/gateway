@@ -28,7 +28,8 @@ if (requireNamespace("dplyr", quietly = TRUE)) {
 
     neighborhoods <- data.frame(
         id = c(1, 2, 3, 4, 5),
-        nhoodStr = c("Patch", "Bevo", "Bevo Mill", "Lindenwood Park", "Carondelet")
+        nhoodStr = c("Patch", "Bevo", "Bevo Mill", "Lindenwood Park", "Carondelet"),
+        stringsAsFactors = FALSE
     )
 
     neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_num(nhoodStr))
