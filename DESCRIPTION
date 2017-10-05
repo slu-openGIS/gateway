@@ -14,3 +14,5 @@ URL: https://github.com/chris-prener/gateway
 BugReports: https://github.com/chris-prener/gateway/issues
 RoxygenNote: 6.0.1
 Suggests: dplyr
+Imports: lettercase,
+    stringr
