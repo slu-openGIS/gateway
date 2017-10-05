@@ -7,7 +7,7 @@
 \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
 }
 \usage{
-nhood_Num(var)
+nhood_num(var)
 }
 \arguments{
 \item{var}{A string vector containing City of St. Louis neighborhood names}
@@ -21,16 +21,17 @@ to either string or factor format.
 }
 \note{
 Function is capable of handeling vectors that contain various spellings (i.e. "carondelet" or "Carondelet").
+It is also capable of handleing some common neighborhood abbreviations, such as "Bevo", "CWE", "FPSE", and "The Grove".
 }
 \examples{
 if (requireNamespace("dplyr", quietly = TRUE)) {
 
     neighborhoods <- data.frame(
         id = c(1, 2, 3, 4, 5),
-        nhoodNum = c(1, 2, 4, 5, 3)
+        nhoodStr = c("Patch", "Bevo", "Bevo Mill", "Lindenwood Park", "Carondelet")
     )
 
-    neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+    neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_num(nhoodStr))
     table(neighborhoods$nhood)
 }
 

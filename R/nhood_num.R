@@ -5,7 +5,7 @@
 #' This is a function for converting a vector of City of St. Louis neighborhood numbers
 #' to either string or factor format.
 #'
-#' @usage nhood_Num(var)
+#' @usage nhood_num(var)
 #'
 #' @param var A string vector containing City of St. Louis neighborhood names
 #'
@@ -46,7 +46,7 @@ nhood_num <- function(var, asFactor = TRUE) {
   nhood <- ifelse(corrected == "Southwest Garden", 13, nhood)
   nhood <- ifelse(corrected == "North Hampton", 14, nhood)
   nhood <- ifelse(corrected == "Tower Grove South" |
-                    corrected = "TGS", 15, nhood)
+                    corrected == "TGS", 15, nhood)
   nhood <- ifelse(corrected == "Dutchtown", 16, nhood)
   nhood <- ifelse(corrected == "Mount Pleasant", 17, nhood)
   nhood <- ifelse(corrected == "Marine Villa", 18, nhood)
