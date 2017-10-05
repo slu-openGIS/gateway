@@ -28,5 +28,8 @@ library(devtools)
 devtools::install_github("chris-prener/gateway")
 ```
 
+## Useage
+The package current has two functions for working with St. Louis neighborhood vectors - `nhood_num()` and `nhood_str()`.
+
 ## Contributor Code of Conduct
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.

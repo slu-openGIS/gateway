@@ -4,8 +4,7 @@ Title: Tools for Working with St. Louis Spatial Data
 Version: 0.1.0
 Authors@R: person("Christopher", "Prener", email = "chris.prener@slu.edu",
                   role = c("aut", "cre"))
-Description: Contains various tools for modifying St. Louis spatial data, including working
-    with street addresses and neighborhood identification numbers.
+Description: Contains various tools for modifying St. Louis spatial data.
 Depends: R (>= 3.3.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
