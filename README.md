@@ -3,7 +3,7 @@
 gateway <img src="man/figures/gatewayLogo.png" align="right" />
 ===============================================================
 
-[![Travis-CI Build Status](https://travis-ci.org/chris-prener/gateway.svg?branch=master)](https://travis-ci.org/chris-prener/gateway) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/chris-prener/gateway?branch=master&svg=true)](https://ci.appveyor.com/project/chris-prener/gateway) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/gateway)](https://cran.r-project.org/package=gateway)
+[![Travis-CI Build Status](https://travis-ci.org/chris-prener/gateway.svg?branch=master)](https://travis-ci.org/chris-prener/gateway) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/chris-prener/gateway?branch=master&svg=true)](https://ci.appveyor.com/project/chris-prener/gateway) [![codecov](https://codecov.io/gh/chris-prener/gateway/branch/master/graph/badge.svg)](https://codecov.io/gh/chris-prener/gateway) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/gateway)](https://cran.r-project.org/package=gateway)
 
 The `gateway` package contains tools for manipulating spatial data for the City of St. Louis
 
