@@ -1,11 +1,11 @@
 #' String or factor neighborhood names
 #'
-#' \code{nhood_Str} returns the matching neighborhood name in string or factor format
+#' \code{nhood_str} returns the matching neighborhood name in string or factor format
 #'
 #' This is a function for converting a vector of City of St. Louis neighborhood numbers
 #' to either string or factor format.
 #'
-#' @usage nhood_Str(var, asFactor = TRUE)
+#' @usage nhood_str(var, asFactor = TRUE)
 #'
 #' @param var A numeric or integer vector containing City of St. Louis neighborhood numbers
 #'
@@ -21,12 +21,12 @@
 #'         nhoodNum = c(1, 2, 4, 5, 3)
 #'     )
 #'
-#'     neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_Str(nhoodNum, asFactor = TRUE))
+#'     neighborhoods <- dplyr::mutate(neighborhoods, nhood = nhood_str(nhoodNum, asFactor = TRUE))
 #'     table(neighborhoods$nhood)
 #' }
 #'
 #' @export
-nhood_Str <- function(var, asFactor = TRUE) {
+nhood_str <- function(var, asFactor = TRUE) {
   nhood <- ifelse(var == 1, "Carondelet", NA)
   nhood <- ifelse(var == 2, "Patch", nhood)
   nhood <- ifelse(var == 3, "Holly Hills", nhood)
