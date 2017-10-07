@@ -2,8 +2,8 @@
 #'
 #' \code{stdName} standardizes a given set of City of St. Louis street names by checking
 #' them against a master list of street names and returning a preferred name. For example,
-#' "1st" and "First" are both possible variation of "First Street". If "1st" is given,
-#' \code{stdName} will offer "First" as the standardized alternative.
+#' "1ST" and "FIRST" are both possible variations of "FIRST ST". If "FIRST" is given,
+#' \code{stdName} will offer "1ST" as the standardized alternative.
 #'
 #' @usage stdName(data, variable, overwrite = TRUE, newVariable)
 #'

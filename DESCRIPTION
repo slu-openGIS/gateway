@@ -12,8 +12,9 @@ LazyData: true
 URL: https://github.com/chris-prener/gateway
 BugReports: https://github.com/chris-prener/gateway/issues
 RoxygenNote: 6.0.1
-Suggests: dplyr,
-    testthat,
+Suggests: testthat,
     covr
 Imports: lettercase,
-    stringr
+    stringr,
+    dplyr,
+    tibble
