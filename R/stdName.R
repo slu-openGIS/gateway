@@ -50,5 +50,5 @@ stdName <- function(data, variable, overwrite = TRUE, newVariable){
     dplyr::select(-dc_correct) %>%
     dplyr::rename(!!variable := "dc_incorrect") -> check
 
-  as_tibble(check)
+  tibble::as_tibble(check)
 }
