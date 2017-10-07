@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • gateway</title>
+<title>Standardize Street Names — stdName • gateway</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -78,64 +78,64 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;0.2.0</small>
-      </h1>
+    <h1>Standardize Street Names</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    
+    <p><code>stdName</code> standardizes a given set of City of St. Louis street names by checking
+them against a master list of street names and returning a preferred name. For example,
+"1ST" and "FIRST" are both possible variations of "FIRST ST". If "FIRST" is given,
+<code>stdName</code> will offer "1ST" as the standardized alternative.</p>
+    
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <pre class="usage"><span class='fu'>stdName</span>(<span class='no'>data</span>, <span class='no'>variable</span>, <span class='kw'>overwrite</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>newVariable</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>data</th>
+      <td><p>A tibble or a data frame</p></td>
+    </tr>
+    <tr>
+      <th>variable</th>
+      <td><p>A character vector within <code>data</code> that contains City of St. Louis street names</p></td>
+    </tr>
+    <tr>
+      <th>overwrite</th>
+      <td><p>A logical scalar. Should the output overwrite the given variable?</p></td>
+    </tr>
+    <tr>
+      <th>newVariable</th>
+      <td><p>A name for a new vector to be created if <code>overwrite = FALSE</code></p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="nhood_num.html">nhood_num</a></code> </p>
-          </td>
-          <td><p>Numeric neighborhood numbers</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="nhood_str.html">nhood_str</a></code> </p>
-          </td>
-          <td><p>String or factor neighborhood names</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stdName.html">stdName</a></code> </p>
-          </td>
-          <td><p>Standardize Street Names</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stdStreets.html">stdStreets</a></code> </p>
-          </td>
-          <td><p>Standardized Street Names</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <p><code>stdName</code> returns a tibble with the requested output - either the original data with
+non-standard street names overwritten in the given vector or the original data with a new
+vector containing standardized street names.</p>
+    
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
+
+    <p><code>stdName</code> requires two variable names be unused in the original data - <code>dc_corrrect</code> and
+<code>dc_incorrect</code>. If these names are present, <code>stdName</code> will return an error.</p>
+    
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
-    </ul>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#note">Note</a></li>
+          </ul>
+
   </div>
 </div>
 
