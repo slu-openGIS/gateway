@@ -14,12 +14,12 @@ nhood_str(var, asFactor = TRUE)
 
 \item{asFactor}{A logical scalar. Should the output be converted to a factor?}
 }
-\description{
-\code{nhood_str} returns the matching neighborhood name in string or factor format
+\value{
+A character or factor vector
 }
-\details{
-This is a function for converting a vector of City of St. Louis neighborhood numbers
-to either string or factor format.
+\description{
+\code{nhood_str} is a function for converting a vector of City of St. Louis neighborhood numbers
+to either character or factor format.
 }
 \examples{
 if (requireNamespace("dplyr", quietly = TRUE)) {

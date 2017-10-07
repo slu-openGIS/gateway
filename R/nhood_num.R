@@ -29,7 +29,7 @@
 #'
 #' @export
 nhood_num <- function(var) {
-  corrected <- lettercase::str_ucfirst(var)
+  corrected <- stringr::str_to_title(var)
 
   nhood <- ifelse(corrected == "Carondelet", 1, NA)
   nhood <- ifelse(corrected == "Patch", 2, nhood)

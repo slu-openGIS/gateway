@@ -1,15 +1,15 @@
 #' String or factor neighborhood names
 #'
-#' \code{nhood_str} returns the matching neighborhood name in string or factor format
-#'
-#' This is a function for converting a vector of City of St. Louis neighborhood numbers
-#' to either string or factor format.
+#' \code{nhood_str} is a function for converting a vector of City of St. Louis neighborhood numbers
+#' to either character or factor format.
 #'
 #' @usage nhood_str(var, asFactor = TRUE)
 #'
 #' @param var A numeric or integer vector containing City of St. Louis neighborhood numbers
 #'
 #' @param asFactor A logical scalar. Should the output be converted to a factor?
+#'
+#' @return A character or factor vector
 #'
 #' @source \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
 #'
