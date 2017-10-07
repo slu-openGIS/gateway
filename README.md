@@ -21,7 +21,7 @@ devtools::install_github("chris-prener/gateway")
 Useage
 ------
 
-The package current has two functions for working with St. Louis neighborhood vectors - `nhood_num()` and `nhood_str()`.
+The package current has two functions for working with St. Louis neighborhood vectors - `nhood_num()` and `nhood_str()`. It also has a function `stdName()` for standardizing City of St. Louis street names (`FIRST` becomes `1st`, for example). You can view the database that `stdName()` by spening the `stdStreets` data included with the package.
 
 Contributor Code of Conduct
 ---------------------------
