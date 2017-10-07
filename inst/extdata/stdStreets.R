@@ -1,29 +1,29 @@
 dataCorr1 <- data.frame(
-  dc_correct = c("1ST", "2ND", "4TH", "6TH", "7TH", "8TH", "9TH",
-                 "10TH", "11TH", "13TH", "14TH", "15TH",
-                 "16TH", "17TH","18TH", "19TH", "20TH",
-                 "21ST", "21ST", "22ND", "22ND",
-                 "23RD", "23RD", "25TH", "25TH"),
-  dc_incorrect = c("FIRST", "SECOND", "FOURTH", "SIXTH", "SEVENTH", "EIGHTH", "NINTH",
-                   "TENTH", "ELEVENTH", "THIRTEENTH", "FOURTEENTH", "FIFTEENTH",
-                   "SIXTEENTH", "SEVENTEENTH", "EIGHTEENTH", "NINETEENTH", "TWENTIETH",
-                   "TWENTY-FIRST", "TWENTY FIRST", "TWENTY-SECOND", "TWENTY SECOND",
-                   "TWENTY-THIRD", "TWENTY THIRD", "TWENTY-FIFTH", "TWENTY FIFTH"),
+  dc_correct = c("1st", "2nd", "4th", "6th", "7th", "8th", "9th",
+                 "10th", "11th", "13th", "14th", "15th",
+                 "16th", "17th","18th", "19th", "20th",
+                 "21st", "21st", "22nd", "22nd",
+                 "23rd", "23rd", "25th", "25th"),
+  dc_incorrect = c("First", "Second", "Fourth", "Sixth", "Seventh", "Eighth", "Ninth",
+                   "Tenth", "Eleventh", "Thirteenth", "Fourteenth", "Fifteenth",
+                   "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
+                   "Twenty-First", "Twenthy First", "Twenty-Second", "Twenty Second",
+                   "Twenty-Third", "Twenty Third", "Twenty-Fifth", "Twenty Fifth"),
   stringsAsFactors = FALSE
 )
 
 dataCorr2 <- data.frame(
-  dc_correct = c("KINGSHIGHWAY", "DR MARTIN LUTHER KING", "DR MARTIN LUTHER KING", "REDD FOXX",
-                 "DR SAMUEL T SHEPARD", "DR SAMUEL T SHEPARD", "DR SAMUEL T SHEPARD", "MOUNT PLEASANT",
-                 "MORGAN FORD"),
-  dc_incorrect = c("KINGSHIGHWAY MEMORIAL", "MARTIN LUTHER KING", "MLK", "RED FOX",
-                   "SAMUEL T SHEPARD", "SAMUEL SHEPARD", "SAM SHEPARD", "MT PLEASANT",
-                   "MORGANFORD"),
+  dc_correct = c("Kingshighway", "Dr Martin Luther King", "Dr Martin Luther King", "Redd Foxx",
+                 "Dr Samuel T Shepard", "Dr Samuel T Shepard", "Dr Samuel T Shepard", "Mount Pleasant",
+                 "Morgan Ford"),
+  dc_incorrect = c("Kingshighway Memorial", "Martin Luther King", "Mlk", "Red Fox",
+                   "Samuel T Shepard", "Samuel Shepard", "Sam Shepard", "Mt Pleasant",
+                   "Morganford"),
   stringsAsFactors = FALSE
 )
 
 stdStreets <- dplyr::bind_rows(dataCorr1, dataCorr2)
-stdStreets <- dplyr::arrange(dataCorr, dc_correct)
+stdStreets <- dplyr::arrange(stdStreets, dc_correct)
 
 # save as .RData file for inclusion in stldata package
 

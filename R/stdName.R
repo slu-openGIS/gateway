@@ -27,9 +27,11 @@ stdName <- function(data, variable, overwrite = TRUE, newVariable){
   if ( any(names(data) == "dc_correct") == TRUE ) stop('data cannot contain a variable named dc_correct')
   if ( any(names(data) == "dc_incorrect") == TRUE ) stop('data cannot contain a variable named dc_incorrect')
 
-  correct <- data(stdSteets)
+  correct <- get("stdStreets")
 
-  check <- dplyr::rename(data, "dc_incorrect" := !!variable)
+  data %>%
+    dplyr::mutate(!!variable := stringr::str_to_title(data$UQ(variable))) %>%
+    dplyr::rename("dc_incorrect" := !!variable) -> check
 
   check <- dplyr::left_join(check, correct, by = "dc_incorrect")
 
