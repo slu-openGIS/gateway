@@ -3,9 +3,9 @@ context("standardize street name")
 suppressPackageStartupMessages(library(dplyr))
 
 test_data <- data.frame(
-  id = c(1, 2, 3, 4, 5),
-  streetStr = c("1st", "1ST", "MLK", "RED FOX", "grand"),
-  streetResult = c("1st", "1st", "Dr Martin Luther King", "Redd Foxx", "Grand"),
+  id = c(1, 2, 3, 4, 5, 6),
+  streetStr = c("1st", "1ST", "MLK", "RED FOX", "grand", "SECOND"),
+  streetResult = c("1st", "1st", "Dr Martin Luther King", "Redd Foxx", "Grand", "2nd"),
   stringsAsFactors = FALSE
 )
 

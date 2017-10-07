@@ -27,10 +27,10 @@ dataCorr2 <- data.frame(
 dataCorr3 <- data.frame(
   dc_correct = c("Kingshighway", "Dr Martin Luther King", "Dr Martin Luther King", "Redd Foxx",
                  "Dr Samuel T Shepard", "Dr Samuel T Shepard", "Dr Samuel T Shepard", "Mount Pleasant",
-                 "Morgan Ford"),
+                 "Morgan Ford", "Lasalle","Lambdin", "Bishop P L Scott"),
   dc_incorrect = c("Kingshighway Memorial", "Martin Luther King", "Mlk", "Red Fox",
                    "Samuel T Shepard", "Samuel Shepard", "Sam Shepard", "Mt Pleasant",
-                   "Morganford"),
+                   "Morganford", "La Salle", "Lamblin", "Bishop Scott"),
   stringsAsFactors = FALSE
 )
 
