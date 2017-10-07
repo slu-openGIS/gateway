@@ -14,7 +14,7 @@ BugReports: https://github.com/chris-prener/gateway/issues
 RoxygenNote: 6.0.1
 Suggests: testthat,
     covr
-Imports: lettercase,
-    stringr,
+Imports: stringr,
     dplyr,
-    tibble
+    tibble,
+    rlang

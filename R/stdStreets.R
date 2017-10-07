@@ -4,9 +4,7 @@
 #'
 #' @docType data
 #'
-#' @usage data(stdStreets)
-#'
-#' @format A data frame with 106 rows and 7 variables:
+#' @format A data frame with 55 rows and 2 variables:
 #' \describe{
 #'   \item{dc_correct}{standardized street name}
 #'   \item{dc_incorrect}{alternative street name}

@@ -3,3 +3,4 @@
 export(nhood_num)
 export(nhood_str)
 export(stdName)
+importFrom(rlang,":=")

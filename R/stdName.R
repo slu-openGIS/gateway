@@ -22,35 +22,41 @@
 #' @note \code{stdName} requires two variable names be unused in the original data - \code{dc_corrrect} and
 #' \code{dc_incorrect}. If these names are present, \code{stdName} will return an error.
 #'
+#' @importFrom rlang :=
+#'
 #' @export
 stdName <- function(data, variable, overwrite = TRUE, newVariable){
+  # ensure no conflicts with user's data:
   if ( any(names(data) == "dc_correct") == TRUE ) stop('data cannot contain a variable named dc_correct')
   if ( any(names(data) == "dc_incorrect") == TRUE ) stop('data cannot contain a variable named dc_incorrect')
 
+  # prevents R CMD check note for undefined gloabl variable:
+  dc_correct <- NULL
+  dc_incorrect <- NULL
+
+  # load standardized data
   correct <- get("stdStreets")
 
-  data %>%
-    dplyr::mutate(!!variable := stringr::str_to_title(data$UQ(variable))) %>%
-    dplyr::rename("dc_incorrect" := !!variable) -> check
+  # convert street name variable to Title Case
+  check <- dplyr::mutate(data, "dc_incorrect" := stringr::str_to_title(data$UQ(variable)))
 
+  # join user's data with standardized data
   check <- dplyr::left_join(check, correct, by = "dc_incorrect")
 
+  # create corrected variable with standardized street names
   if (overwrite == TRUE){
-    check <- dplyr::mutate(check, "dc_incorrect" =
-                             ifelse(!is.na(dc_correct) == TRUE,
-                                    dc_correct,
-                                    dc_incorrect))
+
+    check <- dplyr::mutate(check, !!variable := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
 
   } else if (overwrite == FALSE) {
-    check <- dplyr::mutate(check, !!newVariable :=
-                             ifelse(!is.na(dc_correct) == TRUE,
-                                    dc_correct,
-                                    dc_incorrect))
+
+    check <- dplyr::mutate(check, !!newVariable := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
+
   }
 
-  check %>%
-    dplyr::select(-dc_correct) %>%
-    dplyr::rename(!!variable := "dc_incorrect") -> check
+  # remove variables from standardized data
+  check <- dplyr::select(check, -dc_correct, -dc_incorrect)
 
+  # return data as a tibble
   tibble::as_tibble(check)
 }
