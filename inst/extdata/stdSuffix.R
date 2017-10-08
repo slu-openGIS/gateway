@@ -1,51 +1,33 @@
-suffixCorr1 <- data.frame(
-  sc_primary = c("Alley", "Alley", "Alley", "Alley", "Anex", "Anex", "Anex", "Anex", "Arcade", "Arcade"),
-  sc_commonAbbrev = c("Alley", "Allee", "Ally", "Aly", "Anex", "Annex", "Annx", "Anx", "Arc", "Arcade"),
-  sc_prefAbbrev = c("Aly", "Aly", "Aly", "Aly", "Anx", "Anx", "Anx", "Anx", "Arc", "Arc"),
-  stringsAsFactors = FALSE
-)
+library(rvest)
+library(dplyr)
+library(stringr)
 
-suffixCorr2 <- data.frame(
-  sc_primary = c("Avenue", "Avenue", "Avenue", "Avenue", "Avenue", "Avenue", "Avenue", "Bayou", "Bayou", "Bayou"),
-  sc_commonAbbrev = c("Av", "Ave", "Aven", "Avenu", "Avenue", "Avn", "Avnue", "Bayoo", "Byu", "Bayou"),
-  sc_prefAbbrev = c("Ave", "Ave", "Ave", "Ave", "Ave", "Ave", "Ave", "Byu", "Byu", "Byu"),
-  stringsAsFactors = FALSE
-)
+# download webpage content
+webpage <- read_html("https://pe.usps.com/text/pub28/28apc_002.htm")
 
-suffixCorr3 <- data.frame(
-  sc_primary = c("Beach", "Beach", "Bend", "Bend", "Bluff", "Bluff", "Bluff", "Bluffs"),
-  sc_commonAbbrev = c("Beach", "Bch", "Bend", "Bnd", "Blf", "Bluf", "Bluff", "Bluffs"),
-  sc_prefAbbrev = c("Bch", "Bch", "Bnd", "Bnd", "Blf", "Blf", "Blf", "Blfs"),
-  stringsAsFactors = FALSE
-)
+# identify table notes
+tables <- html_nodes(webpage, "table")
 
-suffixCorr4 <- data.frame(
-  sc_primary = c("Bottom", "Bottom", "Bottom", "Bottom", "Boulevard", "Boulevard", "Boulevard", "Boulevard"),
-  sc_commonAbbrev = c("Bot", "Btm", "Bottm", "Bottom", "Blvd", "Boul", "Boulv", "Boulevard"),
-  sc_prefAbbrev = c("Btm", "Btm", "Btm", "Btm", "Blvd", "Blvd", "Blvd", "Blvd"),
-  stringsAsFactors = FALSE
-)
+# extract the third node, which contains the suffix data
+tablesList <- webpage %>%
+  html_nodes("table") %>%
+  .[3] %>%
+  html_table(fill = TRUE)
 
-suffixCorr5 <- data.frame(
-  sc_primary = c("Branch", "Branch", "Branch", "Bridge", "Bridge", "Bridge", "Brook", "Brook", "Brooks", "Brooks"),
-  sc_commonAbbrev = c("Br", "Brnch", "Branch", "Brdge", "Brg", "Bridge", "Brook", "Brk", "Brooks", "Brks"),
-  sc_prefAbbrev = c("Br", "Br", "Br", "Brg", "Brg", "Brg", "Brk", "Brk", "Brks", "Brks"),
-  stringsAsFactors = FALSE
-)
+# convert data to a data frame
+stdSuffix <- do.call(rbind, tablesList)
 
-stdSuffix <- dplyr::bind_rows(suffixCorr1, suffixCorr2)
-stdSuffix <- dplyr::bind_rows(stdSuffix, suffixCorr3)
-stdSuffix <- dplyr::bind_rows(stdSuffix, suffixCorr4)
-stdSuffix <- dplyr::bind_rows(stdSuffix, suffixCorr5)
-stdSuffix <- dplyr::arrange(stdSuffix, sc_primary, sc_commonAbbrev)
+# clean table
+stdSuffix %>%
+  filter(X1 != "PrimaryStreet SuffixName") %>%
+  rename(suf_pri = X1) %>%
+  rename(suf_com = X2) %>%
+  rename(suf_std = X3) -> stdSuffix
+
+stdSuffix$suf_pri <- str_to_title(stdSuffix$suf_pri)
+stdSuffix$suf_com <- str_to_title(stdSuffix$suf_com)
+stdSuffix$suf_std <- str_to_title(stdSuffix$suf_std)
 
 # save as .RData file for inclusion in stldata package
 
 save(stdSuffix, file = "data/stdSuffix.RData")
-
-suffixCorr5 <- data.frame(
-  sc_primary = c("", ""),
-  sc_commonAbbrev = c("", ""),
-  sc_prefAbbrev = c("", ""),
-  stringsAsFactors = FALSE
-)
