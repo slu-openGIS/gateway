@@ -132,7 +132,8 @@ nhood_num <- function(var) {
   nhood <- ifelse(corrected == "Baden", 74, nhood)
   nhood <- ifelse(corrected == "Riverview", 75, nhood)
   nhood <- ifelse(corrected == "Walnut Park West", 76, nhood)
-  nhood <- ifelse(corrected == "Covenant Blu-Grand Center", 77, nhood)
+  nhood <- ifelse(corrected == "Covenant Blu-Grand Center" |
+                    corrected == "Grand Center", 77, nhood)
   nhood <- ifelse(corrected == "Hamilton Heights", 78, nhood)
   nhood <- ifelse(corrected == "North Riverfront", 79, nhood)
 

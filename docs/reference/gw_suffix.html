@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • gateway</title>
+<title>Standardized Street Suffixes — gw_suffix • gateway</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -78,76 +78,61 @@
       </header>
 
       <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;0.2.0</small>
-      </h1>
+    <h1>Standardized Street Suffixes</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    
+    <p><code>gw_suffix</code> standardizes a given set of street suffix values to the USPS preferred suffix abbreviation.</p>
+    
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <pre class="usage"><span class='fu'>gw_suffix</span>(<span class='no'>.data</span>, <span class='no'>suffix</span>, <span class='kw'>overwrite</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>newSuffix</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>.data</th>
+      <td><p>A tbl</p></td>
+    </tr>
+    <tr>
+      <th>suffix</th>
+      <td><p>A character vector within <code>.data</code> that contains street suffixes</p></td>
+    </tr>
+    <tr>
+      <th>overwrite</th>
+      <td><p>A logical scalar. Should the output overwrite the given variable?</p></td>
+    </tr>
+    <tr>
+      <th>newSuffix</th>
+      <td><p>A name for a new vector to be created if <code>overwrite = FALSE</code></p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="gw_suffix.html">gw_suffix</a></code> </p>
-          </td>
-          <td><p>Standardized Street Suffixes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="nhood_num.html">nhood_num</a></code> </p>
-          </td>
-          <td><p>Numeric neighborhood numbers</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="nhood_str.html">nhood_str</a></code> </p>
-          </td>
-          <td><p>String or factor neighborhood names</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stdName.html">stdName</a></code> </p>
-          </td>
-          <td><p>Standardize Street Names</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stdStreets.html">stdStreets</a></code> </p>
-          </td>
-          <td><p>Standardized Street Names</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="stdSuffixTbl.html">stdSuffixTbl</a></code> </p>
-          </td>
-          <td><p>Standardized Street Suffixes</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <p><code>gw_suffix</code> returns a tibble with the requested output - either the suffix variable has
+    been overwritten or a new variable with corrected suffix abbreviations has been added.</p>
+    
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
+
+    <p><code>gw_suffix</code> requires that a number variable names be unused in the original data - <code>suf_com</code>,
+    <code>suf_cor</code>, <code>suf_pri</code> and <code>suf_std</code>. If these names are present, <code>gw_suffix</code> will
+    return an error. These variables are created temporarily as part of the matching process.</p>
+    
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
-    </ul>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#note">Note</a></li>
+          </ul>
+
   </div>
 </div>
 
