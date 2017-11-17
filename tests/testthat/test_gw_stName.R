@@ -9,9 +9,30 @@ test_data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-test_that("streets correctly standardized", {
-  result <- gw_stName(test_data, "streetStr")
+test_that("streets correctly standardized, quoted street", {
+  result <- gw_stName(test_data, street = "streetStr")
 
   expect_equal(result$streetStr, test_data$streetResult)
+
+})
+
+test_that("streets correctly standardized, bare street", {
+  result <- gw_stName(test_data, street = streetStr)
+
+  expect_equal(result$streetStr, test_data$streetResult)
+
+})
+
+test_that("streets correctly standardized, new quoted street", {
+  result <- gw_stName(test_data, street = "streetStr", overwrite = FALSE, newStreet = "newStreet")
+
+  expect_equal(result$newStreet, test_data$streetResult)
+
+})
+
+test_that("streets correctly standardized, new bare street", {
+  result <- gw_stName(test_data, street = streetStr, overwrite = FALSE, newStreet = newStreet)
+
+  expect_equal(result$newStreet, test_data$streetResult)
 
 })

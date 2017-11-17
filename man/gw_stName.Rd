@@ -4,16 +4,16 @@
 \alias{gw_stName}
 \title{Standardize Street Names}
 \usage{
-gw_stName(data, variable, overwrite = TRUE, newVariable)
+gw_stName(.data, street, overwrite = TRUE, newStreet)
 }
 \arguments{
-\item{data}{A tibble or a data frame}
+\item{.data}{A tbl}
 
-\item{variable}{A character vector within \code{data} that contains City of St. Louis street names}
+\item{street}{A character vector within \code{data} that contains City of St. Louis street names}
 
 \item{overwrite}{A logical scalar. Should the output overwrite the given variable?}
 
-\item{newVariable}{A name for a new vector to be created if \code{overwrite = FALSE}}
+\item{newStreet}{A name for a new vector to be created if \code{overwrite = FALSE}}
 }
 \value{
 \code{gw_stName} returns a tibble with the requested output - either the original data with
