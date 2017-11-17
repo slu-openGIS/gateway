@@ -8,7 +8,7 @@
 #' \describe{
 #'   \item{suf_pri}{full category name}
 #'   \item{suf_com}{commonly accepted alternatives}
-#'   \item{suf_pri}{primary abbreviation}
+#'   \item{suf_std}{standard abbreviation}
 #'   }
 #'
 "stdSuffixTbl"

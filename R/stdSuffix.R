@@ -1,34 +1,40 @@
 #' Standardized Street Suffixes
 #'
-#' \code{stdSuffix} standardizes a given set of...
+#' \code{stdSuffix} standardizes a given set of street suffix values to the USPS preferred suffix abbreviation.
 #'
-#' @usage stdSuffix(data, variable, overwrite = TRUE, newVariable)
+#' @usage stdSuffix(.data, variable, overwrite = TRUE, newVariable)
 #'
-#' @param data A tibble or a data frame
-#'
-#' @param variable A character vector within \code{data} that contains City of St. Louis street suffixes
-#'
+#' @param .data A tibble or a data frame
+#' @param variable A character vector within \code{.data} that contains City of St. Louis street suffixes
 #' @param overwrite A logical scalar. Should the output overwrite the given variable?
-#'
 #' @param newVariable A name for a new vector to be created if \code{overwrite = FALSE}
 #'
-#' @return \code{stdSuffix} returns a tibble with the requested output - either the ...
+#' @return \code{stdSuffix} returns a tibble with the requested output - either the suffix variable has
+#'     been overwritten or a new variable with corrected suffix abbreviations has been added.
 #'
 #' @note \code{stdSuffix} requires two variable names be unused in the original data - \code{suf_com} and
 #' \code{suf_pri}. If these names are present, \code{stdSuffix} will return an error.
 #'
+#' @importFrom dplyr %>%
+#' @importFrom dplyr as_tibble
+#' @importFrom dplyr left_join
 #' @importFrom rlang :=
 #'
 #' @export
 stdSuffix <- function(.data, variable, overwrite = TRUE, newVariable){
 
   # ensure no conflicts with user's data:
-  if ( any(names(data) == "suf_com") == TRUE ) stop('data cannot contain a variable named suf_com')
-  if ( any(names(data) == "suf_pri") == TRUE ) stop('data cannot contain a variable named suf_pri')
+  if ( any(names(.data) == "suf_com") == TRUE ) stop('data cannot contain a variable named suf_com')
+  if ( any(names(.data) == "suf_cor") == TRUE ) stop('data cannot contain a variable named suf_cor')
+  if ( any(names(.data) == "suf_pri") == TRUE ) stop('data cannot contain a variable named suf_pri')
+  if ( any(names(.data) == "suf_std") == TRUE ) stop('data cannot contain a variable named suf_std')
 
   # prevents R CMD check note for undefined gloabl variable:
+  id <- NULL
   suf_com <- NULL
+  suf_cor <- NULL
   suf_pri <- NULL
+  suf_std <- NULL
 
   # load standardized data
   correct <- get("stdSuffixTbl")
@@ -75,6 +81,6 @@ stdSuffix <- function(.data, variable, overwrite = TRUE, newVariable){
   output <- dplyr::select(output, -c(suf_com, suf_cor))
 
   # return tibble
-  output <- as_tibble(output)
+  output <- dplyr::as_tibble(output)
   return(output)
 }
