@@ -19,6 +19,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as_tibble
 #' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @importFrom rlang :=
 #'
 #' @export
@@ -40,7 +41,7 @@ gw_suffix <- function(.data, suffix, overwrite = TRUE, newSuffix){
 
   # check newSuffix argument
   if (missing(newSuffix)) {
-    newSuffix <- NULL
+    newSuffix <- "nullSuffix"
   }
 
   # save parameters to list
@@ -54,12 +55,10 @@ gw_suffix <- function(.data, suffix, overwrite = TRUE, newSuffix){
 
   varQ <- rlang::quo_name(rlang::enquo(var))
 
-  if (!is.null(newSuffix)) {
-    if (!is.character(paramList$newSuffix)) {
-      newVar <- rlang::enquo(newSuffix)
-    } else if (is.character(paramList$newSuffix)) {
-      newVar <- rlang::quo(!! rlang::sym(newSuffix))
-    }
+  if (!is.character(paramList$newSuffix)) {
+    newVar <- rlang::enquo(newSuffix)
+  } else if (is.character(paramList$newSuffix)) {
+    newVar <- rlang::quo(!! rlang::sym(newSuffix))
   }
 
   newVarQ <- rlang::quo_name(rlang::enquo(newVar))
@@ -68,25 +67,31 @@ gw_suffix <- function(.data, suffix, overwrite = TRUE, newSuffix){
   id <- NULL
   suf_com <- NULL
   suf_cor <- NULL
+  suf_id <- NULL
   suf_pri <- NULL
   suf_std <- NULL
+
+  # create identification variable
+  input <- .data
+  input <- mutate(input, suf_id = as.numeric(rownames(input)))
 
   # load standardized data
   correct <- get("stdSuffixTbl")
 
   # convert street suffix variable to Title Case
-  .data <- dplyr::mutate(.data, "suf_com" := stringr::str_to_title(.data[[varQ]]))
+  input <- dplyr::mutate(input, "suf_com" := stringr::str_to_title(.data[[varQ]]))
 
   # fix common issues
-  .data %>%
+  input %>%
     dplyr::mutate(suf_cor = ifelse(suf_com %in% correct$suf_std, suf_com, NA)) %>%
     dplyr::mutate(suf_cor = ifelse(suf_com == "Street", "St", suf_cor)) %>%
     dplyr::mutate(suf_cor = ifelse(suf_com == "Avenue", "Ave", suf_cor)) %>%
-    dplyr::mutate(suf_cor = ifelse(suf_com == "Drive", "Dr", suf_cor)) -> .data
+    dplyr::mutate(suf_cor = ifelse(suf_com == "Av", "Ave", suf_cor)) %>%
+    dplyr::mutate(suf_cor = ifelse(suf_com == "Drive", "Dr", suf_cor)) -> input
 
   # subset data
-  matched <- dplyr::filter(.data, is.na(suf_cor) == FALSE)
-  .data %>%
+  matched <- dplyr::filter(input, is.na(suf_cor) == FALSE)
+  input %>%
     dplyr::filter(is.na(suf_cor) == TRUE) %>%
     dplyr::select(-suf_cor) -> unmatched
 
@@ -99,7 +104,7 @@ gw_suffix <- function(.data, suffix, overwrite = TRUE, newSuffix){
 
   # combine data
   output <- dplyr::bind_rows(matched, unmatched)
-  output <- dplyr::arrange(output, id)
+  output <- dplyr::arrange(output, suf_id)
 
   # overwrite data
   if (overwrite == TRUE){
@@ -113,7 +118,7 @@ gw_suffix <- function(.data, suffix, overwrite = TRUE, newSuffix){
   }
 
   # remove suffix variables
-  output <- dplyr::select(output, -c(suf_com, suf_cor))
+  output <- dplyr::select(output, -c(suf_com, suf_cor, suf_id))
 
   # return tibble
   output <- dplyr::as_tibble(output)

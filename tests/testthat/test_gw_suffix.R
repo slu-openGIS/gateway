@@ -11,8 +11,29 @@ test_data <- data.frame(
 )
 
 test_that("suffixes correctly standardized", {
-  result <- gw_suffix(test_data, "streetSuf")
+  result <- gw_suffix(test_data, suffix = "streetSuf")
 
   expect_equal(result$streetSuf, test_data$streetResult)
+
+})
+
+test_that("suffix argument accepts bare input", {
+  result <- gw_suffix(test_data, suffix = streetSuf)
+
+  expect_equal(result$streetSuf, test_data$streetResult)
+
+})
+
+test_that("newSuffix argument accepts quoted input", {
+  result <- gw_suffix(test_data, suffix = streetSuf, overwrite = FALSE, newSuffix = "suffix")
+
+  expect_equal(result$suffix, test_data$streetResult)
+
+})
+
+test_that("newSuffix argument accepts bare input", {
+  result <- gw_suffix(test_data, suffix = streetSuf, overwrite = FALSE, newSuffix = suffix)
+
+  expect_equal(result$suffix, test_data$streetResult)
 
 })
