@@ -34,6 +34,9 @@ gw_stName <- function(.data, street, overwrite = TRUE, newStreet){
   if ( any(names(.data) == "dc_incorrect") == TRUE ) {
     stop('data cannot contain a variable named dc_incorrect')
   }
+  if ( any(names(.data) == "st_id") == TRUE ) {
+    stop('data cannot contain a variable named st_id')
+  }
 
   # check newSuffix argument
   if (missing(newStreet)) {
@@ -59,34 +62,48 @@ gw_stName <- function(.data, street, overwrite = TRUE, newStreet){
 
   newVarQ <- rlang::quo_name(rlang::enquo(newVar))
 
-
   # prevents R CMD check note for undefined gloabl variable:
   dc_correct <- NULL
   dc_incorrect <- NULL
+  st_id <- NULL
 
   # load standardized data
   correct <- get("stdStreets")
 
-  # convert street name variable to Title Case
-  check <- dplyr::mutate(.data, "dc_incorrect" := stringr::str_to_title(.data[[varQ]]))
+  # create identification variable
+  input <- .data
+  input <- dplyr::mutate(input, st_id = as.numeric(rownames(input)))
 
-  # join user's data with standardized data
-  check <- dplyr::left_join(check, correct, by = "dc_incorrect")
+  # convert street name variable to Title Case
+  input <- dplyr::mutate(input, "dc_incorrect" := stringr::str_to_title(input[[varQ]]))
+
+  # identify streets needing correction
+  matched <- dplyr::filter(input, dc_incorrect %nin% correct$dc_incorrect)
+  input %>%
+    dplyr::filter(dc_incorrect %in% correct$dc_incorrect) -> unmatched
+
+  # join unmatched data with standardized data
+  unmatched <- left_join(unmatched, correct, by = "dc_incorrect")
+
+  # combine data
+  output <- dplyr::bind_rows(matched, unmatched)
+  output <- dplyr::arrange(output, st_id)
 
   # create corrected variable with standardized street names
   if (overwrite == TRUE){
 
-    check <- dplyr::mutate(check, !!varQ := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
+    output <- dplyr::mutate(output, !!varQ := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
 
   } else if (overwrite == FALSE) {
 
-    check <- dplyr::mutate(check, !!newVarQ := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
+    output <- dplyr::mutate(output, !!newVarQ := ifelse(!is.na(dc_correct) == TRUE, dc_correct, dc_incorrect))
 
   }
 
   # remove variables from standardized data
-  check <- dplyr::select(check, -dc_correct, -dc_incorrect)
+  output <- dplyr::select(output, -c(dc_correct, dc_incorrect, st_id))
 
-  # return data as a tibble
-  tibble::as_tibble(check)
+  # return tibble
+  output <- dplyr::as_tibble(output)
+  return(output)
 }
