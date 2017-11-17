@@ -20,7 +20,8 @@
 #' @importFrom rlang :=
 #'
 #' @export
-stdSuffix <- function(data, variable, overwrite = TRUE, newVariable){
+stdSuffix <- function(.data, variable, overwrite = TRUE, newVariable){
+
   # ensure no conflicts with user's data:
   if ( any(names(data) == "suf_com") == TRUE ) stop('data cannot contain a variable named suf_com')
   if ( any(names(data) == "suf_pri") == TRUE ) stop('data cannot contain a variable named suf_pri')
@@ -33,25 +34,47 @@ stdSuffix <- function(data, variable, overwrite = TRUE, newVariable){
   correct <- get("stdSuffixTbl")
 
   # convert street suffix variable to Title Case
-  check <- dplyr::mutate(data, "suf_com" := stringr::str_to_title(data$UQ(variable)))
+  .data <- dplyr::mutate(.data, "suf_com" := stringr::str_to_title(.data$UQ(variable)))
 
-  # join user's data with standardized data
-  check <- dplyr::left_join(check, correct, by = "suf_com")
+  # fix common issues
+  .data %>%
+    dplyr::mutate(suf_cor = ifelse(suf_com %in% correct$suf_std, suf_com, NA)) %>%
+    dplyr::mutate(suf_cor = ifelse(suf_com == "Street", "St", suf_cor)) %>%
+    dplyr::mutate(suf_cor = ifelse(suf_com == "Avenue", "Ave", suf_cor)) %>%
+    dplyr::mutate(suf_cor = ifelse(suf_com == "Drive", "Dr", suf_cor)) -> .data
 
-  # create corrected variable with standardized street names
+  # subset data
+  matched <- dplyr::filter(.data, is.na(suf_cor) == FALSE)
+  .data %>%
+    dplyr::filter(is.na(suf_cor) == TRUE) %>%
+    dplyr::select(-suf_cor) -> unmatched
+
+  # join unmatched data with standardized data
+  unmatched <- left_join(unmatched, correct, by = "suf_com")
+
+  unmatched %>%
+    dplyr::select(-suf_pri) %>%
+    dplyr::rename(suf_cor = suf_std) -> unmatched
+
+  # combine data
+  output <- dplyr::bind_rows(matched, unmatched)
+  output <- dplyr::arrange(output, id)
+
+  # overwrite data
   if (overwrite == TRUE){
 
-    check <- dplyr::mutate(check, !!variable := suf_std)
+    output <- dplyr::mutate(output, !!variable := suf_cor)
 
   } else if (overwrite == FALSE) {
 
-    check <- dplyr::mutate(check, !!newVariable := suf_std)
+    output <- dplyr::mutate(output, !!newVariable := suf_cor)
 
   }
 
-  # remove variables from standardized data
-  check <- dplyr::select(check, -suf_pri, -suf_com, -suf_std)
+  # remove suffix variables
+  output <- dplyr::select(output, -c(suf_com, suf_cor))
 
-  # return data as a tibble
-  tibble::as_tibble(check)
+  # return tibble
+  output <- as_tibble(output)
+  return(output)
 }
