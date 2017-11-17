@@ -10,7 +10,7 @@ test_data <- data.frame(
 )
 
 test_that("streets correctly standardized", {
-  result <- stdName(test_data, "streetStr")
+  result <- gw_stName(test_data, "streetStr")
 
   expect_equal(result$streetStr, test_data$streetResult)
 

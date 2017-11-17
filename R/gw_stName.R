@@ -1,11 +1,11 @@
 #' Standardize Street Names
 #'
-#' \code{stdName} standardizes a given set of City of St. Louis street names by checking
+#' \code{gw_stName} standardizes a given set of City of St. Louis street names by checking
 #' them against a master list of street names and returning a preferred name. For example,
 #' "1ST" and "FIRST" are both possible variations of "FIRST ST". If "FIRST" is given,
-#' \code{stdName} will offer "1ST" as the standardized alternative.
+#' \code{gw_stdName} will offer "1ST" as the standardized alternative.
 #'
-#' @usage stdName(data, variable, overwrite = TRUE, newVariable)
+#' @usage gw_stName(data, variable, overwrite = TRUE, newVariable)
 #'
 #' @param data A tibble or a data frame
 #'
@@ -15,17 +15,17 @@
 #'
 #' @param newVariable A name for a new vector to be created if \code{overwrite = FALSE}
 #'
-#' @return \code{stdName} returns a tibble with the requested output - either the original data with
+#' @return \code{gw_stName} returns a tibble with the requested output - either the original data with
 #' non-standard street names overwritten in the given vector or the original data with a new
 #' vector containing standardized street names.
 #'
-#' @note \code{stdName} requires two variable names be unused in the original data - \code{dc_corrrect} and
-#' \code{dc_incorrect}. If these names are present, \code{stdName} will return an error.
+#' @note \code{gw_stName} requires two variable names be unused in the original data - \code{dc_corrrect} and
+#' \code{dc_incorrect}. If these names are present, \code{gw_stName} will return an error.
 #'
 #' @importFrom rlang :=
 #'
 #' @export
-stdName <- function(data, variable, overwrite = TRUE, newVariable){
+gw_stName <- function(data, variable, overwrite = TRUE, newVariable){
   # ensure no conflicts with user's data:
   if ( any(names(data) == "dc_correct") == TRUE ) stop('data cannot contain a variable named dc_correct')
   if ( any(names(data) == "dc_incorrect") == TRUE ) stop('data cannot contain a variable named dc_incorrect')
