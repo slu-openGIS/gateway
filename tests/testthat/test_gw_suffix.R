@@ -11,7 +11,7 @@ test_data <- data.frame(
 )
 
 test_that("suffixes correctly standardized", {
-  result <- stdSuffix(test_data, "streetSuf")
+  result <- gw_suffix(test_data, "streetSuf")
 
   expect_equal(result$streetSuf, test_data$streetResult)
 
