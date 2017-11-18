@@ -37,6 +37,7 @@
 #' @importFrom stringr str_extract
 #' @importFrom stringr str_replace
 #' @importFrom stringr str_replace_all
+#' @importFrom stringr str_sub
 #' @importFrom stringr word
 #' @importFrom rlang :=
 #'
@@ -117,7 +118,7 @@ gw_parseAddress <- function(.data, address, houseNum = TRUE, overwrite = TRUE, k
   if (houseNum == TRUE){
     .data %>%
       dplyr::mutate(count = stringr::str_count(stFull, pattern = "\\S+")) %>%
-      dplyr::mutate(stDir = ifelse(count > 3 & nchar(word(stFull, 2)) == 1,
+      dplyr::mutate(stDir = ifelse(count > 2 & nchar(word(stFull, 2)) == 1,
                                    stringr::word(stFull, 2), NA)) %>%
       dplyr::mutate(stName = ifelse(count == 3, stringr::word(stFull, 2), NA)) %>%
       dplyr::mutate(stName = ifelse(count > 3 & nchar(stringr::word(stFull, 2)) == 1,
@@ -131,7 +132,7 @@ gw_parseAddress <- function(.data, address, houseNum = TRUE, overwrite = TRUE, k
   } else if (houseNum == FALSE) {
     .data %>%
       dplyr::mutate(count = stringr::str_count(stFull, pattern = "\\S+")) %>%
-      dplyr::mutate(stDir = ifelse(count > 2 & nchar(word(stFull, 1)) == 1,
+      dplyr::mutate(stDir = ifelse(count > 1 & nchar(stringr::word(stFull, 1)) == 1,
                                    stringr::word(stFull, 1), NA)) %>%
       dplyr::mutate(stName = ifelse(count == 2, stringr::word(stFull, 1), NA)) %>%
       dplyr::mutate(stName = ifelse(count > 2 & nchar(word(stFull, 1)) == 1,
@@ -144,11 +145,47 @@ gw_parseAddress <- function(.data, address, houseNum = TRUE, overwrite = TRUE, k
       dplyr::select(-count) -> .data
   }
 
+  # directionals
+  dirCardinal <- c("North", "South", "East", "West")
+  dirCardinalA <- c("N", "S", "E", "W")
+  dirInterCardinal <- c("Nw", "Ne", "Sw", "Se")
+  dirAll <- c("North", "South", "East", "West", "Nw", "Ne", "Sw", "Se",
+             "Northwest", "Northeast", "Southwest", "Southwest")
+
+  # prefix direction
+  .data %>%
+    dplyr::mutate(count = stringr::str_count(stName, pattern = "\\S+")) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) %in% dirCardinal,
+                                 stringr::str_sub(stName, 1, 1), stDir)) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) %in% dirInterCardinal,
+                                  toupper(stringr::word(stName, 1)), stDir)) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) == "Northwest", "NW", stDir)) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) == "Northeast", "NE", stDir)) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) == "Southwest", "SW", stDir)) %>%
+    dplyr::mutate(stDir = ifelse(stringr::word(stName, 1) == "Southeast", "SE", stDir)) %>%
+    dplyr::mutate(stName = ifelse(stringr::word(stName, 1) %in% dirAll,
+                                  stringr::word(stName, start = 2, end = count),
+                                  stName)) %>%
+    dplyr::select(-count) -> .data
+
+  # suffix direction
+  .data %>%
+    dplyr::mutate(count = stringr::str_count(stName, pattern = "\\S+")) %>%
+    dplyr::mutate(stSufDir = ifelse(stType %in% dirCardinalA, stType, NA)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType %in% dirCardinal,
+                                    stringr::str_sub(stType, 1, 1), stSufDir)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType %in% dirInterCardinal, toupper(stType), stSufDir)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType == "Northwest", "NW", stSufDir)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType == "Northeast", "NE", stSufDir)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType == "Southwest", "SW", stSufDir)) %>%
+    dplyr::mutate(stSufDir = ifelse(stType == "Southeast", "SE", stSufDir)) %>%
+    dplyr::mutate(stType = ifelse(!is.na(stSufDir), stringr::word(stName, -1), stType)) %>%
+    dplyr::mutate(stName = ifelse(!is.na(stSufDir), stringr::word(stName, start = 1, end = count-1), stName)) %>%
+    dplyr::select(-count) -> .data
+
   # apply local area corrections
   if (locale == 29510){
     .data %>%
-      dplyr::mutate(stDir = ifelse(stringr::word(stFull, -1) == "Broadway",
-                                   "N", stDir)) %>%
       dplyr::mutate(stName = ifelse(stringr::word(stFull, -1) == "Broadway",
                                     "Broadway", stName)) %>%
       dplyr::mutate(stType = ifelse(stType == "Broadway", NA, stType)) -> .data
@@ -161,14 +198,18 @@ gw_parseAddress <- function(.data, address, houseNum = TRUE, overwrite = TRUE, k
 
   # re-construct full address
   if (houseNum == TRUE) {
-    .data <- dplyr::mutate(.data, stFull = paste(houseNum, stDir, stName, stType, sep = " "))
+    .data <- dplyr::mutate(.data, stFull = paste(houseNum, stDir, stName, stType, stSufDir, sep = " "))
   } else if (houseNum == FALSE) {
-    .data <- dplyr::mutate(.data, stFull = paste(stDir, stName, stType, sep = " "))
+    .data <- dplyr::mutate(.data, stFull = paste(stDir, stName, stType, stSufDir, sep = " "))
     .data$stFull <- stringr::str_replace(.data$stFull, "NA ", " ")
   }
 
   # remove NAs
-  .data$stFull <- stringr::str_replace(.data$stFull, " NA ", " ")
+  .data %>%
+    dplyr::mutate(stFull = stringr::str_replace(stFull, " NA ", " ")) %>%
+    dplyr::mutate(stFull = ifelse(stringr::word(stFull, start = -1, end = -1) == "NA",
+                                  stringr::str_replace(stFull, "NA", ""), stFull)) %>%
+    dplyr::mutate(stFull = trimws(stFull)) -> .data
 
   # if overwrite is TRUE, replace original address variable with stFull
   if (overwrite == TRUE){
@@ -179,9 +220,9 @@ gw_parseAddress <- function(.data, address, houseNum = TRUE, overwrite = TRUE, k
 
   # if keepVars is FALSE, remove all of the parsed address components
   if (keepVars == FALSE & houseNum == TRUE) {
-    .data <- dplyr::select(.data, -c(houseNum, houseNumL, houseNumU, stDir, stName, stType))
+    .data <- dplyr::select(.data, -c(houseNum, houseNumL, houseNumU, stDir, stName, stType, stSufDir))
   } else if (keepVars == FALSE & houseNum == FALSE) {
-    .data <- dplyr::select(.data, -c(stDir, stName, stType))
+    .data <- dplyr::select(.data, -c(stDir, stName, stType, stSufDir))
   }
 
   # keeVars is TRUE, check to see if all address components are needed
