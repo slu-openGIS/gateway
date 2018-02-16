@@ -22,6 +22,8 @@
 #' @note \code{gw_stName} requires two variable names be unused in the original data - \code{dc_corrrect} and
 #' \code{dc_incorrect}. If these names are present, \code{gw_stName} will return an error.
 #'
+#' @importFrom dplyr %>%
+#' @importFrom dplyr left_join
 #' @importFrom rlang :=
 #'
 #' @export

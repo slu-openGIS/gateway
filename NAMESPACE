@@ -2,11 +2,8 @@
 
 export("%nin%")
 export(gw_stName)
-export(gw_suffix)
 export(nhood_num)
 export(nhood_str)
 importFrom(dplyr,"%>%")
-importFrom(dplyr,as_tibble)
 importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
 importFrom(rlang,":=")
