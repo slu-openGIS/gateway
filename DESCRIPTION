@@ -17,4 +17,6 @@ Suggests: testthat,
 Imports: stringr,
     dplyr,
     tibble,
-    rlang
+    rlang,
+    sf,
+    utils
