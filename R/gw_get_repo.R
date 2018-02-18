@@ -17,7 +17,8 @@
 #' @export
 gw_get_repo <- function(repo) {
 
-  repoList <- c("IL_HYDRO_Islands", "IL_HYDRO_Mississippi", "MO_STL_STLTiles", "STL_BOUNDARY_City")
+  repoList <- c("IL_HYDRO_Islands", "IL_HYDRO_Mississippi", "MO_DEMOS_CountiesRace",
+                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City")
 
   if (repo %nin% repoList) {
     stop("The given repository is not accessible at this time.")
@@ -30,6 +31,14 @@ gw_get_repo <- function(repo) {
   else if (repo == "IL_HYDRO_Mississippi") {
     url <- "https://github.com/slu-openGIS/IL_HYDRO_Mississippi/archive/master.zip"
     path <- "/IL_HYDRO_Islands-master/Shapefile/IL_HYDRO_Mississippi.shp"
+  }
+  else if (repo == "MO_DEMOS_CountiesRace") {
+    url <- "https://github.com/slu-openGIS/MO_DEMOS_CountiesRace/archive/master.zip"
+    path <- "/MO_DEMOS_CountiesRace-master/Shapefile/MO_DEMOS_CountiesRace.shp"
+  }
+  else if (repo == "MO_DEMOS_JeffCityRegion") {
+    url <- "https://github.com/slu-openGIS/MO_DEMOS_JeffCityRegion/archive/master.zip"
+    path <- "/MO_DEMOS_JeffCityRegion-master/Shapefile/MO_DEMOS_JeffCityRegion.shp"
   }
   else if (repo == "MO_STL_STLTiles") {
     url <- "https://github.com/slu-openGIS/MO_STL_STLTiles/archive/master.zip"
