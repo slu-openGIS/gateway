@@ -54,7 +54,7 @@ gw_get_repo <- function(repo) {
   utils::unzip(paste0(tmpdir,"master.zip"), exdir = tmpdir)
   shapefile <- paste0(tmpdir,path)
 
-  simpleFeature <- sf::st_read(shapefile)
+  simpleFeature <- sf::st_read(shapefile, stringsAsFactors = FALSE)
   unlink(tmpdir)
 
   return(simpleFeature)
