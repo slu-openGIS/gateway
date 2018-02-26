@@ -18,7 +18,7 @@
 gw_get_repo <- function(repo) {
 
   repoList <- c("IL_HYDRO_Islands", "IL_HYDRO_Mississippi", "MO_DEMOS_CountiesRace",
-                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City")
+                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City", "STL_HOUSING_MedianAge")
 
   if (repo %nin% repoList) {
     stop("The given repository is not accessible at this time.")
@@ -47,6 +47,10 @@ gw_get_repo <- function(repo) {
   else if (repo == "STL_BOUNDARY_City") {
     url <- "https://github.com/slu-openGIS/STL_BOUNDARY_City/archive/master.zip"
     path <- "/STL_BOUNDARY_City-master/Shapefile/STL_BOUNDARY_City.shp"
+  }
+  else if (repo == "STL_BOUNDARY_City") {
+    url <- "https://github.com/slu-openGIS/STL_HOUSING_MedianAge/archive/master.zip"
+    path <- "/STL_HOUSING_MedianAge-master/Shapefile/STL_HOUSING_MedianAge.shp"
   }
 
   tmpdir <- tempdir()
