@@ -3,7 +3,7 @@
 gateway <img src="man/figures/gatewayLogo.png" align="right" />
 ===============================================================
 
-[![Travis-CI Build Status](https://travis-ci.org/slu-openGIS/gateway.svg?branch=master)](https://travis-ci.org/slu-openGIS/gateway) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/slu-openGIS/gateway?branch=master&svg=true)](https://ci.appveyor.com/project/slu-openGIS/gateway) [![codecov](https://codecov.io/gh/slu-openGIS/gateway/branch/master/graph/badge.svg)](https://codecov.io/gh/slu-openGIS/gateway) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/gateway)](https://cran.r-project.org/package=gateway)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) [![Travis-CI Build Status](https://travis-ci.org/slu-openGIS/gateway.svg?branch=master)](https://travis-ci.org/slu-openGIS/gateway) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/slu-openGIS/gateway?branch=master&svg=true)](https://ci.appveyor.com/project/chris-prener/gateway) [![codecov](https://codecov.io/gh/slu-openGIS/gateway/branch/master/graph/badge.svg)](https://codecov.io/gh/slu-openGIS/gateway) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/gateway)](https://cran.r-project.org/package=gateway)
 
 The `gateway` package contains tools for manipulating spatial data for the City of St. Louis
 
