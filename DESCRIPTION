@@ -5,7 +5,7 @@ Version: 0.2.0
 Authors@R: person("Christopher", "Prener", email = "chris.prener@slu.edu",
                   role = c("aut", "cre"))
 Description: Contains various tools for modifying St. Louis spatial data.
-Depends: R (>= 3.3.3)
+Depends: R (>= 3.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
