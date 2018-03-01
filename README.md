@@ -19,7 +19,13 @@ devtools::install_github("slu-openGIS/gateway")
 Useage
 ------
 
-The package current has two functions for working with St. Louis neighborhood vectors - `nhood_num()` and `nhood_str()`. It also has a function `stdName()` for standardizing City of St. Louis street names (`FIRST` becomes `1st`, for example). You can view the database that `stdName()` by spening the `stdStreets` data included with the package.
+### Data Access
+
+`gateway` contains two tools for accessing data about the City of St. Louis. `gw_get_city()` provides access to 11 shapefiles and 1 data table from the City of St. Louis's open data website. `gw_get_repo()` provides access to 8 shapefiles from the Saint Louis University openGIS project.
+
+### Data Wrangling
+
+The package currently has two functions for working with St. Louis neighborhood vectors - `nhood_num()` and `nhood_str()`. It also has a function `stdName()` for standardizing City of St. Louis street names (`FIRST` becomes `1st`, for example). You can view the database that `stdName()` by spening the `stdStreets` data included with the package.
 
 Contributor Code of Conduct
 ---------------------------
