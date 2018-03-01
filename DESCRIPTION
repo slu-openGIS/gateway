@@ -19,4 +19,5 @@ Imports: stringr,
     tibble,
     rlang,
     sf,
-    utils
+    utils,
+    foreign

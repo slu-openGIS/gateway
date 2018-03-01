@@ -4,9 +4,11 @@
 #'
 #' @return \code{gw_get_city} returns a table or simple features object with the requested data.
 #'
-#' @param repo A character vector matching the name of a data source available on the City of
+#' @param data A character vector matching the name of a data source available on the City of
 #' St. Louis's open data website.
 #'
+#' @importFrom dplyr as_tibble
+#' @importFrom foreign read.dbf
 #' @importFrom sf st_read
 #' @importFrom utils download.file
 #' @importFrom utils unzip
@@ -74,6 +76,7 @@ gw_get_city <- function(data) {
 
   if (data == "Land Records"){
     output <- foreign::read.dbf(filepath, as.is = TRUE)
+    output <- dplyr::as_tibble(output)
   }
   else {
     output <- sf::st_read(filepath, stringsAsFactors = FALSE)
