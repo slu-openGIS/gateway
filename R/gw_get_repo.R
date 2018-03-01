@@ -30,7 +30,7 @@ gw_get_repo <- function(repo) {
   }
   else if (repo == "IL_HYDRO_Mississippi") {
     url <- "https://github.com/slu-openGIS/IL_HYDRO_Mississippi/archive/master.zip"
-    path <- "/IL_HYDRO_Islands-master/Shapefile/IL_HYDRO_Mississippi.shp"
+    path <- "/IL_HYDRO_Mississippi-master/Shapefile/IL_HYDRO_Mississippi.shp"
   }
   else if (repo == "MO_DEMOS_CountiesRace") {
     url <- "https://github.com/slu-openGIS/MO_DEMOS_CountiesRace/archive/master.zip"
