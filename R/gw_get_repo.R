@@ -54,7 +54,7 @@ gw_get_repo <- function(repo) {
   }
   else if (repo == "STL_BOUNDARY_Tracts") {
     url <- "https://github.com/slu-openGIS/STL_BOUNDARY_Tracts/archive/master.zip"
-    path <- "/STL_BOUNDARY_Tracts/Shapefile/STL_BOUNDART_Tracts.shp"
+    path <- "/STL_BOUNDARY_Tracts/Shapefile/STL_BOUNDARY_Tracts.shp"
 
   tmpdir <- tempdir()
   utils::download.file(url, paste0(tmpdir,"master.zip"))
