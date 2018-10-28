@@ -18,7 +18,7 @@
 gw_get_repo <- function(repo) {
 
   repoList <- c("IL_HYDRO_Islands", "IL_HYDRO_Mississippi", "MO_DEMOS_CountiesRace",
-                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City", "STL_HOUSING_MedianAge")
+                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City", "STL_BOUNDARY_Tracts", "STL_HOUSING_MedianAge")
 
   if (repo %nin% repoList) {
     stop("The given repository is not accessible at this time.")
