@@ -9,15 +9,19 @@ Depends: R (>= 3.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-URL: https://github.com/chris-prener/gateway
-BugReports: https://github.com/chris-prener/gateway/issues
-RoxygenNote: 6.1.0
-Suggests: testthat,
-    covr
-Imports: stringr,
+URL: https://github.com/slu-openGIS/gateway
+BugReports: https://github.com/slu-openGIS/gateway/issues
+RoxygenNote: 6.1.1
+Imports: 
     dplyr,
-    tibble,
+    foreign,
+    glue,
     rlang,
     sf,
-    utils,
-    foreign
+    stringr,
+    tibble,
+    utils
+Suggests: 
+    testthat,
+    covr
+    
