@@ -73,8 +73,11 @@ use_data(stl_precincts10)
 stl_precincts10 %>%
   group_by(WARD10) %>%
   summarise(ID = first(WARD10)) %>%
-  select(-WARD10) -> stl_wards10
+  select(-WARD10) %>%
+  st_transform(crs = 6512) %>%
+  mutate(AREA = as.numeric(st_area(.))) %>%
+  st_transform(crs = 4269) -> stl_wards10
 
-use_data(stl_wards10)
+use_data(stl_wards10, overwrite = TRUE)
 
 
