@@ -4,11 +4,14 @@
 \alias{gw_get_repo}
 \title{Download openGIS Data Repositories}
 \usage{
-gw_get_repo(repo)
+gw_get_repo(repo, file)
 }
 \arguments{
-\item{repo}{A character vector matching the name of a repository to download and extract
+\item{repo}{A character string matching the name of a repository to download and extract
 data from}
+
+\item{file}{An optional character string matching the name of the file within a multi-file
+repo (currently only needed for \code{STL_BOUNDARY_Grids})}
 }
 \value{
 \code{gw_get_repo} returns a simple features object with the requested data.

@@ -3,10 +3,12 @@
 #' \code{gw_get_repo} provides access to shapefiles and \code{.geoJSON} files stored on the
 #' St. Louis openGIS GitHub organization.
 #'
-#' @usage gw_get_repo(repo)
+#' @usage gw_get_repo(repo, file)
 #'
-#' @param repo A character vector matching the name of a repository to download and extract
-#' data from
+#' @param repo A character string matching the name of a repository to download and extract
+#'     data from
+#' @param file An optional character string matching the name of the file within a multi-file
+#'     repo (currently only needed for \code{STL_BOUNDARY_Grids})
 #'
 #' @return \code{gw_get_repo} returns a simple features object with the requested data.
 #'
@@ -15,10 +17,11 @@
 #' @importFrom utils unzip
 #'
 #' @export
-gw_get_repo <- function(repo) {
+gw_get_repo <- function(repo, file) {
 
   repoList <- c("IL_HYDRO_Islands", "IL_HYDRO_Mississippi", "MO_DEMOS_CountiesRace",
-                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City", "STL_BOUNDARY_Tracts", "STL_HOUSING_MedianAge")
+                "MO_DEMOS_JeffCityRegion", "MO_STL_STLTiles", "STL_BOUNDARY_City", "STL_BOUNDARY_Tracts",
+                "STL_HOUSING_MedianAge", "STL_BOUNDARY_Grids")
 
   if (repo %nin% repoList) {
     stop("The given repository is not accessible at this time.")
@@ -54,8 +57,21 @@ gw_get_repo <- function(repo) {
   }
   else if (repo == "STL_BOUNDARY_Tracts") {
     url <- "https://github.com/slu-openGIS/STL_BOUNDARY_Tracts/archive/master.zip"
-    path <- "/STL_BOUNDARY_Tracts/Shapefile/STL_BOUNDARY_Tracts.shp"
+    path <- "/STL_BOUNDARY_Tracts-master/Shapefile/STL_BOUNDARY_Tracts.shp"
   }
+  else if (repo == "STL_BOUNDARY_Grids") {
+
+    url <- "https://github.com/slu-openGIS/STL_BOUNDARY_Grids/archive/master.zip"
+
+    if (file == "Grids"){
+      path <- "/STL_BOUNDARY_Grids-master/STL_BOUNDARY_Grids/shapefile/STL_BOUNDARY_Grids.shp"
+    } else if (file == "GridsClipped"){
+      path <- "/STL_BOUNDARY_Grids-master/STL_BOUNDARY_GridsClipped/shapefile/STL_BOUNDARY_GridsClipped.shp"
+    } else if (file == "GridsExploded"){
+      path <- "/STL_BOUNDARY_Grids-master/STL_BOUNDARY_GridsExploded/shapefile/STL_BOUNDARY_GridsExploded.shp"
+    }
+  }
+
   tmpdir <- tempdir()
   utils::download.file(url, paste0(tmpdir,"master.zip"))
   utils::unzip(paste0(tmpdir,"master.zip"), exdir = tmpdir)
@@ -65,5 +81,6 @@ gw_get_repo <- function(repo) {
   unlink(tmpdir)
 
   return(simpleFeature)
+
 }
 
