@@ -19,13 +19,26 @@
 #'
 #' @return \code{gw_aggregate} returns a table or simple features object with the requested data.
 #'
+#' @importFrom dplyr %>%
+#' @importFrom dplyr filter
+#' @importFrom dplyr full_join
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom dplyr rename
+#' @importFrom dplyr n
+#' @importFrom dplyr select
+#' @importFrom dplyr summarise
 #' @importFrom glue glue
+#' @importFrom sf st_crs
+#' @importFrom sf st_geometry
+#' @importFrom sf st_join
+#' @importFrom sf st_transform
 #'
 #' @export
 gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALSE){
 
   # check to inputs
-  areas_all <- c("block group", "tract", "precinct", "ward", "neighborhood", "city")
+  areas_all <- c("block group", "tract", "precinct", "ward", "neighborhood", "grid", "city")
 
   if (to %nin% areas_all){
 
@@ -56,37 +69,25 @@ gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALS
 
 }
 
-#' Aggregate Points
-#'
-#' @description Performs a spatial join to obtain counts of points within specified
-#'     areal units. This is done with a range of canned options representing
-#'     common scenarios in cleaning spatial data.
-#'
-#' @param .data A \code{sf} object
-#' @param to The string name of an areal unit to aggregate to: block group, tract,
-#'     precinct, ward, neighborhood, or municipality.
-#' @param sf A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
-#'     a tibble.
-#' @param replace.na A logical scalar; if \code{TRUE}, areal units that do not have any points
-#'     enclosed in them with be given a value of \code{0}. If \code{FALSE}, they will be given
-#'     a value of \code{NA}.
-#' @param keep.na A logical scalar; if \code{TRUE}, a row with count of points that could not be
-#'     joined to the areal unit will be returned. This occurs when points fall outside of all
-#'     given features. If \code{FALSE}, no count of missing points is returned. This argument
-#'     only returns an \code{NA} row if \code{sf = FALSE}.
-#'
-#' @importFrom dplyr %>%
-#' @importFrom dplyr filter
-#' @importFrom dplyr full_join
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr n
-#' @importFrom dplyr select
-#' @importFrom dplyr summarise
-#' @importFrom sf st_geometry
-#' @importFrom sf st_join
-#' @importFrom sf st_transform
-#'
+# Aggregate Points
+#
+# @description Performs a spatial join to obtain counts of points within specified
+#     areal units. This is done with a range of canned options representing
+#     common scenarios in cleaning spatial data.
+#
+# @param .data A \code{sf} object
+# @param to The string name of an areal unit to aggregate to: block group, tract,
+#     precinct, ward, neighborhood, or municipality.
+# @param sf A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
+#     a tibble.
+# @param replace.na A logical scalar; if \code{TRUE}, areal units that do not have any points
+#     enclosed in them with be given a value of \code{0}. If \code{FALSE}, they will be given
+#     a value of \code{NA}.
+# @param keep.na A logical scalar; if \code{TRUE}, a row with count of points that could not be
+#     joined to the areal unit will be returned. This occurs when points fall outside of all
+#     given features. If \code{FALSE}, no count of missing points is returned. This argument
+#     only returns an \code{NA} row if \code{sf = FALSE}.
+#
 gw_aggregate_points <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALSE){
 
   # no visible global binding
@@ -140,13 +141,13 @@ gw_aggregate_points <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na
 
 }
 
-#' Logic check for sf data
-#'
-#' @param .data An object to be tested
-#'
-#' @description Retuns a \code{TRUE} or \code{FALSE} value based on whether
-#'     the object is from class \code{sf} or not.
-#'
+# Logic check for sf data
+#
+# @param .data An object to be tested
+#
+# @description Retuns a \code{TRUE} or \code{FALSE} value based on whether
+#     the object is from class \code{sf} or not.
+#
 gw_is_sf <- function(.data){
 
   # store vector of object classes
@@ -160,14 +161,12 @@ gw_is_sf <- function(.data){
 
 }
 
-#' Extract epsg value
-#'
-#' @description Returns the numeric epsg value from \code{sf::st_crs}.
-#'
-#' @param .data A \code{sf} object
-#'
-#' @importFrom sf st_crs
-#'
+# Extract epsg value
+#
+# @description Returns the numeric epsg value from \code{sf::st_crs}.
+#
+# @param .data A \code{sf} object
+#
 gw_get_epsg <- function(.data){
 
   # store vector of object crs
@@ -181,17 +180,14 @@ gw_get_epsg <- function(.data){
 
 }
 
-#' Load areal data
-#'
-#' @description Based on arguments supplied, areal data is loaded, re-projected,
-#'     and has its ID varaible renamed to a generic \code{ID} to facilitate
-#'     simpler code in \code{gw_aggregate_city} or \code{gw_aggregate_county}.
-#'
-#' @param name The name of the areal geometry to be loaded
-#'
-#' @importFrom dplyr rename
-#' @importFrom sf st_transform
-#'
+# Load areal data
+#
+# @description Based on arguments supplied, areal data is loaded, re-projected,
+#     and has its ID varaible renamed to a generic \code{ID} to facilitate
+#     simpler code in \code{gw_aggregate_city} or \code{gw_aggregate_county}.
+#
+# @param name The name of the areal geometry to be loaded
+#
 gw_load_areal <- function(name){
 
   # no visible global binding
@@ -225,22 +221,26 @@ gw_load_areal <- function(name){
 
     areal <- sf::st_transform(gateway::stl_wards10, crs = 6512)
 
+  } else if (name == "grid"){
+
+    gw_get_repo(repo = "STL_BOUNDARY_Grids", file = "Grids") %>%
+      dplyr::rename(ID = PageID) %>%
+      sf::st_transform(crs = 6512) -> areal
+
   }
 
   return(areal)
 
 }
 
-#' Rename areal ID variable
-#'
-#' @description Rename the ID variable after processing is done so that it
-#'     matches the origianl ID variable in the data.
-#'
-#' @param .data A \code{sf} object
-#' @param name The name of the areal geometry that has been loaded
-#'
-#' @importFrom dplyr rename
-#'
+# Rename areal ID variable
+#
+# @description Rename the ID variable after processing is done so that it
+#     matches the origianl ID variable in the data.
+#
+# @param .data A \code{sf} object
+# @param name The name of the areal geometry that has been loaded
+#
 gw_rename_id <- function(.data, name){
 
   # no visible global binding
