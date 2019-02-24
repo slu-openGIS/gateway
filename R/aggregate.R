@@ -224,7 +224,7 @@ gw_load_areal <- function(name){
   } else if (name == "grid"){
 
     gw_get_repo(repo = "STL_BOUNDARY_Grids", file = "Grids") %>%
-      dplyr::rename(ID = PageID) %>%
+      dplyr::rename(ID = PageNumber) %>%
       sf::st_transform(crs = 6512) -> areal
 
   }
