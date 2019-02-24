@@ -258,6 +258,10 @@ gw_rename_id <- function(.data, name){
 
     out <- dplyr::rename(.data, HANDLE = ID)
 
+  } else if (name == "grid"){
+
+    out <- dplyr::rename(.data, PageNumber = ID)
+
   }
 
   return(out)
