@@ -103,11 +103,11 @@ gw_get_data <- function(data, class){
     output <- foreign::read.dbf(filepath, as.is = TRUE)
     output <- dplyr::as_tibble(output)
   } else {
-    output <- sf::st_read(filepath, stringsAsFactors = FALSE)
+    output <- sf::st_read(dsn = filepath, stringsAsFactors = FALSE, quiet = TRUE)
   }
 
   # convert sf objects to tibble
-  if (type == "tibble" & "sf" %in% class(output) == TRUE){
+  if (class == "tibble" & "sf" %in% class(output) == TRUE){
     sf::st_geometry(output) <- NULL
     output <- dplyr::as_tibble(output)
   }

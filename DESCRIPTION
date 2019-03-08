@@ -16,12 +16,15 @@ Imports:
     dplyr,
     foreign,
     glue,
+    postmastr,
     rlang,
     sf,
     stringr,
     tibble,
     utils
+Remotes:
+    slu-openGIS/postmastr
 Suggests: 
     testthat,
     covr
-    
+
