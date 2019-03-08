@@ -1,11 +1,34 @@
-#' Get Data from the City of St. Louis
+#' Download Data About St. Louis
 #'
-#' @description The \code{gw_get_city}...
+#' @description Download data from the City of St. Louis's open data page or the Saint Louis
+#'     University openGIS project's repositories.
 #'
-#' @return \code{gw_get_city} returns a table or simple features object with the requested data.
+#' @details Data provided by the City of St. Louis are provided without warrenty. Data from the
+#'     Saint Louis openGIS project are provided under a
+#'     \href{https://opendatacommons.org/licenses/by/index.html}{Open Data Commons Attribution License}.
 #'
-#' @param data A character vector matching the name of a data source available on the City of
-#' St. Louis's open data website.
+#' The following data are currently available:
+#'
+#' \describe{
+#'   \item{\code{Addresses}}{City of St. Louis; street address master list (\code{sf} or tibble)}
+#'   \item{\code{Neighborhoods}}{City of St. Louis; City neighborhoods (\code{sf} or tibble)}
+#'   \item{\code{Land Records}}{City of St. Louis; City property records (tibble)}
+#'   \item{\code{Land Use}}{City of St. Louis; land use data (\code{sf} or tibble)}
+#'   \item{\code{Parcels}}{City of St. Louis; parcel data (\code{sf} or tibble)}
+#'   \item{\code{Parks}}{City of St. Louis; public parks (\code{sf} or tibble)}
+#'   \item{\code{Police Districts}}{City of St. Louis; police districts (\code{sf} or tibble)}
+#'   \item{\code{Police Districts, Pre-2014}}{City of St. Louis; police districts prior to 2014
+#'       reorganization (\code{sf} or tibble)}
+#'   \item{\code{Voting Precincts}}{City of St. Louis; current voting precincts (\code{sf} or tibble)}
+#'   \item{\code{Zoning}}{City of St. Louis; zoning data (\code{sf} or tibble)}
+#'   \item{\code{Zoning, Multi}}{City of St. Louis; zoning data (\code{sf} or tibble)}
+#' }
+#'
+#' @param data A character string describing the data you wish to download.
+#' @param class Either \code{"sf"} to return a simple features object or code
+#'    \code{"tibble"} to return a tibble.
+#'
+#' @return A \code{sf} object or tibble with the requested data.
 #'
 #' @importFrom dplyr as_tibble
 #' @importFrom foreign read.dbf
@@ -14,7 +37,7 @@
 #' @importFrom utils unzip
 #'
 #' @export
-gw_get_city <- function(data) {
+gw_get_data <- function(data, class){
 
   dataList <- c("Addresses", "Neighborhoods", "Land Records", "Land Use", "Parcels", "Parks",
                 "Police Districts", "Police Districts, Pre-2014", "Voting Precincts", "Zoning",
@@ -69,21 +92,30 @@ gw_get_city <- function(data) {
     path <- "/prclzm.shp"
   }
 
+  # create temp directory, download, and extract
   tmpdir <- tempdir()
   utils::download.file(url, paste0(tmpdir,"archive.zip"))
   utils::unzip(paste0(tmpdir,"archive.zip"), exdir = tmpdir)
   filepath <- paste0(tmpdir,path)
 
+  # read data into R
   if (data == "Land Records"){
     output <- foreign::read.dbf(filepath, as.is = TRUE)
     output <- dplyr::as_tibble(output)
-  }
-  else {
+  } else {
     output <- sf::st_read(filepath, stringsAsFactors = FALSE)
   }
 
+  # convert sf objects to tibble
+  if (type == "tibble" & "sf" %in% class(output) == TRUE){
+    sf::st_geometry(output) <- NULL
+    output <- dplyr::as_tibble(output)
+  }
+
+  # remove temporary directory
   unlink(tmpdir)
 
+  # return output
   return(output)
 
 }
