@@ -191,7 +191,7 @@ gw_get_epsg <- function(.data){
 gw_load_areal <- function(name){
 
   # no visible global binding
-  GEOID = HANDLE = NULL
+  GEOID = HANDLE = PageNumber = NULL
 
   if (name == "block group"){
 
