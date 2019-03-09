@@ -4,13 +4,18 @@
 #' @importFrom dplyr select
 #'
 #' @export
-gw_geocode <- function(.data, address, return = c("id", "parcel", "coords", "zip"), class){
+gw_build_geocoder <- function(return = c("id", "coords", "parcel", "zip"), class, include_units = FALSE){
 
   # obtain master list if none is provided
   master <- gw_get_data(data = "Addresses", class = "sf")
 
   # clean address data
   master <- dplyr::select(master, ADDRRECNUM, HANDLE:ZIP)
+
+  # optionally filter out units
+  if (include_units == FALSE){
+    master <- dplyr::filter(master, is.na(UNITNUM) == TRUE)
+  }
 
   # optionally drop unneeded data
   if ("parcel" %in% return == FALSE){
@@ -27,17 +32,17 @@ gw_geocode <- function(.data, address, return = c("id", "parcel", "coords", "zip
   # create coordinates if class is tibble
   if (class == "tibble" & "coords" %in% return == TRUE){
     master <- gw_coords_as_cols(master)
-    st_geometry(master) <- NULL
+    sf::st_geometry(master) <- NULL
   } else if (class == "tibble" & "coords" %in% return == FALSE){
-    st_geometry(master) <- NULL
+    sf::st_geometry(master) <- NULL
   }
 
   # clean-up data
   master %>%
     dplyr::mutate(UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM)) %>%
-    dplyr::mutate(PREDIR = ifelse(PREDIR == "EW" & STREETNAME == "FLORISSANT", "W", PREDIR)) %>%
-    postmastr::pm_streetSuf_std(var = STREETTYPE) %>%
-    postmastr::pm_streetDir_std(var = SUFDIR) -> master
+    dplyr::mutate(HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF)) %>%
+    postmastr::pm_street_std(var = STREETNAME, locale = "us") %>%
+    postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") -> master
 
   # return output
   return(master)
