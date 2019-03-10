@@ -9,6 +9,8 @@
 #'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
 #'    parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).
 #' @param class One of either \code{"sf"} or \code{"tibble"}.
+#' @param crs A numeric code corresponding to the desired coordinate system for the column output if
+#'    \code{return} includes \code{"coords} as well as the object output if \code{class} is \code{"sf"}.
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will
 #'    be included. If \code{FALSE} (default), only records for the overall building will be retained.
 #'
@@ -96,7 +98,7 @@ gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), class, crs 
 #'
 #' @param .data A \code{sf} object
 #' @param names A vector with two column names, one for the x coordinate and one for the y coordinate.
-#' @param crs A numeric code cooresponding to the desired coordinate system for the column output
+#' @param crs A numeric code corresponding to the desired coordinate system for the column output
 #'
 #' @return An updated object with two new columns based on the names provided in the \code{names} argument.
 #'
