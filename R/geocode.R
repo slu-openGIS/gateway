@@ -66,6 +66,13 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
     master <- dplyr::select(master, -ZIP)
   }
 
+  # store coordinates
+  coords <- sf::st_crs(master)$epsg
+
+  if (is.na(coords) == TRUE){
+    coords <- 0
+  }
+
   # create coordinates if class is tibble
   if (class == "tibble" & "coords" %in% return == TRUE){
     master <- gw_get_coords(master, crs = crs)
@@ -74,7 +81,7 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
   } else if (class == "tibble" & "coords" %in% return == FALSE){
     sf::st_geometry(master) <- NULL
     master <- dplyr::as_tibble(master)
-  } else if (class == "sf" & sf::st_crs(master)$epsg != crs){
+  } else if (class == "sf" & coords != crs){
     master <- sf::st_transform(master, crs = crs)
   }
 
@@ -126,8 +133,15 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
     stop("An sf object must be used with 'gw_get_coords()'.")
   }
 
+  # store coordinates
+  coords <- sf::st_crs(master)$epsg
+
+  if (is.na(coords) == TRUE){
+    coords <- 0
+  }
+
   # reproject
-  if (sf::st_crs(.data)$epsg != crs){
+  if (coords != crs){
     .data <- sf::st_transform(.data, crs = crs)
   }
 
@@ -177,7 +191,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom rlang sym
 #'
 #' @export
-gw_geocode <- function(.data, address, geocoder){
+gw_geocode <- function(.data, type, class, address, geocoder){
 
   # set global bindings
   . = ...address = NULL
@@ -202,6 +216,12 @@ gw_geocode <- function(.data, address, geocoder){
   .data %>%
     dplyr::left_join(., geocoder, by = "...address") %>%
     dplyr::rename(!!varQ := ...address) -> out
+
+  if (class == "sf"){
+    out <- sf::st_as_sf(out)
+  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
+    out <- dplyr::select(out, -geometry)
+  }
 
   # return output
   return(out)

@@ -16,8 +16,15 @@ sushi %>%
 # build local geocoder
 geocoder <- gw_build_geocoder(return = c("id", "coords"), class = "tibble", include_units = FALSE)
 
+# build sf version of local geocoder
+x <- gw_build_geocoder(class = "sf")
+
 # geocode
-gw_geocode(sushi_clean, address = "pm.address", geocoder = geocoder)
+y <- gw_geocode(sushi_clean, class = "sf", address = "pm.address", geocoder = x)
 
+library(leaflet)
 
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addMarkers(data = y)
 
