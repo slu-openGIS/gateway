@@ -4,8 +4,8 @@
 \alias{gw_build_geocoder}
 \title{Build Local Geocoder}
 \usage{
-gw_build_geocoder(return = c("id", "coords", "parcel", "zip"), class,
-  include_units = FALSE)
+gw_build_geocoder(return = c("coords", "parcel", "zip"), class,
+  crs = 4269, include_units = FALSE)
 }
 \arguments{
 \item{return}{A character scalar or vector that describes the type of information to be applied

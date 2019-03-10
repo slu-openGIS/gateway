@@ -19,7 +19,6 @@
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as_tibble
-#' @importFrom dplyr bind_cols
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
@@ -27,12 +26,12 @@
 #' @importFrom postmastr pm_rebuild
 #' @importFrom postmastr pm_street_std
 #' @importFrom postmastr pm_streetSuf_std
+#' @importFrom sf st_crs
 #' @importFrom sf st_geometry
 #' @importFrom sf st_transform
-#' @importFrom stats setNames
 #'
 #' @export
-gw_build_geocoder <- function(return = c("id", "coords", "parcel", "zip"), class, include_units = FALSE){
+gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), class, crs = 4269, include_units = FALSE){
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE = SUFDIR = UNITNUM = ZIP = pm.rebuilt = NULL
@@ -57,17 +56,16 @@ gw_build_geocoder <- function(return = c("id", "coords", "parcel", "zip"), class
     master <- dplyr::select(master, -ZIP)
   }
 
-  # re-project
-  master <- sf::st_transform(master, crs = 4268)
-
   # create coordinates if class is tibble
   if (class == "tibble" & "coords" %in% return == TRUE){
-    master <- gw_coords_as_cols(master)
+    master <- gw_get_coords(master, crs = crs)
     sf::st_geometry(master) <- NULL
     master <- dplyr::as_tibble(master)
   } else if (class == "tibble" & "coords" %in% return == FALSE){
     sf::st_geometry(master) <- NULL
     master <- dplyr::as_tibble(master)
+  } else if (class == "sf" & sf::st_crs(master)$epsg != crs){
+    master <- sf::st_transform(master, crs = crs)
   }
 
   # clean-up data
@@ -88,17 +86,56 @@ gw_build_geocoder <- function(return = c("id", "coords", "parcel", "zip"), class
 
 }
 
+#' Extract Coordinates from sf Object
+#'
+#' @description Converts point coordinates stored in an \code{sf} object to columns for
+#'     both the x and y coordinates. Useful for storing spatial data in tabular form.
+#'
+#' @details Based on a function written \href{https://github.com/jmlondon}{Josh M. London} and
+#'     described in a \href{https://github.com/r-spatial/sf/issues/231}{GitHub issue}.
+#'
+#' @param .data A \code{sf} object
+#' @param names A vector with two column names, one for the x coordinate and one for the y coordinate.
+#' @param crs A numeric code cooresponding to the desired coordinate system for the column output
+#'
+#' @return An updated object with two new columns based on the names provided in the \code{names} argument.
+#'
+#' @importFrom dplyr as_tibble
+#' @importFrom dplyr bind_cols
+#' @importFrom sf st_crs
+#' @importFrom sf st_transform
+#' @importFrom stats setNames
+#'
+#' @export
+gw_get_coords <- function(.data, names = c("x","y"), crs = 4269) {
 
-gw_coords_as_cols <- function(x, names = c("x","y")) {
-  ret <- do.call(rbind,sf::st_geometry(x))
+  # ensure .data is an sf object
+  if ("sf" %in% class(.data) == FALSE){
+    stop("An sf object must be used with 'gw_get_coords()'.")
+  }
+
+  # reproject
+  if (sf::st_crs(.data)$epsg != crs){
+    .data <- sf::st_transform(.data, crs = crs)
+  }
+
+  # create coordinate columns
+  ret <- do.call(rbind,sf::st_geometry(.data))
   ret <- dplyr::as_tibble(ret)
+
+  # ensure two columns are returned
   stopifnot(length(names) == ncol(ret))
-  ret <- setNames(ret,names)
-  dplyr::bind_cols(x,ret)
+
+  # name columns with coordinate data
+  ret <- stats::setNames(ret, names)
+
+  # combine coordinate data with source data
+  out <- dplyr::bind_cols(.data, ret)
+
+  # return output
+  return(out)
+
 }
-
-# https://github.com/r-spatial/sf/issues/231
-
 
 #' Geocode Addresses
 #'
