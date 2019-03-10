@@ -9,8 +9,8 @@
 #'
 #' @param class One of either \code{"sf"} or \code{"tibble"}.
 #' @param crs A numeric code corresponding to the desired coordinate system for the column output if
-#'    \code{return} includes \code{"coords} as well as the object output if \code{class} is \code{"sf"}.
-#' @param return Optiona; A character scalar or vector that describes the type of information to be applied
+#'    \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.
+#' @param return Optional; A character scalar or vector that describes the type of information to be applied
 #'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
 #'    parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will

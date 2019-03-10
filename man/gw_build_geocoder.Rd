@@ -10,9 +10,9 @@ gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"), incl
 \item{class}{One of either \code{"sf"} or \code{"tibble"}.}
 
 \item{crs}{A numeric code corresponding to the desired coordinate system for the column output if
-\code{return} includes \code{"coords} as well as the object output if \code{class} is \code{"sf"}.}
+\code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.}
 
-\item{return}{Optiona; A character scalar or vector that describes the type of information to be applied
+\item{return}{Optional; A character scalar or vector that describes the type of information to be applied
 to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
 parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).}
 
