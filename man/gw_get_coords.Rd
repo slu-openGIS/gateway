@@ -11,7 +11,7 @@ gw_get_coords(.data, names = c("x", "y"), crs = 4269)
 
 \item{names}{A vector with two column names, one for the x coordinate and one for the y coordinate.}
 
-\item{crs}{A numeric code cooresponding to the desired coordinate system for the column output}
+\item{crs}{A numeric code corresponding to the desired coordinate system for the column output}
 }
 \value{
 An updated object with two new columns based on the names provided in the \code{names} argument.
