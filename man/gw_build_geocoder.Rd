@@ -4,7 +4,8 @@
 \alias{gw_build_geocoder}
 \title{Build Local Geocoder}
 \usage{
-gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"), include_units = FALSE)
+gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"),
+    include_units = FALSE)
 }
 \arguments{
 \item{class}{One of either \code{"sf"} or \code{"tibble"}.}

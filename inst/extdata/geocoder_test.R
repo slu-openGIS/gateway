@@ -20,7 +20,7 @@ geocoder <- gw_build_geocoder(return = c("id", "coords"), class = "tibble", incl
 x <- gw_build_geocoder(class = "sf")
 
 # geocode
-y <- gw_geocode(sushi_clean, class = "sf", address = "pm.address", geocoder = x)
+y <- gw_geocode(sushi_clean, type = "local", class = "sf", address = "pm.address", geocoder = x)
 
 library(leaflet)
 

@@ -5,7 +5,8 @@
 #'    and will error if your computer is offline. Since the actual geocoding is done with a second
 #'    function, however, it is possible to build a geocoder and store it offline for repeated use.
 #'
-#' @usage gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"), include_units = FALSE)
+#' @usage gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"),
+#'     include_units = FALSE)
 #'
 #' @param class One of either \code{"sf"} or \code{"tibble"}.
 #' @param crs A numeric code corresponding to the desired coordinate system for the column output if
@@ -35,7 +36,8 @@
 #' @importFrom sf st_transform
 #'
 #' @export
-gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", "zip"), include_units = FALSE){
+gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", "zip"),
+                              include_units = FALSE){
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
@@ -134,7 +136,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
   }
 
   # store coordinates
-  coords <- sf::st_crs(master)$epsg
+  coords <- sf::st_crs(.data)$epsg
 
   if (is.na(coords) == TRUE){
     coords <- 0
@@ -169,14 +171,18 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, address, geocoder)
+#' @usage gw_geocode(.data, type, class, address, geocoder, include_result = TRUE)
 #'
 #' @param .data A target data set
+#' @param type Geocoder type; one of either \code{"local"}, \code{"city api"}, or \code{"census"}.
+#' @param class Output class; one of either \code{"sf"} or \code{"tibble"}.
 #' @param address Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 #'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
 #'    creates units.
 #' @param geocoder Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}
+#' @param include_result Logical scalar; if \code{TRUE} (default), a column describing how each
+#'    observation was geocoded is included in the output.
 #'
 #' @return A copy of the target data with georeferenced data applied to it.
 #'
@@ -185,16 +191,18 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom dplyr %>%
 #' @importFrom dplyr left_join
 #' @importFrom dplyr rename
+#' @importFrom dplyr select
 #' @importFrom rlang :=
 #' @importFrom rlang enquo
 #' @importFrom rlang quo
 #' @importFrom rlang sym
+#' @importFrom sf st_as_sf
 #'
 #' @export
-gw_geocode <- function(.data, type, class, address, geocoder){
+gw_geocode <- function(.data, type, class, address, geocoder, include_result = TRUE){
 
   # set global bindings
-  . = ...address = NULL
+  . = ...address = out = geometry = NULL
 
   # save parameters to list
   paramList <- as.list(match.call())
@@ -208,22 +216,114 @@ gw_geocode <- function(.data, type, class, address, geocoder){
     varQ <- rlang::quo(!! rlang::sym(add))
   }
 
+  # ensure sf objects are converted to a-spatial data
+  if ("sf" %in% class(.data)){
+    sf::st_geometry(.data) <- NULL
+  }
+
   # rename variables
   .data <- dplyr::rename(.data, ...address := !!varQ)
-  geocoder <- dplyr::rename(geocoder, ...address = address)
 
   # geocode
-  .data %>%
-    dplyr::left_join(., geocoder, by = "...address") %>%
-    dplyr::rename(!!varQ := ...address) -> out
+  if (type == "local"){
+    .data <- gw_geocode_locale(.data, geocoder = geocoder)
+  } else if (type == "city api"){
+    stop("functionality not enabled")
+  } else if (type == "census"){
+    stop("functionality not enabled")
+  }
 
+  # rename variables again
+  .data <- dplyr::rename(.data, !!varQ := ...address)
+
+  # set-up output
   if (class == "sf"){
-    out <- sf::st_as_sf(out)
+    .data <- sf::st_as_sf(.data)
   } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
-    out <- dplyr::select(out, -geometry)
+    .data <- dplyr::select(.data, -geometry)
   }
 
   # return output
-  return(out)
+  return(.data)
 
 }
+
+
+# local geocoder
+gw_geocode_locale <- function(.data, geocoder){
+
+  # set global bindings
+  address = NULL
+
+  # identify observations
+  .data <- gw_geocode_identify(.data)
+
+  # subset distinct observations
+  target <- gw_geocode_prep(.data)
+
+  # rename geocoder address column
+  geocoder <- dplyr::rename(geocoder, ...address = address)
+
+  # geocode
+  target <- dplyr::left_join(target, geocoder, by = "...address")
+
+  # rebuild data
+  .data <- gw_geocode_replace(source = .data, target = target)
+
+}
+
+# city api
+gw_geocode_city_api <- function(.data){
+
+}
+
+# city api
+gw_geocode_census_xy <- function(.data){
+
+}
+
+# identify data
+gw_geocode_identify <- function(.data){
+
+  # set global bindings
+  . = ...address = NULL
+
+  # add id numbers to each row
+  full <- tibble::rowid_to_column(.data, var = "...id")
+
+  # add unique id numbers for each address string
+  full %>%
+    dplyr::distinct(...address) %>%
+    tibble::rowid_to_column(var = "...uid") %>%
+    dplyr::left_join(full, ., by = "...address") -> .data
+
+}
+
+# prep data
+gw_geocode_prep <- function(.data){
+
+  # set global bindings
+  ...uid = ...address = NULL
+
+  # return only distinct addresses
+  .data %>%
+    dplyr::distinct(...uid, .keep_all = TRUE) %>%
+    dplyr::select(...uid, ...address) -> .data
+
+}
+
+# replace data
+gw_geocode_replace <- function(source, target){
+
+  # set global bindings
+  . = ...id = ...uid = ...address = NULL
+
+  # join parsed and source data
+  target %>%
+    dplyr::select(-...address) %>%
+    dplyr::left_join(source, ., by = "...uid") %>%
+    dplyr::select(-...id, -...uid) -> out
+
+}
+
+
