@@ -5,12 +5,14 @@
 #'    and will error if your computer is offline. Since the actual geocoding is done with a second
 #'    function, however, it is possible to build a geocoder and store it offline for repeated use.
 #'
-#' @param return A character scalar or vector that describes the type of information to be applied
-#'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
-#'    parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).
+#' @usage gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"), include_units = FALSE)
+#'
 #' @param class One of either \code{"sf"} or \code{"tibble"}.
 #' @param crs A numeric code corresponding to the desired coordinate system for the column output if
 #'    \code{return} includes \code{"coords} as well as the object output if \code{class} is \code{"sf"}.
+#' @param return Optiona; A character scalar or vector that describes the type of information to be applied
+#'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
+#'    parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will
 #'    be included. If \code{FALSE} (default), only records for the overall building will be retained.
 #'
@@ -33,10 +35,16 @@
 #' @importFrom sf st_transform
 #'
 #' @export
-gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), class, crs = 4269, include_units = FALSE){
+gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", "zip"), include_units = FALSE){
 
   # set global bindings
-  ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE = SUFDIR = UNITNUM = ZIP = pm.rebuilt = NULL
+  ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
+    SUFDIR = UNITNUM = ZIP = pm.rebuilt = NULL
+
+  # check for optional return argument
+  if (missing(return)){
+    return <- NULL
+  }
 
   # obtain master list if none is provided
   master <- gw_get_data(data = "Addresses", class = "sf")
@@ -96,6 +104,8 @@ gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), class, crs 
 #' @details Based on a function written \href{https://github.com/jmlondon}{Josh M. London} and
 #'     described in a \href{https://github.com/r-spatial/sf/issues/231}{GitHub issue}.
 #'
+#' @usage gw_get_coords(.data, names = c("x","y"), crs = 4269)
+#'
 #' @param .data A \code{sf} object
 #' @param names A vector with two column names, one for the x coordinate and one for the y coordinate.
 #' @param crs A numeric code corresponding to the desired coordinate system for the column output
@@ -109,7 +119,7 @@ gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), class, crs 
 #' @importFrom stats setNames
 #'
 #' @export
-gw_get_coords <- function(.data, names = c("x","y"), crs = 4269) {
+gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 
   # ensure .data is an sf object
   if ("sf" %in% class(.data) == FALSE){
@@ -144,6 +154,8 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269) {
 #' @description Apply a previously build geocoder to target data. This function will
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
+#'
+#' @usage gw_geocode(.data, address, geocoder)
 #'
 #' @param .data A target data set
 #' @param address Address variable in the target data set, which should contain the house number,

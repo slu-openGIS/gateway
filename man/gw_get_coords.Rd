@@ -4,7 +4,7 @@
 \alias{gw_get_coords}
 \title{Extract Coordinates from sf Object}
 \usage{
-gw_get_coords(.data, names = c("x", "y"), crs = 4269)
+gw_get_coords(.data, names = c("x","y"), crs = 4269)
 }
 \arguments{
 \item{.data}{A \code{sf} object}
