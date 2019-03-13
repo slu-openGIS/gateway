@@ -27,13 +27,14 @@
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
-#' @importFrom dplyr select
-#' @importFrom postmastr pm_rebuild
 #' @importFrom postmastr pm_street_std
 #' @importFrom postmastr pm_streetSuf_std
 #' @importFrom sf st_crs
 #' @importFrom sf st_geometry
 #' @importFrom sf st_transform
+#' @importFrom stringr str_replace_all
+#' @importFrom stringr str_squish
+#' @importFrom tidyr unite
 #'
 #' @export
 gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", "zip"),
@@ -41,7 +42,7 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
-    SUFDIR = UNITNUM = ZIP = pm.rebuilt = NULL
+    SUFDIR = UNITNUM = ZIP = address = NULL
 
   # check for optional return argument
   if (missing(return)){
@@ -87,18 +88,26 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
     master <- sf::st_transform(master, crs = crs)
   }
 
+  # create subset if class is sf
+  if (class == "sf"){
+    coords <- dplyr::select(master, ADDRRECNUM)
+    sf::st_geometry(master) <- NULL
+  }
+
   # clean-up data
   master %>%
     dplyr::mutate(UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM)) %>%
     dplyr::mutate(HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF)) %>%
     postmastr::pm_street_std(var = STREETNAME, locale = "us") %>%
     postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") %>%
-    postmastr::pm_rebuild(start = HOUSENUM, end = SUFDIR) %>%
-    dplyr::select(-c(HOUSENUM, HOUSESUF, UNITNUM, PREDIR, STREETNAME, STREETTYPE, SUFDIR)) %>%
-    dplyr::rename(
-      addrrecnum = ADDRRECNUM,
-      address = pm.rebuilt
-    ) -> master
+    tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE) %>%
+    dplyr::mutate(address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = "")) %>%
+    dplyr::mutate(address = stringr::str_squish(address)) -> master
+
+  # combine coordinates and cleaned data
+  dplyr::left_join(coords, master, by = "ADDRRECNUM") %>%
+    dplyr::rename(addrrecnum = ADDRRECNUM) -> master
+
 
   # return output
   return(master)
@@ -189,7 +198,9 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @seealso \code{\link{gw_build_geocoder}}
 #'
 #' @importFrom dplyr %>%
+#' @importFrom dplyr distinct
 #' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @importFrom dplyr rename
 #' @importFrom dplyr select
 #' @importFrom rlang :=

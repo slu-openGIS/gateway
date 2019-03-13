@@ -21,6 +21,7 @@ Imports:
     sf,
     stringr,
     tibble,
+    tidyr,
     tigris,
     utils
 Remotes:
