@@ -6,7 +6,7 @@
 #'
 #' @param .data A \code{sf} object
 #' @param to The string name of an areal unit to aggregate to: block group, tract,
-#'     precinct, ward, neighborhood, or municipality.
+#'     precinct, ward, neighborhood, or city.
 #' @param sf A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
 #'     a tibble.
 #' @param replace.na A logical scalar; if \code{TRUE}, areal units that do not have any points

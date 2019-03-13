@@ -11,7 +11,7 @@ gw_aggregate(.data, to, sf = TRUE, replace.na = TRUE,
 \item{.data}{A \code{sf} object}
 
 \item{to}{The string name of an areal unit to aggregate to: block group, tract,
-precinct, ward, neighborhood, or municipality.}
+precinct, ward, neighborhood, or city.}
 
 \item{sf}{A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
 a tibble.}
