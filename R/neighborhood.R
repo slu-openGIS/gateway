@@ -61,6 +61,9 @@ gw_nhood <- function(.data, var, new_var, to){
 #
 gw_nhood_num <- function(.data, var, new_var){
 
+  # global binding
+  ...nhood = NULL
+
   # unquote
   varQ <- rlang::enquo(var)
   newVarQ <- rlang::enquo(new_var)

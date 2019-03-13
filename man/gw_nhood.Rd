@@ -4,7 +4,7 @@
 \alias{gw_nhood}
 \title{Neighborhood Indentifier Conversion}
 \usage{
-gw_nhood(.data, var, new_var, from, to)
+gw_nhood(.data, var, new_var, to)
 }
 \arguments{
 \item{.data}{Data frame, tibble, or \code{sf} object to be modified}
@@ -14,7 +14,7 @@ gw_nhood(.data, var, new_var, from, to)
 \item{new_var}{Name of new variable; if none is specified, the \code{var} variable
 will be overwritten}
 
-\item{from}{The output format of the data \code{var} (one of either \code{"numeric"} or
+\item{to}{The output format of the data \code{var} (one of either \code{"numeric"} or
 \code{"string"}).}
 }
 \description{
