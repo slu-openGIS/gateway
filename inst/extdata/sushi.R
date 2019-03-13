@@ -24,3 +24,19 @@ gw_geocode(sushi, type = "local", class = "sf", address = "address", geocoder = 
   select(-addrrecnum) -> sushi_sf
 
 usethis::use_data(sushi_sf)
+
+# create smaller geocoder
+geocoder %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "Olive St") == TRUE, TRUE, FALSE)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "Clark Ave") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "S Grand Blvd") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "Maryland Plz") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "W Pine Blvd") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "Forest Park Ave") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "Washington Ave") == TRUE, TRUE, insample)) %>%
+  mutate(insample = ifelse(stringr::str_detect(string = address, pattern = "N Euclid Ave") == TRUE, TRUE, insample)) %>%
+  filter(insample == TRUE) %>%
+  select(-insample) -> sample_geocoder
+
+usethis::use_data(sample_geocoder, overwrite = TRUE)
+
