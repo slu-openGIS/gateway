@@ -21,6 +21,7 @@ Imports:
     sf,
     stringr,
     tibble,
+    tigris,
     utils
 Remotes:
     slu-openGIS/postmastr

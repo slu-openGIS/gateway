@@ -40,7 +40,7 @@ gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALS
   # check to inputs
   areas_all <- c("block group", "tract", "precinct", "ward", "neighborhood", "grid", "city")
 
-  if (to %nin% areas_all){
+  if (to %in% areas_all == FALSE){
 
     stop(glue::glue("{to} is not a valid input."))
 
@@ -195,39 +195,41 @@ gw_load_areal <- function(name){
 
   if (name == "block group"){
 
-    areal <- sf::st_transform(gateway::stl_blockgrps10, crs = 6512)
+    areal <- sf::st_transform(stl_blockgrps10, crs = 6512)
     areal <- dplyr::rename(areal, ID = GEOID)
 
   } else if (name == "tract"){
 
-    areal <- sf::st_transform(gateway::stl_tracts10, crs = 6512)
+    areal <- sf::st_transform(stl_tracts10, crs = 6512)
     areal <- dplyr::rename(areal, ID = GEOID)
 
   } else if (name == "county"){
 
-    areal <- sf::st_transform(gateway::stl_city, crs = 6512)
+    areal <- sf::st_transform(stl_city, crs = 6512)
     areal <- dplyr::rename(areal, ID = GEOID)
 
   } else if (name == "neighborhood") {
 
-    areal <- sf::st_transform(gateway::stl_nhoods, crs = 6512)
+    areal <- sf::st_transform(stl_nhoods, crs = 6512)
 
   } else if (name == "precinct") {
 
-    areal <- sf::st_transform(gateway::stl_precincts10, crs = 6512)
+    areal <- sf::st_transform(stl_precincts10, crs = 6512)
     areal <- dplyr::rename(areal, ID = HANDLE)
 
   } else if (name == "ward") {
 
-    areal <- sf::st_transform(gateway::stl_wards10, crs = 6512)
-
-  } else if (name == "grid"){
-
-    gw_get_repo(repo = "STL_BOUNDARY_Grids", file = "Grids") %>%
-      dplyr::rename(ID = PageNumber) %>%
-      sf::st_transform(crs = 6512) -> areal
+    areal <- sf::st_transform(stl_wards10, crs = 6512)
 
   }
+
+  #else if (name == "grid"){
+
+  #  gw_get_data(data = "Grids") %>%
+  #    dplyr::rename(ID = PageNumber) %>%
+  #    sf::st_transform(crs = 6512) -> areal
+
+  #}
 
   return(areal)
 
