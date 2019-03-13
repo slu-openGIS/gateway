@@ -3,13 +3,13 @@
 #' @description Provides a technique for converting neighborhood identifiers between
 #'     their numeric, string, and factor formats.
 #'
-#' @usage gw_nhood(.data, var, new_var, from, to)
+#' @usage gw_nhood(.data, var, new_var, to)
 #'
 #' @param .data Data frame, tibble, or \code{sf} object to be modified
 #' @param var Variable to base conversions on
 #' @param new_var Name of new variable; if none is specified, the \code{var} variable
 #'     will be overwritten
-#' @param from The output format of the data \code{var} (one of either \code{"numeric"} or
+#' @param to The output format of the data \code{var} (one of either \code{"numeric"} or
 #'     \code{"string"}).
 #'
 #' @export
@@ -66,89 +66,92 @@ gw_nhood_num <- function(.data, var, new_var){
   newVarQ <- rlang::enquo(new_var)
 
   # convert to title case
-  .data <- dplyr::mutate(.data, !!newVarQ := stringr::str_to_title(!!varQ))
+  .data <- dplyr::mutate(.data, ...nhood := stringr::str_to_title(!!varQ))
 
   # convert values
   .data <- dplyr::mutate(.data, !!newVarQ := dplyr::case_when(
-    !!varQ == "Carondelet" ~ 1,
-    !!varQ == "Patch" ~ 2,
-    !!varQ == "Holly Hills" ~ 3,
-    !!varQ == "Boulevard Heights" ~ 4,
-    !!varQ == "Bevo Mill" | !!varQ == "Bevo" ~ 5,
-    !!varQ == "Princeton Heights" ~ 6,
-    !!varQ == "South Hampton" ~ 7,
-    !!varQ == "St. Louis Hills" ~ 8,
-    !!varQ == "Lindenwood Park" ~ 9,
-    !!varQ == "Ellendale" ~ 10,
-    !!varQ == "Clifton Heights" ~ 11,
-    !!varQ == "The Hill" ~ 12,
-    !!varQ == "Southwest Garden" | !!varQ == "Sw Garden" ~ 13,
-    !!varQ == "North Hampton" ~ 14,
-    !!varQ == "Tower Grove South" | !!varQ == "TGS" ~ 15,
-    !!varQ == "Dutchtown" ~ 16,
-    !!varQ == "Mount Pleasant" ~ 17,
-    !!varQ == "Marine Villa" ~ 18,
-    !!varQ == "Gravois Park" ~ 19,
-    !!varQ == "Kosciusko" ~ 20,
-    !!varQ == "Soulard" ~ 21,
-    !!varQ == "Benton Park" ~ 22,
-    !!varQ == "McKinley Heights" ~ 23,
-    !!varQ == "Fox Park" ~ 24,
-    !!varQ == "Tower Grove East" | !!varQ == "TGE" ~ 25,
-    !!varQ == "Compton Heights" ~ 26,
-    !!varQ == "Shaw" ~ 27,
-    !!varQ == "Botanical Heights" ~ 28,
-    !!varQ == "Tiffany" ~ 29,
-    !!varQ == "Benton Park West" ~ 30,
-    !!varQ == "The Gate District" | !!varQ == "The Gate" ~ 31,
-    !!varQ == "Lafayette Square" | !!varQ == "Lafayette Sq" | !!varQ == "Lafayette Sq." ~ 32,
-    !!varQ == "Peabody Darst Webbe" | !!varQ == "Peabody" ~ 33,
-    !!varQ == "LaSalle Park" ~ 34,
-    !!varQ == "Downtown" ~ 35,
-    !!varQ == "Downtown West" ~ 36,
-    !!varQ == "Midtown" ~ 37,
-    !!varQ == "Central West End" | !!varQ == "CWE" | !!varQ == "C.W.E." ~ 38,
-    !!varQ == "Forest Park South East" | !!varQ == "FPSE" | !!varQ == "The Grove" | !!varQ == "Grove" | !!varQ == "Forest Park Southeast" ~ 39,
-    !!varQ == "Kings Oak" ~ 40,
-    !!varQ == "Cheltenham" ~ 41,
-    !!varQ == "Clayton-Tamm" ~ 42,
-    !!varQ == "Franz Park" ~ 43,
-    !!varQ == "Hi-Pointe" | !!varQ == "Hi Pointe" | !!varQ == "Hi Point" | !!varQ == "Hi-Point" ~ 44,
-    !!varQ == "Wydown Skinker" ~ 45,
-    !!varQ == "Skinker DeBaliviere" ~ 46,
-    !!varQ == "Debaliviere Place" ~ 47,
-    !!varQ == "West End" ~ 48,
-    !!varQ == "Visitation Park" ~ 49,
-    !!varQ == "Wells Goodfellow" ~ 50,
-    !!varQ == "Academy" ~ 51,
-    !!varQ == "Kingsway West" ~ 52,
-    !!varQ == "Fountain Park" ~ 53,
-    !!varQ == "Lewis Place" ~ 54,
-    !!varQ == "Kingsway East" ~ 55,
-    !!varQ == "Greater Ville" ~ 56,
-    !!varQ == "The Ville" ~ 57,
-    !!varQ == "Vandeventer" ~ 58,
-    !!varQ == "Jeff Vanderlou" | !!varQ == "JVL" ~ 59,
-    !!varQ == "St. Louis Place" | !!varQ == "St Louis Place" | !!varQ == "Saint Louis Place" ~ 60,
-    !!varQ == "Carr Square" ~ 61,
-    !!varQ == "Columbus Square" ~ 62,
-    !!varQ == "Old North St. Louis" | !!varQ == "Old North" | !!varQ == "Old North St Louis" | !!varQ == "Old North Saint Louis" ~ 63,
-    !!varQ == "Near North Riverfront" | !!varQ == "Near North" ~ 64,
-    !!varQ == "Hyde Park" ~ 65,
-    !!varQ == "College Hill" ~ 66,
-    !!varQ == "Fairground Neighborhood" | !!varQ == "Fairground" ~ 67,
-    !!varQ == "O'Fallon" ~ 68,
-    !!varQ == "Penrose" ~ 69,
-    !!varQ == "Mark Twain I-70 Industrial" | !!varQ == "Mark Twain Industrial" ~ 70,
-    !!varQ == "Mark Twain" ~ 71,
-    !!varQ == "Walnut Park East" ~ 72,
-    !!varQ == "North Pointe" | !!varQ == "North Point" ~ 73,
-    !!varQ == "Baden" ~ 74,
-    !!varQ == "Riverview" ~ 75,
-    !!varQ == "Walnut Park West" ~ 76,
-    !!varQ == "Covenant Blu-Grand Center" | !!varQ == "Grand Center" ~ 77,
-    !!varQ == "Hamilton Heights" ~ 78,
-    !!varQ == "North Riverfront" ~ 79))
+    ...nhood == "Carondelet" ~ 1,
+    ...nhood == "Patch" ~ 2,
+    ...nhood == "Holly Hills" ~ 3,
+    ...nhood == "Boulevard Heights" ~ 4,
+    ...nhood == "Bevo Mill" | ...nhood == "Bevo" ~ 5,
+    ...nhood == "Princeton Heights" ~ 6,
+    ...nhood == "South Hampton" ~ 7,
+    ...nhood == "St. Louis Hills" ~ 8,
+    ...nhood == "Lindenwood Park" ~ 9,
+    ...nhood == "Ellendale" ~ 10,
+    ...nhood == "Clifton Heights" ~ 11,
+    ...nhood == "The Hill" ~ 12,
+    ...nhood == "Southwest Garden" | ...nhood == "Sw Garden" ~ 13,
+    ...nhood == "North Hampton" ~ 14,
+    ...nhood == "Tower Grove South" | ...nhood == "TGS" ~ 15,
+    ...nhood == "Dutchtown" ~ 16,
+    ...nhood == "Mount Pleasant" ~ 17,
+    ...nhood == "Marine Villa" ~ 18,
+    ...nhood == "Gravois Park" ~ 19,
+    ...nhood == "Kosciusko" ~ 20,
+    ...nhood == "Soulard" ~ 21,
+    ...nhood == "Benton Park" ~ 22,
+    ...nhood == "McKinley Heights" ~ 23,
+    ...nhood == "Fox Park" ~ 24,
+    ...nhood == "Tower Grove East" | ...nhood == "TGE" ~ 25,
+    ...nhood == "Compton Heights" ~ 26,
+    ...nhood == "Shaw" ~ 27,
+    ...nhood == "Botanical Heights" ~ 28,
+    ...nhood == "Tiffany" ~ 29,
+    ...nhood == "Benton Park West" ~ 30,
+    ...nhood == "The Gate District" | ...nhood == "The Gate" ~ 31,
+    ...nhood == "Lafayette Square" | ...nhood == "Lafayette Sq" | ...nhood == "Lafayette Sq." ~ 32,
+    ...nhood == "Peabody Darst Webbe" | ...nhood == "Peabody" ~ 33,
+    ...nhood == "LaSalle Park" ~ 34,
+    ...nhood == "Downtown" ~ 35,
+    ...nhood == "Downtown West" ~ 36,
+    ...nhood == "Midtown" ~ 37,
+    ...nhood == "Central West End" | ...nhood == "CWE" | ...nhood == "C.W.E." ~ 38,
+    ...nhood == "Forest Park South East" | ...nhood == "FPSE" | ...nhood == "The Grove" | ...nhood == "Grove" | ...nhood == "Forest Park Southeast" ~ 39,
+    ...nhood == "Kings Oak" ~ 40,
+    ...nhood == "Cheltenham" ~ 41,
+    ...nhood == "Clayton-Tamm" ~ 42,
+    ...nhood == "Franz Park" ~ 43,
+    ...nhood == "Hi-Pointe" | ...nhood == "Hi Pointe" | ...nhood == "Hi Point" | ...nhood == "Hi-Point" ~ 44,
+    ...nhood == "Wydown Skinker" ~ 45,
+    ...nhood == "Skinker DeBaliviere" ~ 46,
+    ...nhood == "Debaliviere Place" ~ 47,
+    ...nhood == "West End" ~ 48,
+    ...nhood == "Visitation Park" ~ 49,
+    ...nhood == "Wells Goodfellow" ~ 50,
+    ...nhood == "Academy" ~ 51,
+    ...nhood == "Kingsway West" ~ 52,
+    ...nhood == "Fountain Park" ~ 53,
+    ...nhood == "Lewis Place" ~ 54,
+    ...nhood == "Kingsway East" ~ 55,
+    ...nhood == "Greater Ville" ~ 56,
+    ...nhood == "The Ville" ~ 57,
+    ...nhood == "Vandeventer" ~ 58,
+    ...nhood == "Jeff Vanderlou" | ...nhood == "JVL" ~ 59,
+    ...nhood == "St. Louis Place" | ...nhood == "St Louis Place" | ...nhood == "Saint Louis Place" ~ 60,
+    ...nhood == "Carr Square" ~ 61,
+    ...nhood == "Columbus Square" ~ 62,
+    ...nhood == "Old North St. Louis" | ...nhood == "Old North" | ...nhood == "Old North St Louis" | ...nhood == "Old North Saint Louis" ~ 63,
+    ...nhood == "Near North Riverfront" | ...nhood == "Near North" ~ 64,
+    ...nhood == "Hyde Park" ~ 65,
+    ...nhood == "College Hill" ~ 66,
+    ...nhood == "Fairground Neighborhood" | ...nhood == "Fairground" ~ 67,
+    ...nhood == "O'Fallon" ~ 68,
+    ...nhood == "Penrose" ~ 69,
+    ...nhood == "Mark Twain I-70 Industrial" | ...nhood == "Mark Twain Industrial" ~ 70,
+    ...nhood == "Mark Twain" ~ 71,
+    ...nhood == "Walnut Park East" ~ 72,
+    ...nhood == "North Pointe" | ...nhood == "North Point" ~ 73,
+    ...nhood == "Baden" ~ 74,
+    ...nhood == "Riverview" ~ 75,
+    ...nhood == "Walnut Park West" ~ 76,
+    ...nhood == "Covenant Blu-Grand Center" | ...nhood == "Grand Center" ~ 77,
+    ...nhood == "Hamilton Heights" ~ 78,
+    ...nhood == "North Riverfront" ~ 79))
+
+  # remove ...nhood
+  .data <- dplyr::select(.data, -...nhood)
 
   # return output
   return(.data)
@@ -158,30 +161,11 @@ gw_nhood_num <- function(.data, var, new_var){
 
 # String or factor neighborhood names
 #
-# \code{nhood_str} is a function for converting a vector of City of St. Louis neighborhood numbers
-# to either character or factor format.
-#
-# @usage nhood_str(var, asFactor = TRUE)
-#
-# @param var A numeric or integer vector containing City of St. Louis neighborhood numbers
-#
-# @param asFactor A logical scalar. Should the output be converted to a factor?
-#
-# @return A character or factor vector
-#
-# @source \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
-#
-#
-
-
 gw_nhood_str <- function(.data, var, new_var){
 
   # unquote
   varQ <- rlang::enquo(var)
   newVarQ <- rlang::enquo(new_var)
-
-  # convert to title case
-  .data <- dplyr::mutate(.data, !!newVarQ := stringr::str_to_title(!!varQ))
 
   # convert values
   .data <- dplyr::mutate(.data, !!newVarQ := dplyr::case_when(
