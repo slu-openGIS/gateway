@@ -45,17 +45,12 @@ nhoods <- gw_get_data(data = "Neighborhoods", class = "tibble")
 Along with its cousin
 [`postmastr`](https:://slu-openGIS.github.io/postmastr/), `gateway` can
 be used to gecode data. In order for the local geocoder to work
-correctly, data needed to be parsed and standardized ahead of time:
+correctly, data needed to be parsed and standardized ahead of time. The
+package contains a data set, `sushi`, that is the same as `sushi2` in
+the `postmastr` package but has already been processed and is ready for
+geocoding:
 
-    > # load sample data from postmastr
-    > sushi <- postmastr::sushi2
-    
-    # clean and parse sample data
-    > sushi %>%
-    +   dplyr::filter(name != "Drunken Fish - Ballpark Village") %>%
-    +   postmastr::pm_parse(input = "short", address = "address") %>%
-    +   dplyr::select(name, pm.address, visit) %>%
-    +   dplyr::rename(address = pm.address) -> sushi_clean
+    > sushi <- sushi
 
 Next, we need to build our local geocoder with `gw_build_geocoder()`:
 
@@ -70,7 +65,7 @@ the function finishes executing, we can move on to geocoding our data
 
 ``` r
 > # geocode
-> sushi_sf <- gw_geocode(sushi_clean, type = "local", class = "sf", 
+> sushi_sf <- gw_geocode(sushi, type = "local", class = "sf", 
 +                        address = "address", geocoder = geocoder)
 ```
 
