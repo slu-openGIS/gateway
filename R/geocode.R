@@ -223,7 +223,7 @@ gw_geocode <- function(.data, type, class, address, geocoder, include_result = T
 
   if (!is.character(paramList$address)) {
     varQ <- rlang::enquo(add)
-  } else if (is.character(paramList$add)) {
+  } else if (is.character(paramList$address)) {
     varQ <- rlang::quo(!! rlang::sym(add))
   }
 

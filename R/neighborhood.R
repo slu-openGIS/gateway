@@ -1,131 +1,160 @@
-# Numeric neighborhood numbers
-#
-# \code{nhood_num} returns the matching neighborhood name in string or factor format
-#
-# This is a function for converting a vector of City of St. Louis neighborhood numbers
-# to either string or factor format.
-#
-# @usage nhood_num(var)
-#
-# @param var A string vector containing City of St. Louis neighborhood names
-#
-# @note Function is capable of handeling vectors that contain various spellings (i.e. "carondelet" or "Carondelet").
-# It is also capable of handleing some common neighborhood abbreviations, such as "Bevo", "CWE", "FPSE", and "The Grove".
-#
-# @source \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
-#
-# @export
-gw_nhood_num <- function(var) {
-  corrected <- stringr::str_to_title(var)
+#' Neighborhood Indentifier Conversion
+#'
+#' @description Provides a technique for converting neighborhood identifiers between
+#'     their numeric, string, and factor formats.
+#'
+#' @usage gw_nhood(.data, var, new_var, from, to)
+#'
+#' @param .data Data frame, tibble, or \code{sf} object to be modified
+#' @param var Variable to base conversions on
+#' @param new_var Name of new variable; if none is specified, the \code{var} variable
+#'     will be overwritten
+#' @param from The output format of the data \code{var} (one of either \code{"numeric"} or
+#'     \code{"string"}).
+#'
+#' @export
+gw_nhood <- function(.data, var, new_var, to){
 
-  nhood <- ifelse(corrected == "Carondelet", 1, NA)
-  nhood <- ifelse(corrected == "Patch", 2, nhood)
-  nhood <- ifelse(corrected == "Holly Hills", 3, nhood)
-  nhood <- ifelse(corrected == "Boulevard Heights", 4, nhood)
-  nhood <- ifelse(corrected == "Bevo Mill" |
-                    corrected == "Bevo", 5, nhood)
-  nhood <- ifelse(corrected == "Princeton Heights", 6, nhood)
-  nhood <- ifelse(corrected == "South Hampton", 7, nhood)
-  nhood <- ifelse(corrected == "St. Louis Hills", 8, nhood)
-  nhood <- ifelse(corrected == "Lindenwood Park", 9, nhood)
-  nhood <- ifelse(corrected == "Ellendale", 10, nhood)
-  nhood <- ifelse(corrected == "Clifton Heights", 11, nhood)
-  nhood <- ifelse(corrected == "The Hill", 12, nhood)
-  nhood <- ifelse(corrected == "Southwest Garden", 13, nhood)
-  nhood <- ifelse(corrected == "North Hampton", 14, nhood)
-  nhood <- ifelse(corrected == "Tower Grove South" |
-                    corrected == "TGS", 15, nhood)
-  nhood <- ifelse(corrected == "Dutchtown", 16, nhood)
-  nhood <- ifelse(corrected == "Mount Pleasant", 17, nhood)
-  nhood <- ifelse(corrected == "Marine Villa", 18, nhood)
-  nhood <- ifelse(corrected == "Gravois Park", 19, nhood)
-  nhood <- ifelse(corrected == "Kosciusko", 20, nhood)
-  nhood <- ifelse(corrected == "Soulard", 21, nhood)
-  nhood <- ifelse(corrected == "Benton Park", 22, nhood)
-  nhood <- ifelse(corrected == "McKinley Heights", 23, nhood)
-  nhood <- ifelse(corrected == "Fox Park", 24, nhood)
-  nhood <- ifelse(corrected == "Tower Grove East" |
-                    corrected == "TGE", 25, nhood)
-  nhood <- ifelse(corrected == "Compton Heights", 26, nhood)
-  nhood <- ifelse(corrected == "Shaw", 27, nhood)
-  nhood <- ifelse(corrected == "Botanical Heights", 28, nhood)
-  nhood <- ifelse(corrected == "Tiffany", 29, nhood)
-  nhood <- ifelse(corrected == "Benton Park West", 30, nhood)
-  nhood <- ifelse(corrected == "The Gate District" |
-                    corrected == "The Gate", 31, nhood)
-  nhood <- ifelse(corrected == "Lafayette Square" |
-                    corrected == "Lafayette Sq" |
-                    corrected == "Lafayette Sq.", 32, nhood)
-  nhood <- ifelse(corrected == "Peabody Darst Webbe" | corrected == "Peabody", 33, nhood)
-  nhood <- ifelse(corrected == "LaSalle Park", 34, nhood)
-  nhood <- ifelse(corrected == "Downtown", 35, nhood)
-  nhood <- ifelse(corrected == "Downtown West", 36, nhood)
-  nhood <- ifelse(corrected == "Midtown", 37, nhood)
-  nhood <- ifelse(corrected == "Central West End" |
-                    corrected == "CWE" |
-                    corrected == "C.W.E.", 38, nhood)
-  nhood <- ifelse(corrected == "Forest Park South East" |
-                    corrected == "FPSE" |
-                    corrected == "The Grove" |
-                    corrected == "Grove" |
-                    corrected == "Forest Park Southeast", 39, nhood)
-  nhood <- ifelse(corrected == "Kings Oak", 40, nhood)
-  nhood <- ifelse(corrected == "Cheltenham", 41, nhood)
-  nhood <- ifelse(corrected == "Clayton-Tamm", 42, nhood)
-  nhood <- ifelse(corrected == "Franz Park", 43, nhood)
-  nhood <- ifelse(corrected == "Hi-Pointe" |
-                    corrected == "Hi Pointe" |
-                    corrected == "Hi Point" |
-                    corrected == "Hi-Point", 44, nhood)
-  nhood <- ifelse(corrected == "Wydown Skinker", 45, nhood)
-  nhood <- ifelse(corrected == "Skinker DeBaliviere", 46, nhood)
-  nhood <- ifelse(corrected == "DeBaliviere Place", 47, nhood)
-  nhood <- ifelse(corrected == "West End", 48, nhood)
-  nhood <- ifelse(corrected == "Visitation Park", 49, nhood)
-  nhood <- ifelse(corrected == "Wells Goodfellow", 50, nhood)
-  nhood <- ifelse(corrected == "Academy", 51, nhood)
-  nhood <- ifelse(corrected == "Kingsway West", 52, nhood)
-  nhood <- ifelse(corrected == "Fountain Park", 53, nhood)
-  nhood <- ifelse(corrected == "Lewis Place", 54, nhood)
-  nhood <- ifelse(corrected == "Kingsway East", 55, nhood)
-  nhood <- ifelse(corrected == "Greater Ville", 56, nhood)
-  nhood <- ifelse(corrected == "The Ville", 57, nhood)
-  nhood <- ifelse(corrected == "Vandeventer", 58, nhood)
-  nhood <- ifelse(corrected == "Jeff Vanderlou" |
-                    corrected == "JVL", 59, nhood)
-  nhood <- ifelse(corrected == "St. Louis Place" |
-                    corrected == "St Louis Place" |
-                    corrected == "Saint Louis Place", 60, nhood)
-  nhood <- ifelse(corrected == "Carr Square", 61, nhood)
-  nhood <- ifelse(corrected == "Columbus Square", 62, nhood)
-  nhood <- ifelse(corrected == "Old North St. Louis" |
-                    corrected == "Old North" |
-                    corrected == "Old North St Louis" |
-                    corrected == "Old North Saint Louis", 63, nhood)
-  nhood <- ifelse(corrected == "Near North Riverfront" |
-                    corrected == "Near North", 64, nhood)
-  nhood <- ifelse(corrected == "Hyde Park", 65, nhood)
-  nhood <- ifelse(corrected == "College Hill", 66, nhood)
-  nhood <- ifelse(corrected == "Fairground Neighborhood" |
-                    corrected == "Fairground", 67, nhood)
-  nhood <- ifelse(corrected == "O'Fallon", 68, nhood)
-  nhood <- ifelse(corrected == "Penrose", 69, nhood)
-  nhood <- ifelse(corrected == "Mark Twain I-70 Industrial" |
-                    corrected == "Mark Twain Industrial", 70, nhood)
-  nhood <- ifelse(corrected == "Mark Twain", 71, nhood)
-  nhood <- ifelse(corrected == "Walnut Park East", 72, nhood)
-  nhood <- ifelse(corrected == "North Pointe" |
-                    corrected == "North Point", 73, nhood)
-  nhood <- ifelse(corrected == "Baden", 74, nhood)
-  nhood <- ifelse(corrected == "Riverview", 75, nhood)
-  nhood <- ifelse(corrected == "Walnut Park West", 76, nhood)
-  nhood <- ifelse(corrected == "Covenant Blu-Grand Center" |
-                    corrected == "Grand Center", 77, nhood)
-  nhood <- ifelse(corrected == "Hamilton Heights", 78, nhood)
-  nhood <- ifelse(corrected == "North Riverfront", 79, nhood)
+  # save parameters to list
+  paramList <- as.list(match.call())
 
-  return(nhood)
+  # unquote
+  if (!is.character(paramList$var)) {
+    varQ <- rlang::enquo(var)
+  } else if (is.character(paramList$var)) {
+    varQ <- rlang::quo(!! rlang::sym(var))
+  }
+
+  # unquote new_var
+  if (missing(new_var) == TRUE){
+    overwrite <- TRUE
+
+    newVarQ <- rlang::enquo(varQ)
+
+  } else if (missing(new_var) == FALSE){
+    overwrite <- FALSE
+
+    if (!is.character(paramList$new_var)) {
+      newVarQ <- rlang::enquo(new_var)
+    } else if (is.character(paramList$new_var)) {
+      newVarQ <- rlang::quo(!! rlang::sym(new_var))
+    }
+
+  }
+
+
+  # convert
+  if (to == "string"){
+    .data <- gw_nhood_str(.data, var = !!varQ, new_var = !!newVarQ)
+  } else if (to == "numeric"){
+    .data <- gw_nhood_num(.data, var = !!varQ, new_var = !!newVarQ)
+  }
+
+  # return output
+  return(.data)
+
 }
+
+
+# Convert to numeric neighborhood numbers
+#
+#
+gw_nhood_num <- function(.data, var, new_var){
+
+  # unquote
+  varQ <- rlang::enquo(var)
+  newVarQ <- rlang::enquo(new_var)
+
+  # convert to title case
+  .data <- dplyr::mutate(.data, !!newVarQ := stringr::str_to_title(!!varQ))
+
+  # convert values
+  .data <- dplyr::mutate(.data, !!newVarQ := dplyr::case_when(
+    !!varQ == "Carondelet" ~ 1,
+    !!varQ == "Patch" ~ 2,
+    !!varQ == "Holly Hills" ~ 3,
+    !!varQ == "Boulevard Heights" ~ 4,
+    !!varQ == "Bevo Mill" | !!varQ == "Bevo" ~ 5,
+    !!varQ == "Princeton Heights" ~ 6,
+    !!varQ == "South Hampton" ~ 7,
+    !!varQ == "St. Louis Hills" ~ 8,
+    !!varQ == "Lindenwood Park" ~ 9,
+    !!varQ == "Ellendale" ~ 10,
+    !!varQ == "Clifton Heights" ~ 11,
+    !!varQ == "The Hill" ~ 12,
+    !!varQ == "Southwest Garden" | !!varQ == "Sw Garden" ~ 13,
+    !!varQ == "North Hampton" ~ 14,
+    !!varQ == "Tower Grove South" | !!varQ == "TGS" ~ 15,
+    !!varQ == "Dutchtown" ~ 16,
+    !!varQ == "Mount Pleasant" ~ 17,
+    !!varQ == "Marine Villa" ~ 18,
+    !!varQ == "Gravois Park" ~ 19,
+    !!varQ == "Kosciusko" ~ 20,
+    !!varQ == "Soulard" ~ 21,
+    !!varQ == "Benton Park" ~ 22,
+    !!varQ == "McKinley Heights" ~ 23,
+    !!varQ == "Fox Park" ~ 24,
+    !!varQ == "Tower Grove East" | !!varQ == "TGE" ~ 25,
+    !!varQ == "Compton Heights" ~ 26,
+    !!varQ == "Shaw" ~ 27,
+    !!varQ == "Botanical Heights" ~ 28,
+    !!varQ == "Tiffany" ~ 29,
+    !!varQ == "Benton Park West" ~ 30,
+    !!varQ == "The Gate District" | !!varQ == "The Gate" ~ 31,
+    !!varQ == "Lafayette Square" | !!varQ == "Lafayette Sq" | !!varQ == "Lafayette Sq." ~ 32,
+    !!varQ == "Peabody Darst Webbe" | !!varQ == "Peabody" ~ 33,
+    !!varQ == "LaSalle Park" ~ 34,
+    !!varQ == "Downtown" ~ 35,
+    !!varQ == "Downtown West" ~ 36,
+    !!varQ == "Midtown" ~ 37,
+    !!varQ == "Central West End" | !!varQ == "CWE" | !!varQ == "C.W.E." ~ 38,
+    !!varQ == "Forest Park South East" | !!varQ == "FPSE" | !!varQ == "The Grove" | !!varQ == "Grove" | !!varQ == "Forest Park Southeast" ~ 39,
+    !!varQ == "Kings Oak" ~ 40,
+    !!varQ == "Cheltenham" ~ 41,
+    !!varQ == "Clayton-Tamm" ~ 42,
+    !!varQ == "Franz Park" ~ 43,
+    !!varQ == "Hi-Pointe" | !!varQ == "Hi Pointe" | !!varQ == "Hi Point" | !!varQ == "Hi-Point" ~ 44,
+    !!varQ == "Wydown Skinker" ~ 45,
+    !!varQ == "Skinker DeBaliviere" ~ 46,
+    !!varQ == "Debaliviere Place" ~ 47,
+    !!varQ == "West End" ~ 48,
+    !!varQ == "Visitation Park" ~ 49,
+    !!varQ == "Wells Goodfellow" ~ 50,
+    !!varQ == "Academy" ~ 51,
+    !!varQ == "Kingsway West" ~ 52,
+    !!varQ == "Fountain Park" ~ 53,
+    !!varQ == "Lewis Place" ~ 54,
+    !!varQ == "Kingsway East" ~ 55,
+    !!varQ == "Greater Ville" ~ 56,
+    !!varQ == "The Ville" ~ 57,
+    !!varQ == "Vandeventer" ~ 58,
+    !!varQ == "Jeff Vanderlou" | !!varQ == "JVL" ~ 59,
+    !!varQ == "St. Louis Place" | !!varQ == "St Louis Place" | !!varQ == "Saint Louis Place" ~ 60,
+    !!varQ == "Carr Square" ~ 61,
+    !!varQ == "Columbus Square" ~ 62,
+    !!varQ == "Old North St. Louis" | !!varQ == "Old North" | !!varQ == "Old North St Louis" | !!varQ == "Old North Saint Louis" ~ 63,
+    !!varQ == "Near North Riverfront" | !!varQ == "Near North" ~ 64,
+    !!varQ == "Hyde Park" ~ 65,
+    !!varQ == "College Hill" ~ 66,
+    !!varQ == "Fairground Neighborhood" | !!varQ == "Fairground" ~ 67,
+    !!varQ == "O'Fallon" ~ 68,
+    !!varQ == "Penrose" ~ 69,
+    !!varQ == "Mark Twain I-70 Industrial" | !!varQ == "Mark Twain Industrial" ~ 70,
+    !!varQ == "Mark Twain" ~ 71,
+    !!varQ == "Walnut Park East" ~ 72,
+    !!varQ == "North Pointe" | !!varQ == "North Point" ~ 73,
+    !!varQ == "Baden" ~ 74,
+    !!varQ == "Riverview" ~ 75,
+    !!varQ == "Walnut Park West" ~ 76,
+    !!varQ == "Covenant Blu-Grand Center" | !!varQ == "Grand Center" ~ 77,
+    !!varQ == "Hamilton Heights" ~ 78,
+    !!varQ == "North Riverfront" ~ 79))
+
+  # return output
+  return(.data)
+
+}
+
 
 # String or factor neighborhood names
 #
@@ -143,90 +172,100 @@ gw_nhood_num <- function(var) {
 # @source \href{https://www.stlouis-mo.gov/government/departments/planning/documents/citywide-neighborhood-map.cfm}{City of St. Louis Citywide Neighborhood Map}
 #
 #
-gw_nhood_str <- function(var, asFactor = TRUE) {
-  nhood <- ifelse(var == 1, "Carondelet", NA)
-  nhood <- ifelse(var == 2, "Patch", nhood)
-  nhood <- ifelse(var == 3, "Holly Hills", nhood)
-  nhood <- ifelse(var == 4, "Boulevard Heights", nhood)
-  nhood <- ifelse(var == 5, "Bevo Mill", nhood)
-  nhood <- ifelse(var == 6, "Princeton Heights", nhood)
-  nhood <- ifelse(var == 7, "South Hampton", nhood)
-  nhood <- ifelse(var == 8, "St. Louis Hills", nhood)
-  nhood <- ifelse(var == 9, "Lindenwood Park", nhood)
-  nhood <- ifelse(var == 10, "Ellendale", nhood)
-  nhood <- ifelse(var == 11, "Clifton Heights", nhood)
-  nhood <- ifelse(var == 12, "The Hill", nhood)
-  nhood <- ifelse(var == 13, "Southwest Garden", nhood)
-  nhood <- ifelse(var == 14, "North Hampton", nhood)
-  nhood <- ifelse(var == 15, "Tower Grove South", nhood)
-  nhood <- ifelse(var == 16, "Dutchtown", nhood)
-  nhood <- ifelse(var == 17, "Mount Pleasant", nhood)
-  nhood <- ifelse(var == 18, "Marine Villa", nhood)
-  nhood <- ifelse(var == 19, "Gravois Park", nhood)
-  nhood <- ifelse(var == 20, "Kosciusko", nhood)
-  nhood <- ifelse(var == 21, "Soulard", nhood)
-  nhood <- ifelse(var == 22, "Benton Park", nhood)
-  nhood <- ifelse(var == 23, "McKinley Heights", nhood)
-  nhood <- ifelse(var == 24, "Fox Park", nhood)
-  nhood <- ifelse(var == 25, "Tower Grove East", nhood)
-  nhood <- ifelse(var == 26, "Compton Heights", nhood)
-  nhood <- ifelse(var == 27, "Shaw", nhood)
-  nhood <- ifelse(var == 28, "Botanical Heights", nhood)
-  nhood <- ifelse(var == 29, "Tiffany", nhood)
-  nhood <- ifelse(var == 30, "Benton Park West", nhood)
-  nhood <- ifelse(var == 31, "The Gate District", nhood)
-  nhood <- ifelse(var == 32, "Lafayette Square", nhood)
-  nhood <- ifelse(var == 33, "Peabody Darst Webbe", nhood)
-  nhood <- ifelse(var == 34, "LaSalle Park", nhood)
-  nhood <- ifelse(var == 35, "Downtown", nhood)
-  nhood <- ifelse(var == 36, "Downtown West", nhood)
-  nhood <- ifelse(var == 37, "Midtown", nhood)
-  nhood <- ifelse(var == 38, "Central West End", nhood)
-  nhood <- ifelse(var == 39, "Forest Park South East", nhood)
-  nhood <- ifelse(var == 40, "Kings Oak", nhood)
-  nhood <- ifelse(var == 41, "Cheltenham", nhood)
-  nhood <- ifelse(var == 42, "Clayton-Tamm", nhood)
-  nhood <- ifelse(var == 43, "Franz Park", nhood)
-  nhood <- ifelse(var == 44, "Hi-Pointe", nhood)
-  nhood <- ifelse(var == 45, "Wydown Skinker", nhood)
-  nhood <- ifelse(var == 46, "Skinker DeBaliviere", nhood)
-  nhood <- ifelse(var == 47, "DeBaliviere Place", nhood)
-  nhood <- ifelse(var == 48, "West End", nhood)
-  nhood <- ifelse(var == 49, "Visitation Park", nhood)
-  nhood <- ifelse(var == 50, "Wells Goodfellow", nhood)
-  nhood <- ifelse(var == 51, "Academy", nhood)
-  nhood <- ifelse(var == 52, "Kingsway West", nhood)
-  nhood <- ifelse(var == 53, "Fountain Park", nhood)
-  nhood <- ifelse(var == 54, "Lewis Place", nhood)
-  nhood <- ifelse(var == 55, "Kingsway East", nhood)
-  nhood <- ifelse(var == 56, "Greater Ville", nhood)
-  nhood <- ifelse(var == 57, "The Ville", nhood)
-  nhood <- ifelse(var == 58, "Vandeventer", nhood)
-  nhood <- ifelse(var == 59, "Jeff Vanderlou", nhood)
-  nhood <- ifelse(var == 60, "St. Louis Place", nhood)
-  nhood <- ifelse(var == 61, "Carr Square", nhood)
-  nhood <- ifelse(var == 62, "Columbus Square", nhood)
-  nhood <- ifelse(var == 63, "Old North St. Louis", nhood)
-  nhood <- ifelse(var == 64, "Near North Riverfront", nhood)
-  nhood <- ifelse(var == 65, "Hyde Park", nhood)
-  nhood <- ifelse(var == 66, "College Hill", nhood)
-  nhood <- ifelse(var == 67, "Fairground Neighborhood", nhood)
-  nhood <- ifelse(var == 68, "O'Fallon", nhood)
-  nhood <- ifelse(var == 69, "Penrose", nhood)
-  nhood <- ifelse(var == 70, "Mark Twain I-70 Industrial", nhood)
-  nhood <- ifelse(var == 71, "Mark Twain", nhood)
-  nhood <- ifelse(var == 72, "Walnut Park East", nhood)
-  nhood <- ifelse(var == 73, "North Pointe", nhood)
-  nhood <- ifelse(var == 74, "Baden", nhood)
-  nhood <- ifelse(var == 75, "Riverview", nhood)
-  nhood <- ifelse(var == 76, "Walnut Park West", nhood)
-  nhood <- ifelse(var == 77, "Covenant Blu-Grand Center", nhood)
-  nhood <- ifelse(var == 78, "Hamilton Heights", nhood)
-  nhood <- ifelse(var == 79, "North Riverfront", nhood)
 
-  if (asFactor == TRUE) {
-    nhood <- as.factor(nhood)
-  }
 
-  return(nhood)
+gw_nhood_str <- function(.data, var, new_var){
+
+  # unquote
+  varQ <- rlang::enquo(var)
+  newVarQ <- rlang::enquo(new_var)
+
+  # convert to title case
+  .data <- dplyr::mutate(.data, !!newVarQ := stringr::str_to_title(!!varQ))
+
+  # convert values
+  .data <- dplyr::mutate(.data, !!newVarQ := dplyr::case_when(
+    !!varQ == 1 ~ "Carondelet",
+    !!varQ == 2 ~ "Patch",
+    !!varQ == 3 ~ "Holly Hills",
+    !!varQ == 4 ~ "Boulevard Heights",
+    !!varQ == 5 ~ "Bevo Mill",
+    !!varQ == 6 ~ "Princeton Heights",
+    !!varQ == 7 ~ "South Hampton",
+    !!varQ == 8 ~ "St. Louis Hills",
+    !!varQ == 9 ~ "Lindenwood Park",
+    !!varQ == 10 ~ "Ellendale",
+    !!varQ == 11 ~ "Clifton Heights",
+    !!varQ == 12 ~ "The Hill",
+    !!varQ == 13 ~ "Southwest Garden",
+    !!varQ == 14 ~ "North Hampton",
+    !!varQ == 15 ~ "Tower Grove South",
+    !!varQ == 16 ~ "Dutchtown",
+    !!varQ == 17 ~ "Mount Pleasant",
+    !!varQ == 18 ~ "Marine Villa",
+    !!varQ == 19 ~ "Gravois Park",
+    !!varQ == 20 ~ "Kosciusko",
+    !!varQ == 21 ~ "Soulard",
+    !!varQ == 22 ~ "Benton Park",
+    !!varQ == 23 ~ "McKinley Heights",
+    !!varQ == 24 ~ "Fox Park",
+    !!varQ == 25 ~ "Tower Grove East",
+    !!varQ == 26 ~ "Compton Heights",
+    !!varQ == 27 ~ "Shaw",
+    !!varQ == 28 ~ "Botanical Heights",
+    !!varQ == 29 ~ "Tiffany",
+    !!varQ == 30 ~ "Benton Park West",
+    !!varQ == 31 ~ "The Gate District",
+    !!varQ == 32 ~ "Lafayette Square",
+    !!varQ == 33 ~ "Peabody Darst Webbe",
+    !!varQ == 34 ~ "LaSalle Park",
+    !!varQ == 35 ~ "Downtown",
+    !!varQ == 36 ~ "Downtown West",
+    !!varQ == 37 ~ "Midtown",
+    !!varQ == 38 ~ "Central West End",
+    !!varQ == 39 ~ "Forest Park South East",
+    !!varQ == 40 ~ "Kings Oak",
+    !!varQ == 41 ~ "Cheltenham",
+    !!varQ == 42 ~ "Clayton-Tamm",
+    !!varQ == 43 ~ "Franz Park",
+    !!varQ == 44 ~ "Hi-Pointe",
+    !!varQ == 45 ~ "Wydown Skinker",
+    !!varQ == 46 ~ "Skinker DeBaliviere",
+    !!varQ == 47 ~ "DeBaliviere Place",
+    !!varQ == 48 ~ "West End",
+    !!varQ == 49 ~ "Visitation Park",
+    !!varQ == 50 ~ "Wells Goodfellow",
+    !!varQ == 51 ~ "Academy",
+    !!varQ == 52 ~ "Kingsway West",
+    !!varQ == 53 ~ "Fountain Park",
+    !!varQ == 54 ~ "Lewis Place",
+    !!varQ == 55 ~ "Kingsway East",
+    !!varQ == 56 ~ "Greater Ville",
+    !!varQ == 57 ~ "The Ville",
+    !!varQ == 58 ~ "Vandeventer",
+    !!varQ == 59 ~ "Jeff Vanderlou",
+    !!varQ == 60 ~ "St. Louis Place",
+    !!varQ == 61 ~ "Carr Square",
+    !!varQ == 62 ~ "Columbus Square",
+    !!varQ == 63 ~ "Old North St. Louis",
+    !!varQ == 64 ~ "Near North Riverfront",
+    !!varQ == 65 ~ "Hyde Park",
+    !!varQ == 66 ~ "College Hill",
+    !!varQ == 67 ~ "Fairground Neighborhood",
+    !!varQ == 68 ~ "O'Fallon",
+    !!varQ == 69 ~ "Penrose",
+    !!varQ == 70 ~ "Mark Twain I-70 Industrial",
+    !!varQ == 71 ~ "Mark Twain",
+    !!varQ == 72 ~ "Walnut Park East",
+    !!varQ == 73 ~ "North Pointe",
+    !!varQ == 74 ~ "Baden",
+    !!varQ == 75 ~ "Riverview",
+    !!varQ == 76 ~ "Walnut Park West",
+    !!varQ == 77 ~ "Covenant Blu-Grand Center",
+    !!varQ == 78 ~ "Hamilton Heights",
+    !!varQ == 79 ~ "North Riverfront"))
+
+  # return output
+  return(.data)
+
 }
