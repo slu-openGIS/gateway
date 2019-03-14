@@ -167,7 +167,8 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
   ret <- stats::setNames(ret, names)
 
   # combine coordinate data with source data
-  out <- dplyr::bind_cols(.data, ret)
+  dplyr::bind_cols(.data, ret) %>%
+    dplyr::select(-geometry, dplyr::everything()) -> out
 
   # return output
   return(out)
