@@ -105,9 +105,12 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
     dplyr::mutate(address = stringr::str_squish(address)) -> master
 
   # combine coordinates and cleaned data
-  dplyr::left_join(coords, master, by = "ADDRRECNUM") %>%
-    dplyr::rename(addrrecnum = ADDRRECNUM) -> master
+  if (class == "sf"){
+    master <- dplyr::left_join(coords, master, by = "ADDRRECNUM")
+  }
 
+  # rename id
+  master <- dplyr::rename(master, addrrecnum = ADDRRECNUM)
 
   # return output
   return(master)
