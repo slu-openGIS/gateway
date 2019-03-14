@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Standardized Street Names — stl_std_streets • gateway</title>
+<title>Standardized Street Suffix Names — stl_std_suffix • gateway</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,11 +30,11 @@
 
 
 
-<meta property="og:title" content="Standardized Street Names — stl_std_streets" />
+<meta property="og:title" content="Standardized Street Suffix Names — stl_std_suffix" />
 
-<meta property="og:description" content="A data set containing standardized street names and possible alternatives.
-    This can be used as the basis for a dictionary appendix for the postmastr
-    package." />
+<meta property="og:description" content="A data set containing the street suffixes used in St. Louis and possible
+    alternatives. This can be used as the basis for a dictionary appendix for
+    the postmastr package." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -104,39 +104,40 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Standardized Street Names</h1>
+    <h1>Standardized Street Suffix Names</h1>
     <small class="dont-index">Source: <a href='https://github.com/slu-openGIS/gateway/blob/master/R/postmastr.R'><code>R/postmastr.R</code></a></small>
-    <div class="hidden name"><code>stl_std_streets.Rd</code></div>
+    <div class="hidden name"><code>stl_std_suffix.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>A data set containing standardized street names and possible alternatives.
-    This can be used as the basis for a dictionary appendix for the <span class="pkg">postmastr</span>
-    package.</p>
+    <p>A data set containing the street suffixes used in St. Louis and possible
+    alternatives. This can be used as the basis for a dictionary appendix for
+    the <span class="pkg">postmastr</span> package.</p>
     
     </div>
 
-    <pre class="usage"><span class='no'>stl_std_streets</span></pre>
+    <pre class="usage"><span class='no'>stl_std_suffix</span></pre>
         
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A data frame with 12 rows and 2 variables:</p><dl class='dl-horizontal'>
-  <dt>st.output</dt><dd><p>standardized street name</p></dd>
-  <dt>st.input</dt><dd><p>alternative street name</p></dd>
+    <p>A data frame with 76 rows and 3 variables:</p><dl class='dl-horizontal'>
+  <dt>suf.type</dt><dd><p>suffix type</p></dd>
+  <dt>suf.input</dt><dd><p>input suffix</p></dd>
+  <dt>suf.output</dt><dd><p>output suffix</p></dd>
   </dl>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>stl_std_streets</span>)</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 6 x 2</span><span>
-#&gt;   st.output             st.input          
-#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>                 </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>             
-#&gt; </span><span style='color: #BCBCBC;'>1</span><span> Bishop P L Scott      Bishop Scott      
-#&gt; </span><span style='color: #BCBCBC;'>2</span><span> Dr Martin Luther King Martin Luther King
-#&gt; </span><span style='color: #BCBCBC;'>3</span><span> Dr Martin Luther King Mlk               
-#&gt; </span><span style='color: #BCBCBC;'>4</span><span> Dr Samuel T Shepard   Samuel T Shepard  
-#&gt; </span><span style='color: #BCBCBC;'>5</span><span> Dr Samuel T Shepard   Samuel Shepard    
-#&gt; </span><span style='color: #BCBCBC;'>6</span><span> Dr Samuel T Shepard   Sam Shepard       </div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>stl_std_suffix</span>)</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 6 x 3</span><span>
+#&gt;   suf.type suf.input suf.output
+#&gt;   </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>     
+#&gt; </span><span style='color: #BCBCBC;'>1</span><span> Alley    Allee     Aly       
+#&gt; </span><span style='color: #BCBCBC;'>2</span><span> Alley    Alley     Aly       
+#&gt; </span><span style='color: #BCBCBC;'>3</span><span> Alley    Ally      Aly       
+#&gt; </span><span style='color: #BCBCBC;'>4</span><span> Alley    Aly       Aly       
+#&gt; </span><span style='color: #BCBCBC;'>5</span><span> Avenue   Av        Ave       
+#&gt; </span><span style='color: #BCBCBC;'>6</span><span> Avenue   Ave       Ave       </div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

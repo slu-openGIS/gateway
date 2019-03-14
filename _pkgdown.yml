@@ -28,6 +28,7 @@ reference:
     - gw_get_coords
     - gw_nhood
     - stl_std_streets
+    - stl_std_suffix
 
   - title: "Sample Data"
     desc: "Sushi Resturants in St. Louis and its Enviorns"
