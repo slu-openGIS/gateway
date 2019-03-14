@@ -4,7 +4,7 @@
 \alias{gw_geocode}
 \title{Geocode Addresses}
 \usage{
-gw_geocode(.data, type, class, address, geocoder, include_result = TRUE)
+gw_geocode(.data, type, address, class, side = "right", geocoder, include_result = TRUE)
 }
 \arguments{
 \item{.data}{A target data set}
@@ -22,6 +22,9 @@ creates units.}
 
 \item{include_result}{Logical scalar; if \code{TRUE} (default), a column describing how each
 observation was geocoded is included in the output.}
+
+\item{side}{One of either \code{"right"} or \code{"left"} indicating where the identifier variable
+should be placed in the}
 }
 \value{
 A copy of the target data with georeferenced data applied to it.

@@ -10,7 +10,7 @@ gw_identify(.data, to, side = "right", class = "sf")
 \item{.data}{A \code{sf} object}
 
 \item{to}{The string name of an areal unit to aggregate to: \code{"block group"}, \code{"tract"},
-\code{"precinct"}, \code{"ward"}, \code{"neighborhood"}, or \code{"city"}.}
+\code{"precinct"}, \code{"ward"}, or \code{"neighborhood"}.}
 
 \item{side}{One of either \code{"right"} or \code{"left"} indicating where the identifier variable
 should be placed in the}

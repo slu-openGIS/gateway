@@ -180,15 +180,17 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, class, address, geocoder, include_result = TRUE)
+#' @usage gw_geocode(.data, type, address, class, side = "right", geocoder, include_result = TRUE)
 #'
 #' @param .data A target data set
 #' @param type Geocoder type; one of either \code{"local"}, \code{"city api"}, or \code{"census"}.
-#' @param class Output class; one of either \code{"sf"} or \code{"tibble"}.
 #' @param address Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 #'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
 #'    creates units.
+#' @param class Output class; one of either \code{"sf"} or \code{"tibble"}.
+#' @param side One of either \code{"right"} or \code{"left"} indicating where the identifier variable
+#'     should be placed in the
 #' @param geocoder Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}
 #' @param include_result Logical scalar; if \code{TRUE} (default), a column describing how each
 #'    observation was geocoded is included in the output.
@@ -252,6 +254,11 @@ gw_geocode <- function(.data, type, class, address, geocoder, include_result = T
     .data <- sf::st_as_sf(.data)
   } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
     .data <- dplyr::select(.data, -geometry)
+  }
+
+  # move ID column
+  if (side == "left"){
+    out <- dplyr::select(out, addrrecnum, dplyr::everything())
   }
 
   # return output
