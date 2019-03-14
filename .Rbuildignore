@@ -1,10 +1,13 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github
+^docs$
+^_pkgdown\.yml$
 ^README\.Rmd$
 ^README-.*\.png$
-^CONDUCT\.md$
+^index\.Rmd$
+^LICENSE$
 ^\.travis\.yml$
 ^\.travis
 ^appveyor\.yml$
 ^codecov\.yml$
-^docs$
