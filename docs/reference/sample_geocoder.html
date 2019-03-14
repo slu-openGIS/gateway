@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Authors • gateway</title>
+<title>Sample Geocoder, sf Format — sample_geocoder • gateway</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -25,12 +25,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-<meta property="og:title" content="Authors" />
+<meta property="og:title" content="Sample Geocoder, sf Format — sample_geocoder" />
+
+<meta property="og:description" content="A sample geocoder built with gw_build_geocoder. This
+    geocoder contains both the sf geometry and addrrecnum identifier
+    for every address on a street included in the sushi and
+    sushi_sf example data sets." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -47,7 +53,7 @@
   </head>
 
   <body>
-    <div class="container template-authors">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -59,7 +65,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">gateway</a>
+        <a class="navbar-link" href="../index.html">gateway</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0.9000</span>
       </span>
     </div>
@@ -67,13 +73,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fa fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
       </ul>
       
@@ -94,22 +100,60 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Authors</h1>
+    <h1>Sample Geocoder, sf Format</h1>
+    <small class="dont-index">Source: <a href='https://github.com/slu-openGIS/gateway/blob/master/R/sample_geocoder.R'><code>R/sample_geocoder.R</code></a></small>
+    <div class="hidden name"><code>sample_geocoder.Rd</code></div>
     </div>
 
-    <ul class="list-unstyled">
-      <li>
-        <p><strong><a href='https://chris-prener.github.io'>Christopher Prener</a></strong>. Author, maintainer. 
-        </p>
-      </li>
+    <div class="ref-description">
+    
+    <p>A sample geocoder built with <code><a href='gw_build_geocoder.html'>gw_build_geocoder</a></code>. This
+    geocoder contains both the <code>sf</code> geometry and <code>addrrecnum</code> identifier
+    for every address on a street included in the <code><a href='sushi.html'>sushi</a></code> and
+    <code><a href='sushi_sf.html'>sushi_sf</a></code> example data sets.</p>
+    
+    </div>
+
+    <pre class="usage"><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>sample_geocoder</span>)</pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A tibble with 6050 rows and 3 variables:</p><dl class='dl-horizontal'>
+  <dt>addrrecnum</dt><dd><p>address identification number</p></dd>
+  <dt>address</dt><dd><p>street address</p></dd>
+  <dt>geometry</dt><dd><p>sf geometric data</p></dd>
+</dl>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='no'>sample_geocoder</span>)</div><div class='output co'>#&gt; Simple feature collection with 6 features and 2 fields
+#&gt; geometry type:  POINT
+#&gt; dimension:      XY
+#&gt; bbox:           xmin: -90.18532 ymin: 38.62466 xmax: -90.18532 ymax: 38.62466
+#&gt; epsg (SRID):    4269
+#&gt; proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
+#&gt;   addrrecnum           address                   geometry
+#&gt; 1   10010537  2 Washington Ave POINT (-90.18532 38.62466)
+#&gt; 2   10010539  4 Washington Ave POINT (-90.18532 38.62466)
+#&gt; 3   10010541  6 Washington Ave POINT (-90.18532 38.62466)
+#&gt; 4   10010543  8 Washington Ave POINT (-90.18532 38.62466)
+#&gt; 5   10010545 10 Washington Ave POINT (-90.18532 38.62466)
+#&gt; 6   10010547 12 Washington Ave POINT (-90.18532 38.62466)</div><div class='input'>
+</div></pre>
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      
+      <li><a href="#format">Format</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
-
 </div>
-
 
       <footer>
       <div class="copyright">

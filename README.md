@@ -22,7 +22,7 @@ You can install gateway from Github with the `remotes` package:
 remotes::install_github("slu-openGIS/gateway")
 ```
 
-## Useage
+## Usage
 
 ### Data Access
 

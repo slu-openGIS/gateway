@@ -30,7 +30,7 @@ You can install gateway from Github with the `remotes` package:
 remotes::install_github("slu-openGIS/gateway")
 ```
 
-## Useage
+## Usage
 ### Data Access
 `gateway` contains a function, `gw_get_data()`, that provides access to 18 data sets hosted by the City of St. Louis, the Saint Louis University openGIS Project, and (via `tigris`) the U.S. Census Bureau. This provides a "one stop shop" for downloading and accessing data about St. Louis.
 

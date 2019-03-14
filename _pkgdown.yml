@@ -1,0 +1,37 @@
+url: https://slu-openGIS.github.io/gateway/
+
+authors:
+  Christopher Prener:
+    href: https://chris-prener.github.io
+
+reference:
+  - title: "Data Access"
+    desc: "Download Data About St. Louis"
+    contents:
+    - gw_get_data
+
+  - title: "Geocoding"
+    desc: "Obtain Coordinates from Address-level Data"
+    contents:
+    - gw_build_geocoder
+    - gw_geocode
+
+  - title: "Spatial Joins"
+    desc: "Identify and Aggregate Point Data"
+    contents:
+    - gw_aggregate
+    - gw_identify
+
+  - title: "Data Wrangling"
+    desc: "Identify and Aggregate Point Data"
+    contents:
+    - gw_get_coords
+    - gw_nhood
+    - stl_std_streets
+
+  - title: "Sample Data"
+    desc: "Sushi Resturants in St. Louis and its Enviorns"
+    contents:
+    - sample_geocoder
+    - sushi
+    - sushi_sf
