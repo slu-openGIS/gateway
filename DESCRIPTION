@@ -6,13 +6,13 @@ Authors@R: person("Christopher", "Prener", email = "chris.prener@slu.edu",
                   role = c("aut", "cre"))
 Description: Contains various tools for modifying St. Louis spatial data.
 Depends: R (>= 3.3)
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/slu-openGIS/gateway
 BugReports: https://github.com/slu-openGIS/gateway/issues
 RoxygenNote: 6.1.1
-Imports: 
+Imports:
     dplyr,
     foreign,
     glue,
@@ -26,7 +26,6 @@ Imports:
     utils
 Remotes:
     slu-openGIS/postmastr
-Suggests: 
+Suggests:
     testthat,
     covr
-
