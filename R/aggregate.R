@@ -94,7 +94,7 @@ gw_aggregate_points <- function(.data, to, sf = TRUE, replace_na = TRUE, keep_na
   ID = COUNT = NULL
 
   # load and convert areal features
-  areal <- gw_load_areal(name = to)
+  areal <- gw_load_areal(name = to, id_only = FALSE)
 
   # spatial join
   join <- sf::st_join(.data, areal)
@@ -188,7 +188,7 @@ gw_get_epsg <- function(.data){
 #
 # @param name The name of the areal geometry to be loaded
 #
-gw_load_areal <- function(name){
+gw_load_areal <- function(name, id_only = FALSE){
 
   # no visible global binding
   GEOID = HANDLE = PageNumber = NULL
@@ -231,6 +231,12 @@ gw_load_areal <- function(name){
 
   #}
 
+  # optionally return only id
+  if (id_only == TRUE){
+    areal <- dplyr::select(areal, ID)
+  }
+
+  # return output
   return(areal)
 
 }
