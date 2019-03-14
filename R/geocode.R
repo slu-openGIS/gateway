@@ -139,6 +139,9 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
 #' @export
 gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 
+  # global bindings
+  geometry = NULL
+
   # ensure .data is an sf object
   if ("sf" %in% class(.data) == FALSE){
     stop("An sf object must be used with 'gw_get_coords()'.")
@@ -213,10 +216,10 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom sf st_as_sf
 #'
 #' @export
-gw_geocode <- function(.data, type, class, address, geocoder, include_result = TRUE){
+gw_geocode <- function(.data, type, address, class, side = "right", geocoder, include_result = TRUE){
 
   # set global bindings
-  . = ...address = out = geometry = NULL
+  . = ...address = out = addrrecnum = geometry = NULL
 
   # save parameters to list
   paramList <- as.list(match.call())

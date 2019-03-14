@@ -17,6 +17,9 @@
 #' @export
 gw_identify <- function(.data, to, side = "right", class = "sf"){
 
+  # global bindings
+  ID = NULL
+
   # check to inputs
   areas_all <- c("block group", "tract", "precinct", "ward", "neighborhood", "grid", "city")
 
