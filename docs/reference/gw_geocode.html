@@ -80,6 +80,9 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -128,15 +131,20 @@
       <td><p>Geocoder type; one of either <code>"local"</code>, <code>"city api"</code>, or <code>"census"</code>.</p></td>
     </tr>
     <tr>
-      <th>class</th>
-      <td><p>Output class; one of either <code>"sf"</code> or <code>"tibble"</code>.</p></td>
-    </tr>
-    <tr>
       <th>address</th>
       <td><p>Address variable in the target data set, which should contain the house number,
 street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 names should be replaced with <code>#</code> to match how <code><a href='gw_build_geocoder.html'>gw_build_geocoder</a></code>
 creates units.</p></td>
+    </tr>
+    <tr>
+      <th>class</th>
+      <td><p>Output class; one of either <code>"sf"</code> or <code>"tibble"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>side</th>
+      <td><p>One of either <code>"right"</code> or <code>"left"</code> indicating where the identifier variable
+should be placed in the</p></td>
     </tr>
     <tr>
       <th>geocoder</th>
@@ -146,11 +154,6 @@ creates units.</p></td>
       <th>include_result</th>
       <td><p>Logical scalar; if <code>TRUE</code> (default), a column describing how each
 observation was geocoded is included in the output.</p></td>
-    </tr>
-    <tr>
-      <th>side</th>
-      <td><p>One of either <code>"right"</code> or <code>"left"</code> indicating where the identifier variable
-should be placed in the</p></td>
     </tr>
     </table>
     

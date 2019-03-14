@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Neighborhood Indentifier Conversion — gw_nhood • gateway</title>
+<title>Changelog • gateway</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,11 +30,7 @@
 
 
 
-<meta property="og:title" content="Neighborhood Indentifier Conversion — gw_nhood" />
-
-<meta property="og:description" content="Provides a technique for converting neighborhood identifiers between
-    their numeric, string, and factor formats." />
-<meta name="twitter:card" content="summary" />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -51,7 +47,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-topic">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -103,52 +99,71 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Neighborhood Indentifier Conversion</h1>
-    <small class="dont-index">Source: <a href='https://github.com/slu-openGIS/gateway/blob/master/R/neighborhood.R'><code>R/neighborhood.R</code></a></small>
-    <div class="hidden name"><code>gw_nhood.Rd</code></div>
+      <h1>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/slu-openGIS/gateway/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="ref-description">
-    
-    <p>Provides a technique for converting neighborhood identifiers between
-    their numeric, string, and factor formats.</p>
-    
-    </div>
-
-    <pre class="usage"><span class='fu'>gw_nhood</span>(<span class='no'>.data</span>, <span class='no'>var</span>, <span class='no'>new_var</span>, <span class='no'>to</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>.data</th>
-      <td><p>Data frame, tibble, or <code>sf</code> object to be modified</p></td>
-    </tr>
-    <tr>
-      <th>var</th>
-      <td><p>Variable to base conversions on</p></td>
-    </tr>
-    <tr>
-      <th>new_var</th>
-      <td><p>Name of new variable; if none is specified, the <code>var</code> variable
-will be overwritten</p></td>
-    </tr>
-    <tr>
-      <th>to</th>
-      <td><p>The output format of the data <code>var</code> (one of either <code>"numeric"</code> or
-<code>"string"</code>).</p></td>
-    </tr>
-    </table>
-    
-
+    <div id="gateway-0-3-0-9000" class="section level1">
+<h1 class="page-header">
+<a href="#gateway-0-3-0-9000" class="anchor"></a>gateway 0.3.0.9000</h1>
+<p><strong>Major, Breaking Changes:</strong></p>
+<ul>
+<li>All data download functionality now enclosed in <code><a href="../reference/gw_get_data.html">gw_get_data()</a></code>
+</li>
+<li>All data formally exported by the package has been removed, and is now accessible via <code><a href="../reference/gw_get_data.html">gw_get_data()</a></code>
+</li>
+<li>Neighborhood conversion functionality now enclused in <code><a href="../reference/gw_nhood.html">gw_nhood()</a></code>
+</li>
+</ul>
+<p><strong>Major Additions:</strong></p>
+<ul>
+<li>Local geocoding functionality with <code><a href="../reference/gw_geocode.html">gw_geocode()</a></code> and <code><a href="../reference/gw_build_geocoder.html">gw_build_geocoder()</a></code>
+</li>
+<li>Spatial join functionality with <code><a href="../reference/gw_identify.html">gw_identify()</a></code> and <code><a href="../reference/gw_aggregate.html">gw_aggregate()</a></code>
+</li>
+<li>Dictionary data for <code>postmastr</code> - <code>stl_std_streets</code> and <code>stl_std_suffix</code>
+</li>
+<li>Add helper function for extrating coordinates from <code>sf</code> <code>POINT</code> objects, <code><a href="../reference/gw_get_coords.html">gw_get_coords()</a></code>
+</li>
+<li>Add two sample data sets, <code>sushi</code> and <code>sushi_sf</code>, as well as a <code>sample_geocoder</code>
+</li>
+</ul>
+<p><strong>Minor Changes:</strong></p>
+<ul>
+<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
+<li>Add all <code>.github/</code> community files</li>
+<li>Add a <code>pkgdown</code> site</li>
+<li>Update <code>README</code> with additional examples</li>
+<li>Update <code>LICENSE</code> to GPL-3</li>
+</ul>
+</div>
+    <div id="gateway-0-2-0" class="section level1">
+<h1 class="page-header">
+<a href="#gateway-0-2-0" class="anchor"></a>gateway 0.2.0</h1>
+<ul>
+<li>Add functionality for downloading data from the City of St. Louis and the SLU OpenGIS Project</li>
+</ul>
+</div>
+    <div id="gateway-0-1-0" class="section level1">
+<h1 class="page-header">
+<a href="#gateway-0-1-0" class="anchor"></a>gateway 0.1.0</h1>
+<ul>
+<li>The initial release of the gateway package includes functions for converting string City of St. Louis neighborhood names to numeric codes, and numeric codes to string neighborhood names.</li>
+</ul>
+</div>
   </div>
+
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-                </ul>
-
+    <div id="tocnav">
+      <h2>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#gateway-0-3-0-9000">0.3.0.9000</a></li>
+        <li><a href="#gateway-0-2-0">0.2.0</a></li>
+        <li><a href="#gateway-0-1-0">0.1.0</a></li>
+      </ul>
+    </div>
   </div>
+
 </div>
 
       <footer>
