@@ -1,18 +1,18 @@
 #' Aggregate Point Data to Selected Areal Units
 #'
 #' @description \code{gw_aggregate} aggregates points from a given \code{sf} object to one of
-#'     six possible geographies: census block, block group, and tract; precinct and ward;
-#'     neighborhood.
+#'     six possible geographies: census block group and tract, precinct and ward,
+#'     neighborhood, and city.
 #'
 #' @param .data A \code{sf} object
-#' @param to The string name of an areal unit to aggregate to: block group, tract,
-#'     precinct, ward, neighborhood, or city.
+#' @param to The string name of an areal unit to aggregate to: \code{"block group"}, \code{"tract"},
+#'     \code{"precinct"}, \code{"ward"}, \code{"neighborhood"}, or \code{"city"}.
 #' @param sf A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
 #'     a tibble.
-#' @param replace.na A logical scalar; if \code{TRUE}, areal units that do not have any points
+#' @param replace_na A logical scalar; if \code{TRUE}, areal units that do not have any points
 #'     enclosed in them with be given a value of \code{0}. If \code{FALSE}, they will be given
 #'     a value of \code{NA}.
-#' @param keep.na A logical scalar; if \code{TRUE}, a row with count of points that could not be
+#' @param keep_na A logical scalar; if \code{TRUE}, a row with count of points that could not be
 #'     joined to the areal unit will be returned. This occurs when points fall outside of all
 #'     given features. If \code{FALSE}, no count of missing points is returned. This argument
 #'     only returns an \code{NA} row if \code{sf = FALSE}.
@@ -35,7 +35,7 @@
 #' @importFrom sf st_transform
 #'
 #' @export
-gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALSE){
+gw_aggregate <- function(.data, to, sf = TRUE, replace_na = TRUE, keep_na = FALSE){
 
   # check to inputs
   areas_all <- c("block group", "tract", "precinct", "ward", "neighborhood", "grid", "city")
@@ -62,7 +62,7 @@ gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALS
   }
 
   # aggregate data
-  out <- gw_aggregate_points(.data, to, sf = sf, replace.na = replace.na, keep.na = keep.na)
+  out <- gw_aggregate_points(.data, to, sf = sf, replace_na = replace_na, keep_na = keep_na)
 
   # return output
   return(out)
@@ -88,7 +88,7 @@ gw_aggregate <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALS
 #     given features. If \code{FALSE}, no count of missing points is returned. This argument
 #     only returns an \code{NA} row if \code{sf = FALSE}.
 #
-gw_aggregate_points <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na = FALSE){
+gw_aggregate_points <- function(.data, to, sf = TRUE, replace_na = TRUE, keep_na = FALSE){
 
   # no visible global binding
   ID = COUNT = NULL
@@ -106,7 +106,7 @@ gw_aggregate_points <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na
     dplyr::summarise(COUNT = dplyr::n()) -> join
 
   # optionally remove missing row
-  if (keep.na == FALSE){
+  if (keep_na == FALSE){
 
     join <- dplyr::filter(join, is.na(join$ID) == FALSE)
 
@@ -116,7 +116,7 @@ gw_aggregate_points <- function(.data, to, sf = TRUE, replace.na = TRUE, keep.na
   join <- dplyr::full_join(areal, join, by = "ID")
 
   # optionally replace missing values with a zero
-  if (replace.na == TRUE) {
+  if (replace_na == TRUE) {
 
     join <- dplyr::mutate(join, COUNT = ifelse(is.na(COUNT) == TRUE, 0, COUNT))
 

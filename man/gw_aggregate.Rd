@@ -4,23 +4,23 @@
 \alias{gw_aggregate}
 \title{Aggregate Point Data to Selected Areal Units}
 \usage{
-gw_aggregate(.data, to, sf = TRUE, replace.na = TRUE,
-  keep.na = FALSE)
+gw_aggregate(.data, to, sf = TRUE, replace_na = TRUE,
+  keep_na = FALSE)
 }
 \arguments{
 \item{.data}{A \code{sf} object}
 
-\item{to}{The string name of an areal unit to aggregate to: block group, tract,
-precinct, ward, neighborhood, or city.}
+\item{to}{The string name of an areal unit to aggregate to: \code{"block group"}, \code{"tract"},
+\code{"precinct"}, \code{"ward"}, \code{"neighborhood"}, or \code{"city"}.}
 
 \item{sf}{A logical scalar; if \code{TRUE}, returns an \code{sf} object. Otherwise returns
 a tibble.}
 
-\item{replace.na}{A logical scalar; if \code{TRUE}, areal units that do not have any points
+\item{replace_na}{A logical scalar; if \code{TRUE}, areal units that do not have any points
 enclosed in them with be given a value of \code{0}. If \code{FALSE}, they will be given
 a value of \code{NA}.}
 
-\item{keep.na}{A logical scalar; if \code{TRUE}, a row with count of points that could not be
+\item{keep_na}{A logical scalar; if \code{TRUE}, a row with count of points that could not be
 joined to the areal unit will be returned. This occurs when points fall outside of all
 given features. If \code{FALSE}, no count of missing points is returned. This argument
 only returns an \code{NA} row if \code{sf = FALSE}.}
@@ -30,6 +30,6 @@ only returns an \code{NA} row if \code{sf = FALSE}.}
 }
 \description{
 \code{gw_aggregate} aggregates points from a given \code{sf} object to one of
-    six possible geographies: census block, block group, and tract; precinct and ward;
-    neighborhood.
+    six possible geographies: census block group and tract, precinct and ward,
+    neighborhood, and city.
 }
