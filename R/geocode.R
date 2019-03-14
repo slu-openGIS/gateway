@@ -24,6 +24,7 @@
 #'
 #' @importFrom dplyr %>%
 #' @importFrom dplyr as_tibble
+#' @importFrom dplyr distinct
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
@@ -102,7 +103,8 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
     postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") %>%
     tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE) %>%
     dplyr::mutate(address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = "")) %>%
-    dplyr::mutate(address = stringr::str_squish(address)) -> master
+    dplyr::mutate(address = stringr::str_squish(address)) %>%
+    dplyr::distinct(address, .keep_all = TRUE) -> master
 
   # combine coordinates and cleaned data
   if (class == "sf"){
