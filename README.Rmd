@@ -35,24 +35,24 @@ remotes::install_github("slu-openGIS/gateway")
 `gateway` contains a function, `gw_get_data()`, that provides access to 18 data sets hosted by the City of St. Louis, the Saint Louis University openGIS Project, and (via `tigris`) the U.S. Census Bureau. This provides a "one stop shop" for downloading and accessing data about St. Louis.
 
 ```r
-# download census tracts (via tigris)
-tracts <- gw_get_data(data = "Tracts", class = "sf")
-
-# download neighborhoods (via the City of St. Louis)
-nhoods <- gw_get_data(data = "Neighborhoods", class = "tibble")
+> # download census tracts (via tigris)
+> tracts <- gw_get_data(data = "Tracts", class = "sf")
+>
+> # download neighborhoods (via the City of St. Louis)
+> nhoods <- gw_get_data(data = "Neighborhoods", class = "tibble")
 ```
 
 ### Geocoding
 Along with its cousin [`postmastr`](https:://slu-openGIS.github.io/postmastr/), `gateway` can be used to gecode data. In order for the local geocoder to work correctly, data needed to be parsed and standardized ahead of time. The package contains a data set, `sushi`, that is the same as `sushi2` in the `postmastr` package but has already been processed and is ready for geocoding:
 
-```
+```r
 > sushi <- sushi
 ```
 
 Next, we need to build our local geocoder with `gw_build_geocoder()`:
 
 ```r
-geocoder <- gw_build_geocoder(class = "sf")
+> geocoder <- gw_build_geocoder(class = "sf")
 ```
 
 This can take a short period of time, both because it will download a fresh master address list from the City of St. Louis (~ 7.8MB in size) and because the size of this list, approximately 330,000 addresses. Once the function finishes executing, we can move on to geocoding our data
@@ -96,10 +96,48 @@ proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
 With the data converted to a `sf` object, they can be mapped using a variety of tools (including `ggplot2`, `tmap`, and `leaflet`) or further geoprocessed (see the next section).
 
 ### Spatial Joins
-The `gateway` package contains data for further modifying point data from St. Louis. For instance, we could convert these to a shapefile representing the neighborhood polygons where sushi resturants are located:
+The `gateway` package contains data for further modifying point data from St. Louis. There are two primary verbs, `gw_identify()` and `gw_aggregate()`. The `gw_identify()` function applies identifiers from an areal unit to the point data, while the `gw_aggregate()` function produces counts of points per feature of the areal unit.
+
+#### Identify Points
+If we wanted to retain our geocoded point data, but add identifiers from one of several geographies, we can use `gw_identify()`. For example, we can add Census tract identifiers (`GEOID`) to our data:
+
+```r
+> gw_identify(sushi_sf, to = "tract")
+Point data transformed to Missouri State Plane East NAD83 (2011) for spatial join.
+Simple feature collection with 15 features and 5 fields
+geometry type:  POINT
+dimension:      XY
+bbox:           xmin: 270616.6 ymin: 306882.3 xmax: 276655.9 ymax: 312051.7
+epsg (SRID):    6512
+proj4string:    +proj=tmerc +lat_0=35.83333333333334 +lon_0=-90.5 +k=0.999933333 +x_0=250000 +y_0=0 +ellps=GRS80 +units=m +no_defs
+# A tibble: 15 x 6
+   name                            address              visit    addrrecnum GEOID                  geometry
+   <chr>                           <chr>                <chr>    <chr>      <chr>               <POINT [m]>
+ 1 BaiKu Sushi Lounge              3407 Olive St        3/20/18  10022116   29510121100 (273663.4 311138.8)
+ 2 Cafe Mochi                      3221 S Grand Blvd    10/10/18 10049492   29510116301   (272381 306882.3)
+ 3 Drunken Fish - Central West End 1 Maryland Plz       12/2/18  10279312   29510112400 (270734.8 312050.5)
+ 4 Kampai Sushi Bar                4949 W Pine Blvd     2/13/18  10158461   29510112400 (270616.6 311764.6)
+ 5 Midtown Sushi & Ramen           3674 Forest Park Ave 3/4/18   10173725   29510118600   (272891.3 310760)
+ 6 Mizu Sushi Bar                  1013 Washington Ave  9/12/18  10015227   29510125600 (276626.9 310583.9)
+ 7 Sapporo 2                       3043 Olive St        3/1/18   10022067   29510121100 (274085.6 310994.1)
+ 8 Sapporo 2                       3043 Olive St        7/3/18   10022067   29510121100 (274085.6 310994.1)
+ 9 Sub Zero Vodka Bar              308 N Euclid Ave     12/7/18  10096925   29510112400 (270816.1 312051.7)
+10 Sushi Ai                        910 Olive St         3/29/18  10021018   29510125600 (276655.9 310257.9)
+11 Sushi Ai                        910 Olive St         5/20/18  10021018   29510125600 (276655.9 310257.9)
+12 Sushi Ai                        910 Olive St         6/17/18  10021018   29510125600 (276655.9 310257.9)
+13 Sushi Ai                        910 Olive St         8/25/18  10021018   29510125600 (276655.9 310257.9)
+14 Sushi Ai                        910 Olive St         10/30/18 10021018   29510125600 (276655.9 310257.9)
+15 SUSHI KOI                       4 N Euclid Ave       1/17/18  10096866   29510119101   (270740 311550.6)
+```
+
+The `gw_identify()` function also includes support for Census block groups, precincts, wards, and neighborhoods.
+
+#### Aggregate Points
+We can also convert these to a shapefile representing the neighborhood (or one of several other geographies) where sushi resturants are located:
 
 ```r
 > sushi_nhoods <- gw_aggregate(sushi_sf, to = "neighborhood")
+Point data transformed to Missouri State Plane East NAD83 (2011) for spatial join.
 ```
 
 We now can see that sushi resturants are concentrated in Downtown, Midtown, and the Central West End:
@@ -130,6 +168,7 @@ First 10 features:
 Other options for spatial joins are block groups, tracts, precincts, wards, or city as a whole.
 
 ### Data Wrangling
+#### Neighborhood Identifier and Name Conversion
 We can also convert the neighborhood names into numeric identification numbers and back using `gw_nhood()`:
 
 ```r
@@ -156,5 +195,36 @@ First 10 features:
 
 The `gw_nhood()` function also offers the reverse functionality, allowing users to conver the data from numeric to string.
 
+#### Extracting Coordinates
+Finally, `gateway` offers a helper function designed to take the `geometry` column in a `sf` point object and convert its coordinates to columns:
+
+```r
+> gw_get_coords(sushi_sf, names = c("x","y"), crs = 4269)
+Simple feature collection with 15 features and 6 fields
+geometry type:  POINT
+dimension:      XY
+bbox:           xmin: -90.26318 ymin: 38.5984 xmax: -90.19386 ymax: 38.645
+epsg (SRID):    4269
+proj4string:    +proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs
+# A tibble: 15 x 7
+   name                            address              visit    addrrecnum     x     y             geometry
+   <chr>                           <chr>                <chr>    <chr>      <dbl> <dbl>          <POINT [°]>
+ 1 BaiKu Sushi Lounge              3407 Olive St        3/20/18  10022116   -90.2  38.6  (-90.2282 38.63671)
+ 2 Cafe Mochi                      3221 S Grand Blvd    10/10/18 10049492   -90.2  38.6  (-90.24307 38.5984)
+ 3 Drunken Fish - Central West End 1 Maryland Plz       12/2/18  10279312   -90.3  38.6   (-90.26181 38.645)
+ 4 Kampai Sushi Bar                4949 W Pine Blvd     2/13/18  10158461   -90.3  38.6 (-90.26318 38.64242)
+ 5 Midtown Sushi & Ramen           3674 Forest Park Ave 3/4/18   10173725   -90.2  38.6 (-90.23708 38.63332)
+ 6 Mizu Sushi Bar                  1013 Washington Ave  9/12/18  10015227   -90.2  38.6 (-90.19418 38.63163)
+ 7 Sapporo 2                       3043 Olive St        3/1/18   10022067   -90.2  38.6 (-90.22336 38.63539)
+ 8 Sapporo 2                       3043 Olive St        7/3/18   10022067   -90.2  38.6 (-90.22336 38.63539)
+ 9 Sub Zero Vodka Bar              308 N Euclid Ave     12/7/18  10096925   -90.3  38.6   (-90.26088 38.645)
+10 Sushi Ai                        910 Olive St         3/29/18  10021018   -90.2  38.6 (-90.19386 38.62869)
+11 Sushi Ai                        910 Olive St         5/20/18  10021018   -90.2  38.6 (-90.19386 38.62869)
+12 Sushi Ai                        910 Olive St         6/17/18  10021018   -90.2  38.6 (-90.19386 38.62869)
+13 Sushi Ai                        910 Olive St         8/25/18  10021018   -90.2  38.6 (-90.19386 38.62869)
+14 Sushi Ai                        910 Olive St         10/30/18 10021018   -90.2  38.6 (-90.19386 38.62869)
+15 SUSHI KOI                       4 N Euclid Ave       1/17/18  10096866   -90.3  38.6 (-90.26177 38.64049)
+```
+
 ## Contributor Code of Conduct
-Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please note that this project is released with a [Contributor Code of Conduct](.github/CONDUCT.md). By participating in this project you agree to abide by its terms.
