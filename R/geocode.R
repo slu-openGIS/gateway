@@ -189,10 +189,11 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, address, class, side = "right", geocoder, include_result = TRUE)
+#' @usage gw_geocode(.data, type, address, class, side = "right", geocoder, include_source = TRUE)
 #'
 #' @param .data A target data set
-#' @param type Geocoder type; one of either \code{"local"}, \code{"city api"}, or \code{"census"}.
+#' @param type Geocoder type; one of either \code{"local"}, \code{"city api"}, \code{"census"},
+#'    \code{"osm"}.
 #' @param address Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 #'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
@@ -201,7 +202,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @param side One of either \code{"right"} or \code{"left"} indicating where the identifier variable
 #'     should be placed in the
 #' @param geocoder Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}
-#' @param include_result Logical scalar; if \code{TRUE} (default), a column describing how each
+#' @param include_source Logical scalar; if \code{TRUE} (default), a column describing how each
 #'    observation was geocoded is included in the output.
 #'
 #' @return A copy of the target data with georeferenced data applied to it.
@@ -221,7 +222,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom sf st_as_sf
 #'
 #' @export
-gw_geocode <- function(.data, type, address, class, side = "right", geocoder, include_result = TRUE){
+gw_geocode <- function(.data, type, address, class, side = "right", geocoder, include_source = TRUE){
 
   # set global bindings
   . = ...address = out = addrrecnum = geometry = NULL
@@ -248,11 +249,14 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
 
   # geocode
   if (type == "local"){
-    .data <- gw_geocode_locale(.data, geocoder = geocoder)
+    .data <- gw_geocode_local(.data, geocoder = geocoder, side = side)
   } else if (type == "city api"){
     stop("functionality not enabled")
   } else if (type == "census"){
     stop("functionality not enabled")
+  } else if (type == "osm"){
+    stop("functionality not enabled")
+    .data <- gw_geocode_osm(.data)
   }
 
   # rename variables again
@@ -265,9 +269,9 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
     .data <- dplyr::select(.data, -geometry)
   }
 
-  # move ID column
-  if (side == "left"){
-    out <- dplyr::select(out, addrrecnum, dplyr::everything())
+  # optionally remove source
+  if (include_source == FALSE){
+    .data <- dplyr::select(.data, -source)
   }
 
   # return output
@@ -277,7 +281,7 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
 
 
 # local geocoder
-gw_geocode_locale <- function(.data, geocoder){
+gw_geocode_local <- function(.data, geocoder, side = "right"){
 
   # set global bindings
   address = NULL
@@ -294,8 +298,19 @@ gw_geocode_locale <- function(.data, geocoder){
   # geocode
   target <- dplyr::left_join(target, geocoder, by = "...address")
 
+  # include result
+  target <- dplyr::mutate(target, source = ifelse(is.na(addrrecnum) == FALSE, "local geocoder", NA))
+
   # rebuild data
   .data <- gw_geocode_replace(source = .data, target = target)
+
+  # move ID column
+  if (side == "left"){
+    .data <- dplyr::select(.data, addrrecnum, dplyr::everything())
+  }
+
+  # return output
+  return(.data)
 
 }
 
@@ -304,8 +319,28 @@ gw_geocode_city_api <- function(.data){
 
 }
 
-# city api
+# census xy
 gw_geocode_census_xy <- function(.data){
+
+}
+
+# open street map
+gw_geocode_osm <- function(.data){
+
+  # set global bindings
+  address = NULL
+
+  # identify observations
+  .data <- gw_geocode_identify(.data)
+
+  # subset distinct observations
+  target <- gw_geocode_prep(.data)
+
+  # geocode
+  result <- tmaptools::geocode_OSM(target$...address, as.sf = TRUE)
+
+  # include result
+  target <- dplyr::mutate(target, source = ifelse(is.na(addrrecnum) == FALSE, "open street map", NA))
 
 }
 

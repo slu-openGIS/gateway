@@ -11,7 +11,7 @@ sushi <- sushi2
 # clean and parse sample data
 sushi %>%
   dplyr::filter(name != "Drunken Fish - Ballpark Village") %>%
-  postmastr::pm_parse(input = "short", address = "address") %>%
+  postmastr::pm_parse(input = "short", address = "address", keep_parsed = "no") %>%
   dplyr::select(name, pm.address, visit) %>%
   dplyr::rename(address = pm.address) -> sushi_clean
 
@@ -22,8 +22,8 @@ geocoder <- gw_build_geocoder(return = c("id", "coords"), class = "tibble", incl
 geocoder <- gw_build_geocoder(class = "sf")
 
 # geocode
-sushi_sf <- gw_geocode(sushi_clean, type = "local", class = "sf",
-                       address = "address", geocoder = geocoder)
+sushi_sf <- gw_geocode(sushi_clean, type = "local", class = "tibble",
+                       address = address, geocoder = geocoder)
 
 library(leaflet)
 
