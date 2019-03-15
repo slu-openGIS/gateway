@@ -220,6 +220,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom rlang quo
 #' @importFrom rlang sym
 #' @importFrom sf st_as_sf
+#' @importFrom tmaptools geocode_OSM
 #'
 #' @export
 gw_geocode <- function(.data, type, address, class, side = "right", geocoder, include_source = TRUE){
@@ -262,13 +263,6 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
   # rename variables again
   .data <- dplyr::rename(.data, !!varQ := ...address)
 
-  # set-up output
-  if (class == "sf"){
-    .data <- sf::st_as_sf(.data)
-  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
-    .data <- dplyr::select(.data, -geometry)
-  }
-
   # optionally remove source
   if (include_source == FALSE){
     .data <- dplyr::select(.data, -source)
@@ -284,7 +278,7 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
 gw_geocode_local <- function(.data, geocoder, side = "right"){
 
   # set global bindings
-  address = NULL
+  address = addrrecnum = geometry = out = NULL
 
   # identify observations
   .data <- gw_geocode_identify(.data)
@@ -309,6 +303,13 @@ gw_geocode_local <- function(.data, geocoder, side = "right"){
     .data <- dplyr::select(.data, addrrecnum, dplyr::everything())
   }
 
+  # set-up output
+  if (class == "sf"){
+    .data <- sf::st_as_sf(.data)
+  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
+    .data <- dplyr::select(.data, -geometry)
+  }
+
   # return output
   return(.data)
 
@@ -328,7 +329,7 @@ gw_geocode_census_xy <- function(.data){
 gw_geocode_osm <- function(.data){
 
   # set global bindings
-  address = NULL
+  addrrecnum = NULL
 
   # identify observations
   .data <- gw_geocode_identify(.data)
@@ -340,7 +341,7 @@ gw_geocode_osm <- function(.data){
   result <- tmaptools::geocode_OSM(target$...address, as.sf = TRUE)
 
   # include result
-  target <- dplyr::mutate(target, source = ifelse(is.na(addrrecnum) == FALSE, "open street map", NA))
+  result <- dplyr::mutate(result, source = ifelse(is.na(addrrecnum) == FALSE, "open street map", NA))
 
 }
 

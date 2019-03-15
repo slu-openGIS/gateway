@@ -23,6 +23,7 @@ Imports:
     tibble,
     tidyr,
     tigris,
+    tmaptools,
     utils
 Remotes:
     slu-openGIS/postmastr
