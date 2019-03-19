@@ -1,6 +1,9 @@
 # Access to the City's ArcGIS REST API
 # Currently for experimentation, not export
 
+# Address seems to override street input, all arguments are optional
+# Address should be single line input e.g. (20 N Grand Blvd, 63103)
+
 address_candidates <- function(street, zip, address){
   # build a query
   baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates?"
