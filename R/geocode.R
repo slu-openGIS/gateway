@@ -315,8 +315,13 @@ gw_geocode_local <- function(.data, geocoder, side = "right"){
 
 }
 
-# city api
-gw_geocode_city_api <- function(.data){
+# city api, batch geocoder
+gw_geocode_city_batch <- function(.data){
+
+}
+
+# city api, candidate geocoder
+gw_geocode_city_batch <- function(.data){
 
 }
 
