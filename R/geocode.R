@@ -250,7 +250,7 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
 
   # geocode
   if (type == "local"){
-    .data <- gw_geocode_local(.data, geocoder = geocoder, side = side)
+    .data <- gw_geocode_local(.data, class = class, geocoder = geocoder, side = side)
   } else if (type == "city api"){
     stop("functionality not enabled")
   } else if (type == "census"){
@@ -275,7 +275,7 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
 
 
 # local geocoder
-gw_geocode_local <- function(.data, geocoder, side = "right"){
+gw_geocode_local <- function(.data, class, geocoder, side = "right"){
 
   # set global bindings
   address = addrrecnum = geometry = out = NULL
