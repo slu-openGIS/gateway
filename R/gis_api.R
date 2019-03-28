@@ -28,7 +28,7 @@
 gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALSE){
 
   # global bindings
-  score = NULL
+  score = address_match = x = y = NULL
 
   # error checking
   if(missing(street) & missing(address)){
@@ -82,17 +82,28 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 
     df <- dplyr::bind_rows(out)
 
+    df <- dplyr::rename(df, address_match = address)
+
     # score threshold
     if(!missing(threshold)){
       df <- dplyr::filter(df, score >= threshold)
     }
 
+    # convert coordinates
+    sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = 102696)
+    sf <- sf::st_transform(sf, crs = 4269)
+    sf <- gw_get_coords(sf)
+    sf::st_geometry(sf) <- NULL
+    sf <- dplyr::select(sf, address_match, x, y, score)
+
     # return sf if specified
-    if(sf == TRUE){
-      sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = crs)
-      return(sf)
-    }
-    else{return(df)}
+    # if(sf == TRUE){
+    #  sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = 102696)
+    #  return(sf)
+    #}
+    # else{return(df)}
+
+    return(sf)
 
   } else if (length(out) == 0){
 

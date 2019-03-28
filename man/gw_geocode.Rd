@@ -9,8 +9,8 @@ gw_geocode(.data, type, address, class, side = "right", geocoder, include_source
 \arguments{
 \item{.data}{A target data set}
 
-\item{type}{Geocoder type; one of either \code{"local"}, \code{"city api"}, \code{"census"},
-\code{"osm"}.}
+\item{type}{Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
+\code{"city candidate"}, \code{"census"}, or \code{"osm"}.}
 
 \item{address}{Address variable in the target data set, which should contain the house number,
 street directionals, name, and suffix, and optionally unit types and numbers as well. Unit

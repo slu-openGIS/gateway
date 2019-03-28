@@ -227,8 +227,8 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @usage gw_geocode(.data, type, address, class, side = "right", geocoder, include_source = TRUE)
 #'
 #' @param .data A target data set
-#' @param type Geocoder type; one of either \code{"local"}, \code{"city api"}, \code{"census"},
-#'    \code{"osm"}.
+#' @param type Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
+#'    \code{"city candidate"}, \code{"census"}, or \code{"osm"}.
 #' @param address Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 #'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
@@ -288,8 +288,10 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
     .data <- gw_geocode_local(.data, class = class, geocoder = geocoder, side = side)
   } else if (type == "local short"){
     .data <- gw_geocode_local_short(.data, class = class, geocoder = geocoder, side = side)
-  } else if (type == "city api"){
+  } else if (type == "city batch"){
     stop("functionality not enabled")
+  } else if (type == "city candidate"){
+    .data <- gw_geocode_city_candidate(.data)
   } else if (type == "census"){
     stop("functionality not enabled")
   } else if (type == "osm"){
@@ -399,7 +401,34 @@ gw_geocode_city_batch <- function(.data){
 }
 
 # city api, candidate geocoder
-gw_geocode_city_batch <- function(.data){
+gw_geocode_city_candidate <- function(.data){
+
+  # global bindings
+  ...address = geo = NULL
+
+  # identify observations
+  .data <- gw_geocode_identify(.data)
+
+  # subset distinct observations
+  target <- gw_geocode_prep(.data)
+
+  # generate candidates
+  target <- dplyr::mutate(target, geo = purrr::map(...address, ~ gw_create_candidates(address = .x, style = "top")))
+
+  # remove NAs
+  target <- dplyr::filter(target, is.na(geo) == FALSE)
+
+  # unnest results
+  target <- tidyr::unnest(target)
+
+  # include result
+  target <- dplyr::mutate(target, source = "city candidate")
+
+  # rebuild data
+  target <- gw_geocode_replace(source = .data, target = target)
+
+  # return output
+  return(target)
 
 }
 
@@ -472,4 +501,106 @@ gw_geocode_replace <- function(source, target){
 
 }
 
+gw_create_candidates <- function(address, style){
+
+  if (style == "top"){
+
+    api_result <- gw_add_candidates(address = address, n = 1)
+
+  } else if (style == "all"){
+
+    api_result <- gw_add_candidates(address = address)
+    api_result <- tibble::rowid_to_column(api_result, var = "result_id")
+
+  }
+
+  return(api_result)
+
+}
+
+#' Composite Geocoder
+#'
+#' @description An algorithm for processing and geocoding address data. A first
+#'     attempt is made to match again a local geocoder. Unmatched addresses are then
+#'     matched against a short geocoder. AAddress that remain unmatched are then
+#'     matched using the City of St. Louis's address candidate API.
+#'
+#' @param .data A data frame or tibble to be geocoded
+#' @param address Column with address data to be geocoded
+#' @param local_geocoder Object with local geocoder data
+#' @param short_geocoder Object with short version of local geocoder data
+#'
+#' @export
+gw_geocode_composite <- function(.data, address, local_geocoder, short_geocoder){
+
+  # global bindings
+  ...id = x = unmatched = NULL
+
+  # save parameters to list
+  paramList <- as.list(match.call())
+
+  # unquote
+  add <- paramList$address
+
+  if (!is.character(paramList$address)) {
+    varQ <- rlang::enquo(add)
+  } else if (is.character(paramList$address)) {
+    varQ <- rlang::quo(!! rlang::sym(add))
+  }
+
+  # add id
+  .data <- tibble::rowid_to_column(.data, var = "...id")
+
+  # use local geocoder
+  .data <- gw_geocode(.data, type = "local", class = "tibble", address = !!varQ)
+
+  # subset results
+  matched <- dplyr::filter(.data, is.na(x) == FALSE)
+  unmatched <- dplyr::filter(.data, is.na(x) == TRUE)
+
+  # short geocoder
+  if (nrow(unmatched) > 0){
+
+    # use short geocoder
+    initial <- gw_geocode(unmatched, type = "local short", class = "tibble", address = !!varQ)
+
+    # subset results
+    matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
+    unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+
+    # combine
+    matched <- dplyr::bind_rows(matched, matched2)
+    matched <- dplyr::arrange(matched, ...id)
+
+    if (nrow(unmatched) > 0){
+
+      # use candidate geocoder
+      initial <- gw_geocode(unmatched, type = "city candidate", class = "tibble", address = !!varQ)
+
+      # subset results
+      matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
+      unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+
+      # combine
+      matched <- dplyr::bind_rows(matched, matched2)
+      matched <- dplyr::arrange(matched, ...id)
+
+      # combine and return
+      initial <- dplyr::bind_rows(matched, unmatched)
+      initial <- dplyr::arrange(initial, ...id)
+      return(initial)
+
+    } else {
+
+      return(initial)
+
+    }
+
+  } else {
+
+    return(initial)
+
+  }
+
+}
 
