@@ -18,6 +18,25 @@
 #'
 "stl_std_directions"
 
+#' Standardized House Suffix Values
+#'
+#' @description A data set containing standardized house suffix names and possible
+#'     alternatives. This can be used as the basis for a dictionary appendix for
+#'     the \pkg{postmastr} package.
+#'
+#' @docType data
+#'
+#' @format A data frame with 5 rows and 2 variables:
+#' \describe{
+#'   \item{houseSuf.output}{standardized abbreviation for house suffix}
+#'   \item{houseSuf.input}{alternative house suffix}
+#'   }
+#'
+#' @examples
+#' head(stl_std_houseSuffix)
+#'
+"stl_std_houseSuffix"
+
 #' Standardized Street Names
 #'
 #' @description A data set containing standardized street names and possible alternatives.

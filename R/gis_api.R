@@ -27,6 +27,9 @@
 #' @export
 gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALSE){
 
+  # global bindings
+  score = NULL
+
   # error checking
   if(missing(street) & missing(address)){
     stop("At least one of street or address must be specified")

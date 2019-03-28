@@ -43,7 +43,7 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
-    SUFDIR = UNITNUM = ZIP = address = NULL
+    SUFDIR = UNITNUM = ZIP = address = address_short = NULL
 
   # check for optional return argument
   if (missing(return)){
@@ -325,7 +325,7 @@ gw_geocode_local <- function(.data, class, geocoder, side = "right"){
 gw_geocode_local_short <- function(.data, class, geocoder, side = "right"){
 
   # set global bindings
-  address = addrrecnum = geometry = out = NULL
+  address = addrrecnum = geometry = out = address_short = NULL
 
   # identify observations
   .data <- gw_geocode_identify(.data)
