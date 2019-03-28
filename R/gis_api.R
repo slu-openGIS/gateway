@@ -66,28 +66,36 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
   # intialize output
   out <- vector("list", length(parsed[["candidates"]]))
 
-  for (i in 1:length(parsed[["candidates"]])){
-    out[[i]] <- data.frame(
-    address = parsed[["candidates"]][[i]][["address"]],
-    x = parsed[["candidates"]][[i]][["location"]][["x"]],
-    y = parsed[["candidates"]][[i]][["location"]][["y"]],
-    score = parsed[["candidates"]][[i]][["score"]],
-    stringsAsFactors = FALSE)
-  }
+  if (length(out) > 0){
 
-  df <- dplyr::bind_rows(out)
+    for (i in 1:length(parsed[["candidates"]])){
+      out[[i]] <- data.frame(
+        address = parsed[["candidates"]][[i]][["address"]],
+        x = parsed[["candidates"]][[i]][["location"]][["x"]],
+        y = parsed[["candidates"]][[i]][["location"]][["y"]],
+        score = parsed[["candidates"]][[i]][["score"]],
+        stringsAsFactors = FALSE)
+    }
 
-  # score threshold
-  if(!missing(threshold)){
-    df <- dplyr::filter(df, score >= threshold)
-  }
+    df <- dplyr::bind_rows(out)
 
-  # return sf if specified
-  if(sf == TRUE){
-    sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = crs)
-    return(sf)
+    # score threshold
+    if(!missing(threshold)){
+      df <- dplyr::filter(df, score >= threshold)
+    }
+
+    # return sf if specified
+    if(sf == TRUE){
+      sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = crs)
+      return(sf)
+    }
+    else{return(df)}
+
+  } else if (length(out) == 0){
+
+    return(NA)
+
   }
-  else{return(df)}
 
 }
 
