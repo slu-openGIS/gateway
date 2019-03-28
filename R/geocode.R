@@ -101,9 +101,13 @@ gw_build_geocoder <- function(class, crs = 4269, return = c("coords", "parcel", 
     dplyr::mutate(HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF)) %>%
     postmastr::pm_street_std(var = STREETNAME, locale = "us") %>%
     postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") %>%
-    tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE) %>%
+    tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = FALSE) %>%
     dplyr::mutate(address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = "")) %>%
     dplyr::mutate(address = stringr::str_squish(address)) %>%
+    tidyr::unite(address_short, HOUSENUM:STREETNAME, sep = " ", remove = TRUE) %>%
+    dplyr::mutate(address_short = stringr::str_replace_all(address_short, pattern = "\\bNA\\b", replacement = "")) %>%
+    dplyr::mutate(address_short = stringr::str_squish(address_short)) %>%
+    dplyr::select(-STREETTYPE, -SUFDIR) %>%
     dplyr::distinct(address, .keep_all = TRUE) -> master
 
   # combine coordinates and cleaned data
