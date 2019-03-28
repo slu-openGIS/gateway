@@ -1,3 +1,23 @@
+#' Standardized Directions
+#'
+#' @description A data set containing standardized street directionals for St. Louis.
+#'     This can be used as the basis for a dictionary appendix for the \pkg{postmastr}
+#'     package. It contains only the extra directionals used in the City's master list
+#'     of street addresses.
+#'
+#' @docType data
+#'
+#' @format A data frame with 7 rows and 2 variables:
+#' \describe{
+#'   \item{dir.output}{directional abbreviation}
+#'   \item{dir.input}{directional abbreviation}
+#'   }
+#'
+#' @examples
+#' head(stl_std_directions)
+#'
+"stl_std_directions"
+
 #' Standardized Street Names
 #'
 #' @description A data set containing standardized street names and possible alternatives.
