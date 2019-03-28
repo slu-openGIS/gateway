@@ -4,12 +4,12 @@
 \alias{gw_geocode_composite}
 \title{Composite Geocoder}
 \usage{
-gw_geocode_composite(.data, address, local_geocoder, short_geocoder)
+gw_geocode_composite(.data, var, local_geocoder, short_geocoder)
 }
 \arguments{
 \item{.data}{A data frame or tibble to be geocoded}
 
-\item{address}{Column with address data to be geocoded}
+\item{var}{Column with address data to be geocoded}
 
 \item{local_geocoder}{Object with local geocoder data}
 

@@ -4,7 +4,7 @@
 \alias{gw_geocode}
 \title{Geocode Addresses}
 \usage{
-gw_geocode(.data, type, address, class, side = "right", geocoder, include_source = TRUE)
+gw_geocode(.data, type, var, class, side = "right", geocoder, include_source = TRUE)
 }
 \arguments{
 \item{.data}{A target data set}
@@ -12,7 +12,7 @@ gw_geocode(.data, type, address, class, side = "right", geocoder, include_source
 \item{type}{Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
 \code{"city candidate"}, \code{"census"}, or \code{"osm"}.}
 
-\item{address}{Address variable in the target data set, which should contain the house number,
+\item{var}{Address variable in the target data set, which should contain the house number,
 street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
 creates units.}

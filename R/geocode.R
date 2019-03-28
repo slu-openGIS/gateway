@@ -224,12 +224,12 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, address, class, side = "right", geocoder, include_source = TRUE)
+#' @usage gw_geocode(.data, type, var, class, side = "right", geocoder, include_source = TRUE)
 #'
 #' @param .data A target data set
 #' @param type Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
 #'    \code{"city candidate"}, \code{"census"}, or \code{"osm"}.
-#' @param address Address variable in the target data set, which should contain the house number,
+#' @param var Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
 #'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
 #'    creates units.
@@ -258,7 +258,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom tmaptools geocode_OSM
 #'
 #' @export
-gw_geocode <- function(.data, type, address, class, side = "right", geocoder, include_source = TRUE){
+gw_geocode <- function(.data, type, var, class, side = "right", geocoder, include_source = TRUE){
 
   # set global bindings
   . = ...address = out = addrrecnum = geometry = NULL
@@ -267,12 +267,12 @@ gw_geocode <- function(.data, type, address, class, side = "right", geocoder, in
   paramList <- as.list(match.call())
 
   # unquote
-  add <- paramList$address
+  # add <- paramList$address
 
-  if (!is.character(paramList$address)) {
-    varQ <- rlang::enquo(add)
-  } else if (is.character(paramList$address)) {
-    varQ <- rlang::quo(!! rlang::sym(add))
+  if (!is.character(paramList$var)) {
+    varQ <- rlang::enquo(var)
+  } else if (is.character(paramList$var)) {
+    varQ <- rlang::quo(!! rlang::sym(var))
   }
 
   # ensure sf objects are converted to a-spatial data
@@ -526,81 +526,96 @@ gw_create_candidates <- function(address, style){
 #'     matched using the City of St. Louis's address candidate API.
 #'
 #' @param .data A data frame or tibble to be geocoded
-#' @param address Column with address data to be geocoded
+#' @param var Column with address data to be geocoded
 #' @param local_geocoder Object with local geocoder data
 #' @param short_geocoder Object with short version of local geocoder data
 #'
 #' @export
-gw_geocode_composite <- function(.data, address, local_geocoder, short_geocoder){
+gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder){
 
   # global bindings
-  ...id = x = unmatched = NULL
+  ...gw.id = x = y = unmatched = addrrecnum = NULL
 
   # save parameters to list
   paramList <- as.list(match.call())
 
   # unquote
-  add <- paramList$address
+  # add <- paramList$address
 
-  if (!is.character(paramList$address)) {
-    varQ <- rlang::enquo(add)
-  } else if (is.character(paramList$address)) {
-    varQ <- rlang::quo(!! rlang::sym(add))
+  if (!is.character(paramList$var)) {
+    varQ <- rlang::enquo(var)
+  } else if (is.character(paramList$var)) {
+    varQ <- rlang::quo(!! rlang::sym(var))
   }
 
   # add id
-  .data <- tibble::rowid_to_column(.data, var = "...id")
+  .data <- tibble::rowid_to_column(.data, var = "...gw.id")
 
   # use local geocoder
-  .data <- gw_geocode(.data, type = "local", class = "tibble", address = !!varQ)
+  .data <- gw_geocode(.data, type = "local", var = !!varQ, class = "tibble", geocoder = local_geocoder)
 
-  # subset results
-  matched <- dplyr::filter(.data, is.na(x) == FALSE)
-  unmatched <- dplyr::filter(.data, is.na(x) == TRUE)
+  # check results
+  result <- any(is.na(.data$x))
 
   # short geocoder
-  if (nrow(unmatched) > 0){
-
-    # use short geocoder
-    initial <- gw_geocode(unmatched, type = "local short", class = "tibble", address = !!varQ)
+  if (result == TRUE){
 
     # subset results
-    matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
-    unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+    matched <- dplyr::filter(.data, is.na(x) == FALSE)
+    unmatched <- dplyr::filter(.data, is.na(x) == TRUE)
+    unmatched <- dplyr::select(unmatched, -addrrecnum, -x, -y, -source)
 
-    # combine
-    matched <- dplyr::bind_rows(matched, matched2)
-    matched <- dplyr::arrange(matched, ...id)
+    # use short geocoder
+    initial <- gw_geocode(unmatched, type = "local short", var = !!varQ, class = "tibble", geocoder = short_geocoder)
 
-    if (nrow(unmatched) > 0){
+    # check results
+    result2 <- any(is.na(initial$x))
 
-      # use candidate geocoder
-      initial <- gw_geocode(unmatched, type = "city candidate", class = "tibble", address = !!varQ)
+    if (result2 == TRUE){
 
       # subset results
       matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
       unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+      unmatched <- dplyr::select(unmatched, -addrrecnum, -x, -y, -source)
 
       # combine
       matched <- dplyr::bind_rows(matched, matched2)
-      matched <- dplyr::arrange(matched, ...id)
+      matched <- dplyr::arrange(matched, ...gw.id)
+
+      # use candidate geocoder
+      initial <- gw_geocode(unmatched, type = "city candidate", class = "tibble", var = !!varQ)
+
+      # check results
+      result3 <- any(is.na(initial$x))
+
+      # subset results
+      # matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
+      # unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+
+      # combine
+      # matched <- dplyr::bind_rows(matched, matched2)
+      # matched <- dplyr::arrange(matched, ...gw.id)
 
       # combine and return
-      initial <- dplyr::bind_rows(matched, unmatched)
-      initial <- dplyr::arrange(initial, ...id)
-      return(initial)
+      # initial <- dplyr::bind_rows(matched, unmatched)
+      # initial <- dplyr::arrange(initial, ...gw.id)
 
-    } else {
+      # combine
+      initial <- dplyr::bind_rows(matched, initial)
+      initial <- dplyr::arrange(initial, ...gw.id)
 
-      return(initial)
+    } else if (result2 == FALSE){
+
+      # combine
+      initial <- dplyr::bind_rows(matched, initial)
+      initial <- dplyr::arrange(initial, ...gw.id)
 
     }
 
-  } else {
-
-    return(initial)
-
   }
+
+  initial <- dplyr::select(initial, -...gw.id)
+  return(initial)
 
 }
 
