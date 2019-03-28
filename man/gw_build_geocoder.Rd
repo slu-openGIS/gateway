@@ -8,6 +8,8 @@ gw_build_geocoder(class, crs = 4269, return = c("coords", "parcel", "zip"),
     include_units = FALSE)
 }
 \arguments{
+\item{style}{One of either \code{"full"} (\code{"123 Main St"}) or \code{"short"} (\code{"123 Main"}).}
+
 \item{class}{One of either \code{"sf"} or \code{"tibble"}.}
 
 \item{crs}{A numeric code corresponding to the desired coordinate system for the column output if

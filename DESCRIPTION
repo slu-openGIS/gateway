@@ -17,6 +17,7 @@ Imports:
     foreign,
     glue,
     httr,
+    janitor,
     jsonlite,
     postmastr,
     purrr,
