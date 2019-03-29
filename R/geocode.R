@@ -529,9 +529,11 @@ gw_create_candidates <- function(address, style){
 #' @param var Column with address data to be geocoded
 #' @param local_geocoder Object with local geocoder data
 #' @param short_geocoder Object with short version of local geocoder data
+#' @param local A logical scalar; if \code{TRUE}, only local geocoders will be used.
+#'     If \code{FALSE}, data unmatched with local geocoders will be passed to APIs.
 #'
 #' @export
-gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder){
+gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, local = TRUE){
 
   # global bindings
   ...gw.id = x = y = unmatched = addrrecnum = NULL
@@ -571,7 +573,13 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder){
     # check results
     result2 <- any(is.na(initial$x))
 
-    if (result2 == TRUE){
+    if (local == TRUE | result2 == FALSE){
+
+      # combine
+      initial <- dplyr::bind_rows(matched, initial)
+      initial <- dplyr::arrange(initial, ...gw.id)
+
+    } else if (local == FALSE & result2 == TRUE){
 
       # subset results
       matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
@@ -604,14 +612,7 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder){
       initial <- dplyr::bind_rows(matched, initial)
       initial <- dplyr::arrange(initial, ...gw.id)
 
-    } else if (result2 == FALSE){
-
-      # combine
-      initial <- dplyr::bind_rows(matched, initial)
-      initial <- dplyr::arrange(initial, ...gw.id)
-
     }
-
   }
 
   initial <- dplyr::select(initial, -...gw.id)

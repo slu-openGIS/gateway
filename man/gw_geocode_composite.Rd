@@ -4,7 +4,8 @@
 \alias{gw_geocode_composite}
 \title{Composite Geocoder}
 \usage{
-gw_geocode_composite(.data, var, local_geocoder, short_geocoder)
+gw_geocode_composite(.data, var, local_geocoder, short_geocoder,
+  local = TRUE)
 }
 \arguments{
 \item{.data}{A data frame or tibble to be geocoded}
@@ -14,6 +15,9 @@ gw_geocode_composite(.data, var, local_geocoder, short_geocoder)
 \item{local_geocoder}{Object with local geocoder data}
 
 \item{short_geocoder}{Object with short version of local geocoder data}
+
+\item{local}{A logical scalar; if \code{TRUE}, only local geocoders will be used.
+If \code{FALSE}, data unmatched with local geocoders will be passed to APIs.}
 }
 \description{
 An algorithm for processing and geocoding address data. A first
