@@ -295,7 +295,6 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, includ
   } else if (type == "census"){
     stop("functionality not enabled")
   } else if (type == "osm"){
-    stop("functionality not enabled")
     .data <- gw_geocode_osm(.data)
   }
 
@@ -441,19 +440,57 @@ gw_geocode_census_xy <- function(.data){
 gw_geocode_osm <- function(.data){
 
   # set global bindings
-  addrrecnum = NULL
+  addrrecnum = ...address = ...address2 = lat = lon = query = NULL
 
   # identify observations
-  .data <- gw_geocode_identify(.data)
+  id <- gw_geocode_identify(.data)
 
   # subset distinct observations
-  target <- gw_geocode_prep(.data)
+  target <- gw_geocode_prep(id)
+
+  # make copy of address
+  target <- dplyr::mutate(target, ...address2 = stringr::str_c(...address, ", St. Louis"))
 
   # geocode
-  result <- tmaptools::geocode_OSM(target$...address, as.sf = TRUE)
+  result <- tryCatch(
+    {suppressWarnings(tmaptools::geocode_OSM(target$...address2, as.data.frame = TRUE))},
+    error=function(cond) {
+      return(NULL)
+    })
 
-  # include result
-  result <- dplyr::mutate(result, source = ifelse(is.na(addrrecnum) == FALSE, "open street map", NA))
+  # clean-up results
+  if (is.null(result) == FALSE){
+
+    # subset results
+    result <- dplyr::select(result, query, lon, lat)
+
+    # rename variables
+    result <- dplyr::rename(result,
+      ...address2 = query,
+      x = lon,
+      y = lat
+    )
+
+    # add source
+    result <- dplyr::mutate(result, source = "open street map")
+
+    # combine result and target data
+    target <- dplyr::left_join(target, result, by = "...address2")
+
+    # remove ...address2
+    target <- dplyr::select(target, -...address2)
+
+    # rebuild data
+    out <- gw_geocode_replace(source = id, target = target)
+
+  } else if (is.null(result) == TRUE){
+
+    out <- .data
+
+  }
+
+  # return result
+  return(out)
 
 }
 
@@ -596,21 +633,24 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, loc
       # check results
       result3 <- any(is.na(initial$x))
 
-      # subset results
-      # matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
-      # unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+      if (result3 == FALSE){
 
-      # combine
-      # matched <- dplyr::bind_rows(matched, matched2)
-      # matched <- dplyr::arrange(matched, ...gw.id)
+        # combine
+        initial <- dplyr::bind_rows(matched, initial)
+        initial <- dplyr::arrange(initial, ...gw.id)
 
-      # combine and return
-      # initial <- dplyr::bind_rows(matched, unmatched)
-      # initial <- dplyr::arrange(initial, ...gw.id)
+      } else if (result3 == TRUE){
 
-      # combine
-      initial <- dplyr::bind_rows(matched, initial)
-      initial <- dplyr::arrange(initial, ...gw.id)
+        # subset results
+        matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
+        unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+        unmatched <- dplyr::select(unmatched, -addrrecnum, -x, -y, -source)
+
+        # combine
+        matched <- dplyr::bind_rows(matched, matched2)
+        matched <- dplyr::arrange(matched, ...gw.id)
+
+      }
 
     }
   }
