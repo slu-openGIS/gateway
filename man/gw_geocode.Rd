@@ -4,7 +4,8 @@
 \alias{gw_geocode}
 \title{Geocode Addresses}
 \usage{
-gw_geocode(.data, type, var, class, side = "right", geocoder, include_source = TRUE)
+gw_geocode(.data, type, var, class, side = "right", geocoder, threshold,
+    include_source = TRUE)
 }
 \arguments{
 \item{.data}{A target data set}
@@ -23,6 +24,8 @@ creates units.}
 should be placed in the}
 
 \item{geocoder}{Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}}
+
+\item{threshold}{For the city candidate geocoder, what score is the minimum acceptable?}
 
 \item{include_source}{Logical scalar; if \code{TRUE} (default), a column describing how each
 observation was geocoded is included in the output.}

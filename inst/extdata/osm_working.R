@@ -1,19 +1,12 @@
-x <- tibble(id = c(1:2), address = c("4247 Botancial Ave St Louis 63110", "4247 Botanical Ave St Louis 63110"))
+library(dplyr)
+library(sf)
+library(tmaptools)
 
-tryCatch(
-  {geocode_OSM(x$address, as.sf = TRUE)},
-  error=function(cond) {
-    message("Here's the original error message:")
-    message(cond)
-    # Choose a return value in case of error
-    return(NA)
-  },
-  warning=function(cond) {
-    message("Here's the original warning message:")
-    message(cond)
-    # Choose a return value in case of warning
-    return(NULL)
-  },
-  finally={
-    message("Some other message at the end")
-  })
+x <- tibble(id = c(1:4), address = c("4247 Botanical Ave", "4247 Botanical", "4100 Saint Louis Ave", "Kennedy Forest"))
+
+geocoder <- gw_build_geocoder(style = "full", class = "tibble", return = "coords")
+geocoder_s <- gw_build_geocoder(style = "short", class = "tibble", return = "coords")
+
+gw_geocode_composite(x, var = address,
+                     local_geocoder = geocoder, short_geocoder = geocoder_s,
+                     local = FALSE)

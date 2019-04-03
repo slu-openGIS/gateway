@@ -224,7 +224,8 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, var, class, side = "right", geocoder, include_source = TRUE)
+#' @usage gw_geocode(.data, type, var, class, side = "right", geocoder, threshold,
+#'     include_source = TRUE)
 #'
 #' @param .data A target data set
 #' @param type Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
@@ -237,6 +238,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @param side One of either \code{"right"} or \code{"left"} indicating where the identifier variable
 #'     should be placed in the
 #' @param geocoder Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}
+#' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
 #' @param include_source Logical scalar; if \code{TRUE} (default), a column describing how each
 #'    observation was geocoded is included in the output.
 #'
@@ -258,7 +260,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom tmaptools geocode_OSM
 #'
 #' @export
-gw_geocode <- function(.data, type, var, class, side = "right", geocoder, include_source = TRUE){
+gw_geocode <- function(.data, type, var, class, side = "right", geocoder, threshold, include_source = TRUE){
 
   # set global bindings
   . = ...address = out = addrrecnum = geometry = NULL
@@ -291,11 +293,10 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, includ
   } else if (type == "city batch"){
     stop("functionality not enabled")
   } else if (type == "city candidate"){
-    .data <- gw_geocode_city_candidate(.data)
+    .data <- gw_geocode_city_candidate(.data, threshold)
   } else if (type == "census"){
     stop("functionality not enabled")
   } else if (type == "osm"){
-    stop("functionality not enabled")
     .data <- gw_geocode_osm(.data)
   }
 
@@ -401,7 +402,7 @@ gw_geocode_city_batch <- function(.data){
 }
 
 # city api, candidate geocoder
-gw_geocode_city_candidate <- function(.data){
+gw_geocode_city_candidate <- function(.data, threshold){
 
   # global bindings
   ...address = geo = NULL
@@ -413,7 +414,8 @@ gw_geocode_city_candidate <- function(.data){
   target <- gw_geocode_prep(.data)
 
   # generate candidates
-  target <- dplyr::mutate(target, geo = purrr::map(...address, ~ gw_create_candidates(address = .x, style = "top")))
+  target <- dplyr::mutate(target, geo = purrr::map(...address, ~
+                                                     gw_create_candidates(address = .x, style = "top", threshold = threshold)))
 
   # remove NAs
   target <- dplyr::filter(target, is.na(geo) == FALSE)
@@ -441,19 +443,57 @@ gw_geocode_census_xy <- function(.data){
 gw_geocode_osm <- function(.data){
 
   # set global bindings
-  addrrecnum = NULL
+  addrrecnum = ...address = ...address2 = lat = lon = query = NULL
 
   # identify observations
-  .data <- gw_geocode_identify(.data)
+  id <- gw_geocode_identify(.data)
 
   # subset distinct observations
-  target <- gw_geocode_prep(.data)
+  target <- gw_geocode_prep(id)
+
+  # make copy of address
+  target <- dplyr::mutate(target, ...address2 = stringr::str_c(...address, ", St. Louis"))
 
   # geocode
-  result <- tmaptools::geocode_OSM(target$...address, as.sf = TRUE)
+  result <- tryCatch(
+    {suppressWarnings(tmaptools::geocode_OSM(target$...address2, as.data.frame = TRUE))},
+    error=function(cond) {
+      return(NULL)
+    })
 
-  # include result
-  result <- dplyr::mutate(result, source = ifelse(is.na(addrrecnum) == FALSE, "open street map", NA))
+  # clean-up results
+  if (is.null(result) == FALSE){
+
+    # subset results
+    result <- dplyr::select(result, query, lon, lat)
+
+    # rename variables
+    result <- dplyr::rename(result,
+      ...address2 = query,
+      x = lon,
+      y = lat
+    )
+
+    # add source
+    result <- dplyr::mutate(result, source = "open street map")
+
+    # combine result and target data
+    target <- dplyr::left_join(target, result, by = "...address2")
+
+    # remove ...address2
+    target <- dplyr::select(target, -...address2)
+
+    # rebuild data
+    out <- gw_geocode_replace(source = id, target = target)
+
+  } else if (is.null(result) == TRUE){
+
+    out <- .data
+
+  }
+
+  # return result
+  return(out)
 
 }
 
@@ -501,11 +541,11 @@ gw_geocode_replace <- function(source, target){
 
 }
 
-gw_create_candidates <- function(address, style){
+gw_create_candidates <- function(address, style, threshold){
 
   if (style == "top"){
 
-    api_result <- gw_add_candidates(address = address, n = 1)
+    api_result <- gw_add_candidates(address = address, n = 1, threshold = threshold)
 
   } else if (style == "all"){
 
@@ -522,8 +562,11 @@ gw_create_candidates <- function(address, style){
 #'
 #' @description An algorithm for processing and geocoding address data. A first
 #'     attempt is made to match again a local geocoder. Unmatched addresses are then
-#'     matched against a short geocoder. AAddress that remain unmatched are then
-#'     matched using the City of St. Louis's address candidate API.
+#'     matched against a short geocoder. Addresses that remain unmatched are then
+#'     matched using the City of St. Louis's address candidate API. Finally, remaining
+#'     unmatched addresses can be passed through Open Street Map's geocoder. Matched
+#'     obtained here should be carefully checked for false positive values. The Open
+#'     Street Map functionality should be considered experimental at this time.
 #'
 #' @param .data A data frame or tibble to be geocoded
 #' @param var Column with address data to be geocoded
@@ -531,12 +574,18 @@ gw_create_candidates <- function(address, style){
 #' @param short_geocoder Object with short version of local geocoder data
 #' @param local A logical scalar; if \code{TRUE}, only local geocoders will be used.
 #'     If \code{FALSE}, data unmatched with local geocoders will be passed to APIs.
+#' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
+#' @param osm Logical scalar; should Open Street Map be used as a geocoder of last result?
+#'     If \code{TRUE}, data should be carefully checked for false positives. The Open
+#'     Street Map functionality should be considered experimental at this time. This service
+#'     also will significantly slow the performance of \code{gw_geocode_composite}.
 #'
 #' @export
-gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, local = TRUE){
+gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, local = TRUE,
+                                 threshold = 90, osm = FALSE){
 
   # global bindings
-  ...gw.id = x = y = unmatched = addrrecnum = NULL
+  ...gw.id = x = y = unmatched = addrrecnum = address_match = score = NULL
 
   # save parameters to list
   paramList <- as.list(match.call())
@@ -591,26 +640,39 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, loc
       matched <- dplyr::arrange(matched, ...gw.id)
 
       # use candidate geocoder
-      initial <- gw_geocode(unmatched, type = "city candidate", class = "tibble", var = !!varQ)
+      initial <- gw_geocode(unmatched, type = "city candidate", class = "tibble", var = !!varQ, threshold = threshold)
 
       # check results
       result3 <- any(is.na(initial$x))
 
-      # subset results
-      # matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
-      # unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+      if (result3 == FALSE | (result3 == TRUE & osm == FALSE)){
 
-      # combine
-      # matched <- dplyr::bind_rows(matched, matched2)
-      # matched <- dplyr::arrange(matched, ...gw.id)
+        # combine
+        initial <- dplyr::bind_rows(matched, initial)
+        initial <- dplyr::arrange(initial, ...gw.id)
 
-      # combine and return
-      # initial <- dplyr::bind_rows(matched, unmatched)
-      # initial <- dplyr::arrange(initial, ...gw.id)
+      } else if (result3 == TRUE & osm == TRUE){
 
-      # combine
-      initial <- dplyr::bind_rows(matched, initial)
-      initial <- dplyr::arrange(initial, ...gw.id)
+        # subset results
+        matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
+        unmatched <- dplyr::filter(initial, is.na(x) == TRUE)
+        unmatched <- dplyr::select(unmatched, -address_match, -x, -y, -score, -source)
+
+        # combine
+        matched <- dplyr::bind_rows(matched, matched2)
+        matched <- dplyr::arrange(matched, ...gw.id)
+
+        # use candidate geocoder
+        initial <- gw_geocode(unmatched, type = "osm", class = "tibble", var = !!varQ)
+
+        # check results
+        result4 <- any(is.na(initial$x))
+
+        # combine output
+        initial <- dplyr::bind_rows(matched, initial)
+        initial <- dplyr::arrange(initial, ...gw.id)
+
+      }
 
     }
   }

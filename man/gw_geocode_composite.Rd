@@ -5,7 +5,7 @@
 \title{Composite Geocoder}
 \usage{
 gw_geocode_composite(.data, var, local_geocoder, short_geocoder,
-  local = TRUE)
+  local = TRUE, threshold = 90, osm = FALSE)
 }
 \arguments{
 \item{.data}{A data frame or tibble to be geocoded}
@@ -18,10 +18,20 @@ gw_geocode_composite(.data, var, local_geocoder, short_geocoder,
 
 \item{local}{A logical scalar; if \code{TRUE}, only local geocoders will be used.
 If \code{FALSE}, data unmatched with local geocoders will be passed to APIs.}
+
+\item{threshold}{For the city candidate geocoder, what score is the minimum acceptable?}
+
+\item{osm}{Logical scalar; should Open Street Map be used as a geocoder of last result?
+If \code{TRUE}, data should be carefully checked for false positives. The Open
+Street Map functionality should be considered experimental at this time. This service
+also will significantly slow the performance of \code{gw_geocode_composite}.}
 }
 \description{
 An algorithm for processing and geocoding address data. A first
     attempt is made to match again a local geocoder. Unmatched addresses are then
-    matched against a short geocoder. AAddress that remain unmatched are then
-    matched using the City of St. Louis's address candidate API.
+    matched against a short geocoder. Addresses that remain unmatched are then
+    matched using the City of St. Louis's address candidate API. Finally, remaining
+    unmatched addresses can be passed through Open Street Map's geocoder. Matched
+    obtained here should be carefully checked for false positive values. The Open
+    Street Map functionality should be considered experimental at this time.
 }
