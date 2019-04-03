@@ -2,44 +2,11 @@ library(dplyr)
 library(sf)
 library(tmaptools)
 
-x <- tibble(id = c(1:2), address = c("I 44 and S Vandeventer Ave", "O'Fallon Park"))
-y <- tibble(id = c(1:2), address = c("I 44 and S Vandeventer Ave, St. Louis", "I 64 and S Vandeventer Ave, St. Louis"))
-z <- tibble(id = c(1:2), address = c("I-44 and S Grand Blvd, St. Louis", "I-64 and S Grand Blvd, St. Louis"))
-z2 <- tibble(id = c(1:2), address = c("Interstate 44 and S Grand Blvd, St. Louis", "O'Fallon Park, St. Louis"))
-z3 <- tibble(id = c(1:2), address = c("Interstate 44 and S Grand Blvd, St. Louis", "Interstate 64 and S Grand Blvd, St. Louis"))
+x <- tibble(id = c(1:4), address = c("4247 Botanical Ave", "4247 Botanical", "4100 Saint Louis Ave", "Kennedy Forest"))
 
-tryCatch(
-  {geocode_OSM(x$address, as.sf = TRUE)},
-  error=function(cond) {
-    message("Here's the original error message:")
-    message(cond)
-    # Choose a return value in case of error
-    return(NA)
-  },
-  warning=function(cond) {
-    message("Here's the original warning message:")
-    message(cond)
-    # Choose a return value in case of warning
-    return(NULL)
-  },
-  finally={
-    message("Some other message at the end")
-  })
+geocoder <- gw_build_geocoder(style = "full", class = "tibble", return = "coords")
+geocoder_s <- gw_build_geocoder(style = "short", class = "tibble", return = "coords")
 
-tryCatch(
-  {suppressWarnings(geocode_OSM(x$address, as.sf = TRUE))},
-  error=function(cond) {
-    return(NA)
-  })
-
-tryCatch(
-  {suppressWarnings(geocode_OSM(y$address, as.sf = TRUE))},
-  error=function(cond) {
-    return(NA)
-  })
-
-tryCatch(
-  {suppressWarnings(geocode_OSM(z3$address, as.sf = TRUE))},
-  error=function(cond) {
-    return(NULL)
-  })
+gw_geocode_composite(x, var = address,
+                     local_geocoder = geocoder, short_geocoder = geocoder_s,
+                     local = FALSE)
