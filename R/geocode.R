@@ -650,6 +650,16 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, loc
         matched <- dplyr::bind_rows(matched, matched2)
         matched <- dplyr::arrange(matched, ...gw.id)
 
+        # use candidate geocoder
+        initial <- gw_geocode(unmatched, type = "osm", class = "tibble", var = !!varQ)
+
+        # check results
+        result4 <- any(is.na(initial$x))
+
+        # combine output
+        initial <- dplyr::bind_rows(matched, initial)
+        initial <- dplyr::arrange(initial, ...gw.id)
+
       }
 
     }
