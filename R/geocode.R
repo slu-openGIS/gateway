@@ -562,19 +562,27 @@ gw_create_candidates <- function(address, style, threshold){
 #'
 #' @description An algorithm for processing and geocoding address data. A first
 #'     attempt is made to match again a local geocoder. Unmatched addresses are then
-#'     matched against a short geocoder. AAddress that remain unmatched are then
-#'     matched using the City of St. Louis's address candidate API.
+#'     matched against a short geocoder. Addresses that remain unmatched are then
+#'     matched using the City of St. Louis's address candidate API. Finally, remaining
+#'     unmatched addresses can be passed through Open Street Map's geocoder. Matched
+#'     obtained here should be carefully checked for false positive values. The Open
+#'     Street Map functionality should be considered experimental at this time.
 #'
 #' @param .data A data frame or tibble to be geocoded
 #' @param var Column with address data to be geocoded
 #' @param local_geocoder Object with local geocoder data
 #' @param short_geocoder Object with short version of local geocoder data
-#' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
 #' @param local A logical scalar; if \code{TRUE}, only local geocoders will be used.
 #'     If \code{FALSE}, data unmatched with local geocoders will be passed to APIs.
+#' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
+#' @param osm Logical scalar; should Open Street Map be used as a geocoder of last result?
+#'     If \code{TRUE}, data should be carefully checked for false positives. The Open
+#'     Street Map functionality should be considered experimental at this time. This service
+#'     also will significantly slow the performance of \code{gw_geocode_composite}.
 #'
 #' @export
-gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, threshold = 90, local = TRUE){
+gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, local = TRUE,
+                                 threshold = 90, osm = FALSE){
 
   # global bindings
   ...gw.id = x = y = unmatched = addrrecnum = address_match = score = NULL
@@ -637,13 +645,13 @@ gw_geocode_composite <- function(.data, var, local_geocoder, short_geocoder, thr
       # check results
       result3 <- any(is.na(initial$x))
 
-      if (result3 == FALSE){
+      if (result3 == FALSE | (result3 == TRUE & osm == FALSE)){
 
         # combine
         initial <- dplyr::bind_rows(matched, initial)
         initial <- dplyr::arrange(initial, ...gw.id)
 
-      } else if (result3 == TRUE){
+      } else if (result3 == TRUE & osm == TRUE){
 
         # subset results
         matched2 <- dplyr::filter(initial, is.na(x) == FALSE)
