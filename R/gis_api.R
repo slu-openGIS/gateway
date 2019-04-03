@@ -113,12 +113,81 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 
 }
 
+#' City Address Batch API
+#'
+#' @param .data Name of data.frame containing address and id variables
+#' @param id Name of column with unique identifier
+#' @param address Vector containing addresses (List or Data.frame column)
+#' @param crs Output spatial reference (Not yet implemented)
+#' @param comp_score Logical, used to return composite score from geocoder for diagnostic purposes
+#'
+#'
+#'
+#' @return Returns a data.frame with matching address, id and locations, Optionally the composite score as well
+#'
+#' @importFrom httr GET content status_code
+#' @importFrom utils URLencode
+#'
+#' @export
+gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
 
-gw_add_batch <- function(){
+  if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
+  if(length(.data$id) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
+    # Ugly and innefficient JSON implementation
+
+  query <- '{"records":['
+  for (i in 1:length(.data$id)) {
+    query <- paste0(query,
+                    '
+                    {
+                     "attributes": {
+                      "OBJECTID":', .data$id[i],',
+                      "SingleLine":"', .data$address[i], '"}}'
+                    )
+    if(i != length(.data$id)){
+      query <- paste0(query, ",")
+    }
+  }
+  query <- paste0(query, "]}")
+  query <- jsonlite::minify(query)
+  # -----
+
+  baseurl <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
+  url <- paste0(baseurl, "?addresses=", query, "&category=&sourceCountry=&outSR=", "&f=json") # always return json
+  url <- utils::URLencode(url)
+
+  response <- httr::GET(url)
+  message(paste0("Status Code: ",httr::status_code(response)))
+  content <- httr::content(response)
+
+  # initialize object
+  df = NULL
+  # add original ids
+  df$orig_id = .data$id
+  # loop through response to build df
+  for (i in 1:length(content[["locations"]])) {
+    df$match_address[i] = content[["locations"]][[i]][["address"]]
+    df$x[i] = content[["locations"]][[i]][["location"]][["x"]]
+    df$y[i] = content[["locations"]][[i]][["location"]][["y"]]
+    df$score[i] = content[["locations"]][[i]][["score"]]
+  }
+  # add comp score for diagnostics
+  if(comp_score == TRUE){
+    for (i in 1:length(content[["locations"]])) {
+    df$comp_score[i] = content[["locations"]][[i]][["attributes"]][["Comp_score"]]
+    }
+  }
+
+    return(data.frame(df))
 }
 
-
+#'
+#'
+#'
+#'
+#'
+#' @export
 gw_add_reverse <- function(){
 
 }
