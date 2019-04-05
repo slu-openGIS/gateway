@@ -292,6 +292,7 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
     .data <- gw_geocode_local_short(.data, class = class, geocoder = geocoder, side = side)
   } else if (type == "city batch"){
     stop("functionality not enabled")
+    .data <- gw_geocode_city_batch(.data)
   } else if (type == "city candidate"){
     .data <- gw_geocode_city_candidate(.data, threshold)
   } else if (type == "census"){
@@ -398,6 +399,28 @@ gw_geocode_local_short <- function(.data, class, geocoder, side = "right"){
 
 # city api, batch geocoder
 gw_geocode_city_batch <- function(.data){
+
+  # identify observations
+  .data <- gw_geocode_identify(.data)
+
+  # subset distinct observations
+  target <- gw_geocode_prep(.data)
+
+  # geocode
+  target <- gw_add_batch(target, id = "...uid", address = ...address)
+  target <- dplyr::as_tibble(target)
+  target <- dplyr::filter(target, is.na(x) == FALSE)
+  target <- dplyr::rename(target, ...uid = orig_id)
+  target <- dplyr::select(target, ...uid, x, y, address_match, score)
+
+  # include result
+  target <- dplyr::mutate(target, source = "city batch")
+
+  # rebuild data
+  target <- gw_geocode_replace(source = .data, target = target)
+
+  # return output
+  return(target)
 
 }
 

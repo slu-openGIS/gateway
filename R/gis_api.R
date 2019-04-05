@@ -138,7 +138,10 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @export
 gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
 
-  if(class(.data$address) != "character"){stop("Addresses must be of class character")}
+  # global bindings
+  address_match = match_address = x = y = score = comp_score = NULL
+
+  # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
   if(length(.data$id) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
     # Ugly and innefficient JSON implementation
@@ -169,24 +172,32 @@ gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
   content <- httr::content(response)
 
   # initialize object
-  df = NULL
+  df <- NULL
+
   # add original ids
-  df$orig_id = .data$id
+  df$orig_id <- .data$id
+  df <- data.frame(df)
+
   # loop through response to build df
   for (i in 1:length(content[["locations"]])) {
-    df$match_address[i] = content[["locations"]][[i]][["address"]]
+    df$address_match[i] = content[["locations"]][[i]][["address"]]
     df$x[i] = content[["locations"]][[i]][["location"]][["x"]]
     df$y[i] = content[["locations"]][[i]][["location"]][["y"]]
     df$score[i] = content[["locations"]][[i]][["score"]]
   }
-  # add comp score for diagnostics
-  if(comp_score == TRUE){
-    for (i in 1:length(content[["locations"]])) {
-    df$comp_score[i] = content[["locations"]][[i]][["attributes"]][["Comp_score"]]
-    }
-  }
 
-    return(data.frame(df))
+  # add comp score for diagnostics
+  # if(comp_score == TRUE){
+  #  for (i in 1:length(content[["locations"]])) {
+  #  df$comp_score[i] = content[["locations"]][[i]][["attributes"]][["Comp_score"]]
+  #  }
+  # }
+
+  out <- dplyr::as_tibble(df)
+  out <- dplyr::mutate(out, x = as.numeric(x))
+  out <- dplyr::mutate(out, y = as.numeric(y))
+
+    return(out)
 }
 
 #'
