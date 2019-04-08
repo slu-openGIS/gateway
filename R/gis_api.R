@@ -200,13 +200,55 @@ gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
     return(out)
 }
 
+#' City Reverse Geocoder
+#' @param x Numeric X coordinate of the location to reverse geocode
+#' @param y Numeric Y coordinate of the location to reverse geocode
+#' @param distance The distance in meters from the given location within which a matching address should be searched. If this parameter is not provided or an invalid value is provided, a default value of 0 meters is used.
+#' @param crs Numeric CRS or WKID for spatial projection
+#' @param intersection Logical, Return nearest Address (FALSE) or Intersection (TRUE)
 #'
-#'
-#'
-#'
+#' @importFrom
 #'
 #' @export
-gw_add_reverse <- function(){
+gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALSE){
+  # build a query
+  location <- paste0("{x:", x, ",y:", y, "}")
+  baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/reverseGeocode"
+  query <- paste0(baseURL, "?location=", location, "&distance=", distance, "&outSR=", crs, "&returnIntersection=", intersection,
+                  "&f=pjson")
+  query <- utils::URLencode(query)
+
+  # get a response
+  response <- httr::GET(url = query)
+  message(paste0("Status Code: ",httr::status_code(response)))
+
+  # parse the response
+  content = httr::content(response)
+  parsed = jsonlite::fromJSON(content)
+
+    # warning for non matches.
+  code = parsed$error$code # only returned if error
+  if(!is.null(code)){
+    if(code == 400){
+      stop("No Match Found. You may need to increase distance to find a match")
+    }
+  }
+  else{ # build a data.frame from json
+    df = NULL # initialize data.frame
+    df$street = parsed$address$Street
+    df$zip = parsed$address$ZIP
+    df$address_match = parsed$address$Match_addr
+    df$loc_name = parsed$address$Loc_name
+    df$location.x = parsed$location$x
+    df$location.y = parsed$location$y
+
+    df = data.frame(df)
+    df = dplyr::as_tibble(df)
+  }
+
+  # return
+
+  return(df)
 
 }
 
