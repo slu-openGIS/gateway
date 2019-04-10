@@ -126,17 +126,14 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @param id Name of column with unique identifier
 #' @param address Vector containing addresses (List or Data.frame column)
 #' @param crs Output spatial reference (Not yet implemented)
-#' @param comp_score Logical, used to return composite score from geocoder for diagnostic purposes
 #'
-#'
-#'
-#' @return Returns a data.frame with matching address, id and locations, Optionally the composite score as well
+#' @return Returns a data.frame with the API response
 #'
 #' @importFrom httr GET content status_code
 #' @importFrom utils URLencode
 #'
 #' @export
-gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
+gw_add_batch <- function(.data, id, address, crs){
 
   # global bindings
   address_match = match_address = x = y = score = comp_score = NULL
@@ -169,33 +166,14 @@ gw_add_batch <- function(.data, id, address, crs, comp_score = FALSE){
 
   response <- httr::GET(url)
   message(paste0("Status Code: ",httr::status_code(response)))
-  content <- httr::content(response)
+  content <- httr::content(response, "text")
 
-  # initialize object
-  df <- NULL
+  # parse json to data.frame and add back id
 
-  # add original ids
-  df$orig_id <- .data$id
-  df <- data.frame(df)
-
-  # loop through response to build df
-  for (i in 1:length(content[["locations"]])) {
-    df$address_match[i] = content[["locations"]][[i]][["address"]]
-    df$x[i] = content[["locations"]][[i]][["location"]][["x"]]
-    df$y[i] = content[["locations"]][[i]][["location"]][["y"]]
-    df$score[i] = content[["locations"]][[i]][["score"]]
-  }
-
-  # add comp score for diagnostics
-  # if(comp_score == TRUE){
-  #  for (i in 1:length(content[["locations"]])) {
-  #  df$comp_score[i] = content[["locations"]][[i]][["attributes"]][["Comp_score"]]
-  #  }
-  # }
-
+  df = jsonlite::fromJSON(content)$locations
+  orig_id <- dplyr::select(.data, id)
+  df = cbind(orig_id, df)
   out <- dplyr::as_tibble(df)
-  out <- dplyr::mutate(out, x = as.numeric(x))
-  out <- dplyr::mutate(out, y = as.numeric(y))
 
     return(out)
 }
@@ -216,34 +194,22 @@ gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALS
   baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/reverseGeocode"
   query <- paste0(baseURL, "?location=", location, "&distance=", distance, "&outSR=", crs, "&returnIntersection=", intersection,
                   "&f=pjson")
-  query <- utils::URLencode(query)
+  url <- utils::URLencode(query)
 
   # get a response
-  response <- httr::GET(url = query)
+  response <- httr::GET(url)
   message(paste0("Status Code: ",httr::status_code(response)))
+  content <- httr::content(response, "text")
 
   # parse the response
-  content = httr::content(response)
-  parsed = jsonlite::fromJSON(content)
+  content = httr::content(response, "text")
+  parsed = jsonlite::fromJSON(content)$address
 
-    # warning for non matches.
-  code = parsed$error$code # only returned if error
-  if(!is.null(code)){
-    if(code == 400){
-      stop("No Match Found. You may need to increase distance to find a match")
-    }
-  }
-  else{ # build a data.frame from json
-    df = NULL # initialize data.frame
-    df$street = parsed$address$Street
-    df$zip = parsed$address$ZIP
-    df$address_match = parsed$address$Match_addr
-    df$loc_name = parsed$address$Loc_name
-    df$location.x = parsed$location$x
-    df$location.y = parsed$location$y
+  df = dplyr::as_tibble(parsed)
 
-    df = data.frame(df)
-    df = dplyr::as_tibble(df)
+  # warn for non-matches
+  if(nrow(df) == 0){
+    warning("No Matches Found, Try Increasing Distance")
   }
 
   # return
