@@ -134,12 +134,23 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #'
 #' @importFrom httr GET content status_code
 #' @importFrom utils URLencode
+#' @importFrom rlang quo_name enquo
+#' @importFrom jsonlite toJSON minify flatten
+#' @importFrom janitor clean_names
+#' @importFrom dplyr rename_at select as_tibble filter
 #'
 #' @export
 gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # global bindings
   address_match = match_address = x = y = score = comp_score = NULL
+
+  # save parameters to list for quoting
+  paramList <- as.list(match.call())
+
+  # quote input variables
+  id <- rlang::quo_name(rlang::enquo(id))
+  address <- rlang::quo_name(rlang::enquo(address))
 
   # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
