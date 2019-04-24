@@ -144,7 +144,6 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
   # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
   if(length(.data$id) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
-    # Ugly and innefficient JSON implementation
 
   # create empty data.frame
   records = data.frame(attributes = rep_len(NA, length(.data$id)))
@@ -171,7 +170,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
   return <- jsonlite::fromJSON(content)$locations
   return <- jsonlite::flatten(return, recursive = TRUE)
 
-  # clean-up data frame
+  # clean-up data frame ### funs() is deprecated!
   return <- dplyr::rename_at(return, .vars = dplyr::vars(dplyr::starts_with("attributes.")),
                           .funs = funs(sub("^attributes[.]", "", .)))
   return <- dplyr::select(return, -dplyr::starts_with("location."))
@@ -189,12 +188,11 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
                                        distance))
   }
 
-  # add id back in
-  orig_id <- dplyr::select(.data, id)
+  # id as first var
+  return <- dplyr::select(return, result_id, everything())
 
-  # combine data
-  out <- dplyr::bind_cols(orig_id, return)
-  out <- dplyr::as_tibble(out)
+  # ensure tibble
+  out <- dplyr::as_tibble(return)
 
   # optionally filter
   if (missing(threshold) == FALSE){
