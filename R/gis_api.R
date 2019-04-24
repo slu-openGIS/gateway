@@ -146,21 +146,17 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
   if(length(.data$id) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
     # Ugly and innefficient JSON implementation
 
-  query <- '{"records":['
+  # create empty data.frame
+  records = data.frame(attributes = rep_len(NA, length(.data$id)))
 
-  for (i in 1:length(.data$id)) {
-    query <- paste0(query,
-                    '
-                    {
-                     "attributes": {
-                      "OBJECTID":', .data$id[i],',
-                      "SingleLine":"', .data$address[i], '"}}'
-                    )
-    if(i != length(.data$id)){
-      query <- paste0(query, ",")
-    }
-  }
-  query <- paste0(query, "]}")
+  attributes =
+    data.frame(OBJECTID = .data$id,
+               SingleLine = .data$address,
+               stringsAsFactors = FALSE)
+  records$attributes = attributes
+
+  x = list(records = records)
+  query = jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
   baseurl <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
@@ -176,7 +172,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
   return <- jsonlite::flatten(return, recursive = TRUE)
 
   # clean-up data frame
-  return <- dplyr::rename_at(return, .vars = vars(dplyr::starts_with("attributes.")),
+  return <- dplyr::rename_at(return, .vars = dplyr::vars(dplyr::starts_with("attributes.")),
                           .funs = funs(sub("^attributes[.]", "", .)))
   return <- dplyr::select(return, -dplyr::starts_with("location."))
   return <- janitor::clean_names(return, case = "snake")
@@ -202,7 +198,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # optionally filter
   if (missing(threshold) == FALSE){
-    out <- dplyr::filter(out, score > threshold)
+    out <- dplyr::filter(out, score >= threshold)
   }
 
   # return output
