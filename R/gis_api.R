@@ -148,6 +148,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
   # create empty data.frame
   records = data.frame(attributes = rep_len(NA, length(.data$id)))
 
+  # !!!! this breaks if the input data do not have the variable names id and address
   attributes =
     data.frame(OBJECTID = .data$id,
                SingleLine = .data$address,
@@ -181,7 +182,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # remove additional variables
   if (vars == "minimal"){
-    return <- dplyr::select(return, result_id, address, score)
+    return <- dplyr::select(return, result_id, address, score, x, y)
   } else if (vars == "extended"){
     return <- dplyr::select(return, -c(display_x, display_y, xmin, xmax, ymin, ymax, user_fld,
                                        comp_score, add_num_from, add_num_to, country, lang_code,

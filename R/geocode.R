@@ -291,7 +291,6 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
   } else if (type == "local short"){
     .data <- gw_geocode_local_short(.data, class = class, geocoder = geocoder, side = side)
   } else if (type == "city batch"){
-    stop("functionality not enabled")
     .data <- gw_geocode_city_batch(.data)
   } else if (type == "city candidate"){
     .data <- gw_geocode_city_candidate(.data, threshold)
@@ -302,7 +301,7 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
   }
 
   # rename variables again
-  .data <- dplyr::rename(.data, !!varQ := ...address)
+  # .data <- dplyr::rename(.data, !!varQ := ...address)
 
   # optionally remove source
   if (include_source == FALSE){
@@ -407,10 +406,11 @@ gw_geocode_city_batch <- function(.data){
   target <- gw_geocode_prep(.data)
 
   # geocode
-  target <- gw_add_batch(target, id = "...uid", address = ...address)
-  target <- dplyr::as_tibble(target)
+  target <- gw_add_batch(target, address = ...address, threshold = 100, vars = "minimal")
   target <- dplyr::filter(target, is.na(x) == FALSE)
-  target <- dplyr::rename(target, ...uid = orig_id)
+  target <- dplyr::rename(target,
+                          ...uid = result_id,
+                          address_match = address)
   target <- dplyr::select(target, ...uid, x, y, address_match, score)
 
   # include result
