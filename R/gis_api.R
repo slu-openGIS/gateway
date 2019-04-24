@@ -143,15 +143,15 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
-  if(length(.data$id) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
+  if(length(.data[[id]]) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
 
   # create empty data.frame
-  records = data.frame(attributes = rep_len(NA, length(.data$id)))
+  records = data.frame(attributes = rep_len(NA, length(.data[[id]])))
 
   # !!!! this breaks if the input data do not have the variable names id and address
   attributes =
-    data.frame(OBJECTID = .data$id,
-               SingleLine = .data$address,
+    data.frame(OBJECTID = .data[[id]],
+               SingleLine = .data[[address]],
                stringsAsFactors = FALSE)
   records$attributes = attributes
 
