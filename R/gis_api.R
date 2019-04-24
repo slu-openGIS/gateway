@@ -125,6 +125,9 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @param .data Name of data.frame containing address and id variables
 #' @param id Name of column with unique identifier
 #' @param address Vector containing addresses (List or Data.frame column)
+#' @param threshold Numeric from 1 to 100, specifying how precise returned matches should be
+#' @param vars How many variables should be returned? Choices are \code{"minmal"}, \code{"moderate"},
+#'     or \code{"all"}.
 #' @param crs Output spatial reference (Not yet implemented)
 #'
 #' @return Returns a data.frame with the API response
@@ -133,7 +136,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @importFrom utils URLencode
 #'
 #' @export
-gw_add_batch <- function(.data, id, address, crs){
+gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # global bindings
   address_match = match_address = x = y = score = comp_score = NULL
@@ -144,6 +147,7 @@ gw_add_batch <- function(.data, id, address, crs){
     # Ugly and innefficient JSON implementation
 
   query <- '{"records":['
+
   for (i in 1:length(.data$id)) {
     query <- paste0(query,
                     '
@@ -158,7 +162,6 @@ gw_add_batch <- function(.data, id, address, crs){
   }
   query <- paste0(query, "]}")
   query <- jsonlite::minify(query)
-  # -----
 
   baseurl <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
   url <- paste0(baseurl, "?addresses=", query, "&category=&sourceCountry=&outSR=", "&f=json") # always return json
@@ -168,14 +171,43 @@ gw_add_batch <- function(.data, id, address, crs){
   message(paste0("Status Code: ",httr::status_code(response)))
   content <- httr::content(response, "text")
 
-  # parse json to data.frame and add back id
+  # parse json to data.frame
+  return <- jsonlite::fromJSON(content)$locations
+  return <- jsonlite::flatten(return, recursive = TRUE)
 
-  df = jsonlite::fromJSON(content)$locations
+  # clean-up data frame
+  return <- dplyr::rename_at(return, .vars = vars(dplyr::starts_with("attributes.")),
+                          .funs = funs(sub("^attributes[.]", "", .)))
+  return <- dplyr::select(return, -dplyr::starts_with("location."))
+  return <- janitor::clean_names(return, case = "snake")
+
+  # remove duplicate variables
+  return <- dplyr::select(return, -score_2, -match_addr)
+
+  # remove additional variables
+  if (vars == "minimal"){
+    return <- dplyr::select(return, result_id, address, score)
+  } else if (vars == "extended"){
+    return <- dplyr::select(return, -c(display_x, display_y, xmin, xmax, ymin, ymax, user_fld,
+                                       comp_score, add_num_from, add_num_to, country, lang_code,
+                                       distance))
+  }
+
+  # add id back in
   orig_id <- dplyr::select(.data, id)
-  df = cbind(orig_id, df)
-  out <- dplyr::as_tibble(df)
 
-    return(out)
+  # combine data
+  out <- dplyr::bind_cols(orig_id, return)
+  out <- dplyr::as_tibble(out)
+
+  # optionally filter
+  if (missing(threshold) == FALSE){
+    out <- dplyr::filter(out, score > threshold)
+  }
+
+  # return output
+  return(out)
+
 }
 
 #' City Reverse Geocoder
