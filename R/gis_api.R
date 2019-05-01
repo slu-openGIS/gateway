@@ -182,7 +182,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
       x <- dataList[i]
 
-      y <- gw_batch_call(.data, id = !!idQ, address = !!addressQ, threshold = threshold, vars = vars)
+      y <- gw_batch_call(x, id = !!idQ, address = !!addressQ, threshold = threshold, vars = vars)
       y <- dplyr::rename(y, !!idQ := result_id)
 
       dataList[i] <- y
