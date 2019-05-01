@@ -155,8 +155,12 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
-  if (length(.data[[id]]) == 1){
+  if (nrow(.data) < 2){
     stop("This function is for batch geocoding. For single addresses, use the candidates function.")
+  }
+
+  if (nrow(.data) > 1000){
+    stop("This function cannot be used on more than 1,000 addresses per call.")
   }
 
   # create empty data.frame
