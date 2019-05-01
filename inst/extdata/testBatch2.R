@@ -18,3 +18,10 @@ y <- gw_add_batch(addresses, id = "id", address = "ham")
 y <- gw_add_batch(addresses, id = "id", address = ham)
 
 gw_geocode(addresses, type = "city batch", var = ham, class = "tibble")
+
+addresses <- dplyr::tibble(
+  id = c(500:504),
+  ham = c("3623 Finney Ave", "3643 Delmar Blvd", "N Grand Blvd at Washington Blvd", "62 Ham Lane", "O'Fallon Park")
+)
+
+gw_add_batch(addresses, id = "id", address = ham)

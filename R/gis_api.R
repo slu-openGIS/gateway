@@ -119,6 +119,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 
 }
 
+
 #' City Address Batch API
 #'
 #' @param .data Name of data.frame containing address and id variables
@@ -131,9 +132,9 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #'
 #' @return Returns a data.frame with the API response
 #'
-#' @importFrom dplyr rename_at select as_tibble filter
+#' @importFrom dplyr rename_at select as_tibble filter rename
 #' @importFrom httr GET content status_code
-#' @importFrom rlang quo_name enquo
+#' @importFrom rlang := enquo quo quo_name sym
 #' @importFrom janitor clean_names
 #' @importFrom jsonlite toJSON minify flatten
 #' @importFrom utils URLencode
@@ -141,27 +142,69 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @export
 gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
+  # save parameters to list
+  paramList <- as.list(match.call())
+
+  # nse
+  if (!is.character(paramList$id)) {
+    idQ <- rlang::enquo(id)
+  } else if (is.character(paramList$id)) {
+    idQ <- rlang::quo(!! rlang::sym(id))
+  }
+
+  if (!is.character(paramList$address)) {
+    addressQ <- rlang::enquo(address)
+  } else if (is.character(paramList$address)) {
+    addressQ <- rlang::quo(!! rlang::sym(address))
+  }
+
+  # do not geocode 0 or 1 observation data sets
+  if (nrow(.data) < 2){
+    stop("This function is for batch geocoding. For single addresses, use the candidates function.")
+  }
+
+  # batch geocode
+  if (nrow(.data) <= 1000){
+
+    out <- gw_batch_call(.data, id = !!idQ, address = !!addressQ, threshold = threshold, vars = vars)
+    out <- dplyr::rename(out, !!idQ := result_id)
+
+  } else if (nrow(.data) > 1000){
+
+    stop("Data sets over 1000 observations not yet implemented")
+
+    dataList <- split(.data,rep(1:ceiling(nrow(.data)/1000),each=1000)[1:nrow(.data)])
+
+    for (i in dataList){
+
+      x <- dataList[i]
+
+      y <- gw_batch_call(.data, id = !!idQ, address = !!addressQ, threshold = threshold, vars = vars)
+      y <- dplyr::rename(y, !!idQ := result_id)
+
+      dataList[i] <- y
+
+    }
+
+    out <- dplyr::bind_rows(dataList)
+
+  }
+
+  return(out)
+
+}
+
+
+gw_batch_call <- function(.data, id, address, threshold, vars = "minimal", crs){
+
   # global bindings
   . = address_match = match_address = x = y = score = comp_score = add_num_from = add_num_to = country =
     display_x = display_y = distance = everything = funs = lang_code = match_addr = result_id =
     score_2 = user_fld = xmax = xmin = ymax = ymin = NULL
 
-  # save parameters to list for quoting
-  paramList <- as.list(match.call())
-
   # quote input variables
   id <- rlang::quo_name(rlang::enquo(id))
   address <- rlang::quo_name(rlang::enquo(address))
-
-  # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
-
-  if (nrow(.data) < 2){
-    stop("This function is for batch geocoding. For single addresses, use the candidates function.")
-  }
-
-  if (nrow(.data) > 1000){
-    stop("This function cannot be used on more than 1,000 addresses per call.")
-  }
 
   # create empty data.frame
   records <- data.frame(attributes = rep_len(NA, length(.data[[id]])))
