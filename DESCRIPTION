@@ -2,9 +2,17 @@ Package: gateway
 Type: Package
 Title: Tools for Working with St. Louis Spatial Data
 Version: 0.3.0.9000
-Authors@R: person("Christopher", "Prener", email = "chris.prener@slu.edu",
-                  role = c("aut", "cre"))
-Description: Contains various tools for modifying St. Louis spatial data.
+Authors@R: c(
+    person("Christopher", "Prener", ,"chris.prener@slu.edu", c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-4310-9888")),
+    person("Branson", "Fox", ,"branson.fox@slu.edu", c("aut"),
+        comment = c(ORCID = "0000-0002-4361-2811"))
+    )
+Description: Contains various tools for accessing and modifying spatial data for the
+    City of St. Louis, Missouri. These include tools for downloading data about the city,
+    a composite geocoder for returning the latitude and longitude of street addresses, and
+    tools for locating addresses within neighborhoods, tracts, and other geometries (known
+    as spatial joins).
 Depends: R (>= 3.3)
 License: GPL-3
 Encoding: UTF-8

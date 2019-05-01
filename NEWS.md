@@ -7,6 +7,7 @@
 
 **Major Additions:**
 * Local geocoding functionality with `gw_geocode()` and `gw_build_geocoder()`
+* Composite geocoding functionality with `gw_geocode_composite()`
 * Spatial join functionality with `gw_identify()` and `gw_aggregate()`
 * Dictionary data for `postmastr` - `stl_std_streets` and `stl_std_suffix`
 * Add helper function for extrating coordinates from `sf` `POINT` objects, `gw_get_coords()`

@@ -18,8 +18,7 @@
 #' @return A data.frame or sf containing candidate addresses, x and y coordinates, and score of match
 #'
 #' @importFrom dplyr bind_rows filter
-#' @importFrom httr content
-#' @importFrom httr GET
+#' @importFrom httr content GET
 #' @importFrom utils URLencode
 #' @importFrom jsonlite parse_json
 #' @importFrom sf st_as_sf
@@ -132,18 +131,20 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #'
 #' @return Returns a data.frame with the API response
 #'
-#' @importFrom httr GET content status_code
-#' @importFrom utils URLencode
-#' @importFrom rlang quo_name enquo
-#' @importFrom jsonlite toJSON minify flatten
-#' @importFrom janitor clean_names
 #' @importFrom dplyr rename_at select as_tibble filter
+#' @importFrom httr GET content status_code
+#' @importFrom rlang quo_name enquo
+#' @importFrom janitor clean_names
+#' @importFrom jsonlite toJSON minify flatten
+#' @importFrom utils URLencode
 #'
 #' @export
 gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # global bindings
-  address_match = match_address = x = y = score = comp_score = NULL
+  . = address_match = match_address = x = y = score = comp_score = add_num_from = add_num_to = country =
+    display_x = display_y = distance = everything = funs = lang_code = match_addr = result_id =
+    score_2 = user_fld = xmax = xmin = ymax = ymin = NULL
 
   # save parameters to list for quoting
   paramList <- as.list(match.call())
@@ -154,20 +155,22 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # if(class(.data$address) != "character"){stop("Addresses must be of class character")}
 
-  if(length(.data[[id]]) == 1){stop("This function is for batch geocoding. For single addresses, use the candidates function.")}
+  if (length(.data[[id]]) == 1){
+    stop("This function is for batch geocoding. For single addresses, use the candidates function.")
+  }
 
   # create empty data.frame
-  records = data.frame(attributes = rep_len(NA, length(.data[[id]])))
+  records <- data.frame(attributes = rep_len(NA, length(.data[[id]])))
 
-  # !!!! this breaks if the input data do not have the variable names id and address
-  attributes =
-    data.frame(OBJECTID = .data[[id]],
-               SingleLine = .data[[address]],
-               stringsAsFactors = FALSE)
-  records$attributes = attributes
+  # create empty data frame
+  attributes <- data.frame(OBJECTID = .data[[id]],
+                  SingleLine = .data[[address]],
+                  stringsAsFactors = FALSE)
 
-  x = list(records = records)
-  query = jsonlite::toJSON(x)
+  records$attributes <- attributes
+
+  x <- list(records = records)
+  query <- jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
   baseurl <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
@@ -223,10 +226,9 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 #' @param crs Numeric CRS or WKID for spatial projection
 #' @param intersection Logical, Return nearest Address (FALSE) or Intersection (TRUE)
 #'
-#' @importFrom
-#'
 #' @export
 gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALSE){
+
   # build a query
   location <- paste0("{x:", x, ",y:", y, "}")
   baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/reverseGeocode"

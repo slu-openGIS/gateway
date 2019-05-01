@@ -301,7 +301,7 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
   }
 
   # rename variables again
-  # .data <- dplyr::rename(.data, !!varQ := ...address)
+  .data <- dplyr::rename(.data, !!varQ := ...address)
 
   # optionally remove source
   if (include_source == FALSE){
@@ -399,6 +399,9 @@ gw_geocode_local_short <- function(.data, class, geocoder, side = "right"){
 # city api, batch geocoder
 gw_geocode_city_batch <- function(.data){
 
+  # global bindings
+  ...uid = result_id = address = x = y = address_match = score = NULL
+
   # identify observations
   .data <- gw_geocode_identify(.data)
 
@@ -406,8 +409,7 @@ gw_geocode_city_batch <- function(.data){
   target <- gw_geocode_prep(.data)
 
   # geocode
-  target <- gw_add_batch(target, address = ...address, threshold = 100, vars = "minimal")
-  target <- dplyr::filter(target, is.na(x) == FALSE)
+  target <- gw_add_batch(target, id = ...uid, address = "...address", threshold = 100, vars = "minimal")
   target <- dplyr::rename(target,
                           ...uid = result_id,
                           address_match = address)
@@ -417,7 +419,7 @@ gw_geocode_city_batch <- function(.data){
   target <- dplyr::mutate(target, source = "city batch")
 
   # rebuild data
-  target <- gw_geocode_replace(source = .data, target = target)
+  target <- gw_geocode_replace(source = .data, target = target, batch = TRUE)
 
   # return output
   return(target)
@@ -551,16 +553,19 @@ gw_geocode_prep <- function(.data){
 }
 
 # replace data
-gw_geocode_replace <- function(source, target){
+gw_geocode_replace <- function(source, target, batch = FALSE){
 
   # set global bindings
   . = ...id = ...uid = ...address = NULL
 
+  # optionally prepare
+  if (batch == FALSE){
+    target <- dplyr::select(target, -...address)
+  }
+
   # join parsed and source data
-  target %>%
-    dplyr::select(-...address) %>%
-    dplyr::left_join(source, ., by = "...uid") %>%
-    dplyr::select(-...id, -...uid) -> out
+  out <- dplyr::left_join(source, target, by = "...uid")
+  out <- dplyr::select(out, -...id, -...uid)
 
 }
 
