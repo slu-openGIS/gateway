@@ -142,6 +142,9 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 #' @export
 gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
+  # global bindings
+  result_id = NULL
+
   # save parameters to list
   paramList <- as.list(match.call())
 
