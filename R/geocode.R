@@ -409,10 +409,8 @@ gw_geocode_city_batch <- function(.data){
   target <- gw_geocode_prep(.data)
 
   # geocode
-  target <- gw_add_batch(target, id = ...uid, address = "...address", threshold = 100, vars = "minimal")
-  target <- dplyr::rename(target,
-                          ...uid = result_id,
-                          address_match = address)
+  target <- gw_add_batch(target, id = "...uid", address = "...address", threshold = 100, vars = "minimal")
+  target <- dplyr::rename(target, address_match = address)
   target <- dplyr::select(target, ...uid, x, y, address_match, score)
 
   # include result

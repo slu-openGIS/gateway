@@ -237,7 +237,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # clean-up data frame ### funs() is deprecated!
   return <- dplyr::rename_at(return, .vars = dplyr::vars(dplyr::starts_with("attributes.")),
-                          .funs = funs(sub("^attributes[.]", "", .)))
+                          .funs = dplyr::funs(sub("^attributes[.]", "", .)))
   return <- dplyr::select(return, -dplyr::starts_with("location."))
   return <- janitor::clean_names(return, case = "snake")
 
@@ -254,7 +254,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal", crs){
   }
 
   # id as first var
-  return <- dplyr::select(return, result_id, everything())
+  return <- dplyr::select(return, result_id, dplyr::everything())
 
   # ensure tibble
   out <- dplyr::as_tibble(return)
