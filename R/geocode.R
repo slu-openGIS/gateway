@@ -120,9 +120,9 @@ gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", 
 
     sub <- dplyr::distinct(master, address_short, x, y, .keep_all = TRUE)
 
-    dupes <- janitor::get_dupes(sub, address_short) %>%
-    dupes <- dplyr::distinct(dupes, address_short) %>%
-    dupes <- dplyr::mutate(dupes, flag = TRUE) -> dupes
+    dupes <- janitor::get_dupes(sub, address_short)
+    dupes <- dplyr::distinct(dupes, address_short)
+    dupes <- dplyr::mutate(dupes, flag = TRUE)
 
     master <- dplyr::left_join(sub, dupes, by = "address_short")
     master <- dplyr::filter(master, is.na(flag) == TRUE)

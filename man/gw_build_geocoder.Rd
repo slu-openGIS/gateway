@@ -4,13 +4,11 @@
 \alias{gw_build_geocoder}
 \title{Build Local Geocoder}
 \usage{
-gw_build_geocoder(style, class, crs = 4269, return = c("coords", "parcel", "zip"),
+gw_build_geocoder(style, crs = 4269, return = c("coords", "parcel", "zip"),
     include_units = FALSE)
 }
 \arguments{
 \item{style}{One of either \code{"full"} (\code{"123 Main St"}) or \code{"short"} (\code{"123 Main"}).}
-
-\item{class}{One of either \code{"sf"} or \code{"tibble"}.}
 
 \item{crs}{A numeric code corresponding to the desired coordinate system for the column output if
 \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.}
@@ -23,7 +21,7 @@ parcel identification numbers (\code{handle}), zip-codes, and x and y coordinate
 be included. If \code{FALSE} (default), only records for the overall building will be retained.}
 }
 \value{
-A \code{sf} object or tibble with the requested data in the \code{return} argument as well as
+A tibble with the requested data in the \code{return} argument as well as
    a \code{address} variable containing the full street address string.
 }
 \description{
