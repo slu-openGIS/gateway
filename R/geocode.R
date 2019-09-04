@@ -304,10 +304,12 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
 
   # set-up output
   if (class == "sf"){
-    .data <- sf::st_as_sf(.data)
-  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
-    .data <- dplyr::select(.data, -geometry)
+    .data <- sf::st_as_sf(.data, coords = c("x", "y"), crs = 4269)
   }
+
+  # else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
+  #  .data <- dplyr::select(.data, -geometry)
+  # }
 
   # rename variables again
   .data <- dplyr::rename(.data, !!varQ := ...address)
