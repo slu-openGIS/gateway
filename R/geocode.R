@@ -5,11 +5,10 @@
 #'    and will error if your computer is offline. Since the actual geocoding is done with a second
 #'    function, however, it is possible to build a geocoder and store it offline for repeated use.
 #'
-#' @usage gw_build_geocoder(style, class, crs = 4269, return = c("coords", "parcel", "zip"),
+#' @usage gw_build_geocoder(style, crs = 4269, return = c("coords", "parcel", "zip"),
 #'     include_units = FALSE)
 #'
 #' @param style One of either \code{"full"} (\code{"123 Main St"}) or \code{"short"} (\code{"123 Main"}).
-#' @param class One of either \code{"sf"} or \code{"tibble"}.
 #' @param crs A numeric code corresponding to the desired coordinate system for the column output if
 #'    \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.
 #' @param return Optional; A character scalar or vector that describes the type of information to be applied
@@ -18,7 +17,7 @@
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will
 #'    be included. If \code{FALSE} (default), only records for the overall building will be retained.
 #'
-#' @return A \code{sf} object or tibble with the requested data in the \code{return} argument as well as
+#' @return A tibble with the requested data in the \code{return} argument as well as
 #'    a \code{address} variable containing the full street address string.
 #'
 #' @seealso \code{\link{gw_geocode}}, \href{https://www.stlouis-mo.gov/data/geocode-service.cfm}{City of St. Louis Geocode Service}
@@ -39,7 +38,7 @@
 #' @importFrom tidyr unite
 #'
 #' @export
-gw_build_geocoder <- function(style, class, crs = 4269, return = c("coords", "parcel", "zip"),
+gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", "zip"),
                               include_units = FALSE){
 
   # set global bindings
@@ -79,21 +78,13 @@ gw_build_geocoder <- function(style, class, crs = 4269, return = c("coords", "pa
   }
 
   # create coordinates if class is tibble
-  if (class == "tibble" & "coords" %in% return == TRUE){
+  if ("coords" %in% return == TRUE){
     master <- gw_get_coords(master, crs = crs)
     sf::st_geometry(master) <- NULL
     master <- dplyr::as_tibble(master)
-  } else if (class == "tibble" & "coords" %in% return == FALSE){
+  } else if ("coords" %in% return == FALSE){
     sf::st_geometry(master) <- NULL
     master <- dplyr::as_tibble(master)
-  } else if (class == "sf" & coords != crs){
-    master <- sf::st_transform(master, crs = crs)
-  }
-
-  # create subset if class is sf
-  if (class == "sf"){
-    coords <- dplyr::select(master, ADDRRECNUM)
-    sf::st_geometry(master) <- NULL
   }
 
   # clean-up data
@@ -139,15 +130,8 @@ gw_build_geocoder <- function(style, class, crs = 4269, return = c("coords", "pa
 
   }
 
-  # combine coordinates and cleaned data
-  if (class == "sf"){
-    master <- dplyr::left_join(coords, master, by = "ADDRRECNUM")
-  }
-
   # rename id
   master <- dplyr::rename(master, addrrecnum = ADDRRECNUM)
-
-
 
   # return output
   return(master)
