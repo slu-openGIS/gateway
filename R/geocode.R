@@ -90,39 +90,39 @@ gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", 
   # clean-up data
   if (style == "full"){
 
-    master %>%
-      dplyr::mutate(UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM)) %>%
-      dplyr::mutate(HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF)) %>%
-      postmastr::pm_street_std(var = STREETNAME, locale = "us") %>%
-      postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") %>%
-      tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE) %>%
-      dplyr::mutate(address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = "")) %>%
-      dplyr::mutate(address = stringr::str_squish(address)) %>%
-      dplyr::distinct(address, .keep_all = TRUE) -> master
+    master <- dplyr::mutate(master, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
+    master <- dplyr::mutate(master, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
+    master <- postmastr::pm_street_std(master, var = STREETNAME, locale = "us")
+    master <- postmastr::pm_streetSuf_std(master, var = STREETTYPE, locale = "us")
+    master <- tidyr::unite(master, address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE)
+    master <- dplyr::mutate(master,
+                  address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
+    master <- dplyr::mutate(master, address = stringr::str_squish(address))
+    master <- dplyr::distinct(master, address, .keep_all = TRUE)
 
   } else if (style == "short"){
 
-    master %>%
-      dplyr::mutate(UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM)) %>%
-      dplyr::mutate(HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF)) %>%
-      postmastr::pm_street_std(var = STREETNAME, locale = "us") %>%
-      postmastr::pm_streetSuf_std(var = STREETTYPE, locale = "us") %>%
-      tidyr::unite(address, HOUSENUM:SUFDIR, sep = " ", remove = FALSE) %>%
-      dplyr::mutate(address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = "")) %>%
-      dplyr::mutate(address = stringr::str_squish(address)) %>%
-      tidyr::unite(address_short, HOUSENUM:STREETNAME, sep = " ", remove = TRUE) %>%
-      dplyr::mutate(address_short = stringr::str_replace_all(address_short, pattern = "\\bNA\\b", replacement = "")) %>%
-      dplyr::mutate(address_short = stringr::str_squish(address_short)) %>%
-      dplyr::select(-STREETTYPE, -SUFDIR) %>%
-      dplyr::distinct(address, .keep_all = TRUE) %>%
-      dplyr::select(-address) -> master
+    master <- dplyr::mutate(master, master, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
+    master <- dplyr::mutate(master, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
+    master <- postmastr::pm_street_std(master, var = STREETNAME, locale = "us")
+    master <- postmastr::pm_streetSuf_std(master, var = STREETTYPE, locale = "us")
+    master <- tidyr::unite(master, address, HOUSENUM:SUFDIR, sep = " ", remove = FALSE)
+    master <- dplyr::mutate(master,
+                address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
+    master <- dplyr::mutate(master, address = stringr::str_squish(address))
+    master <- tidyr::unite(master, address_short, HOUSENUM:STREETNAME, sep = " ", remove = TRUE)
+    master <- dplyr::mutate(master,
+                address_short = stringr::str_replace_all(address_short, pattern = "\\bNA\\b", replacement = ""))
+    master <- dplyr::mutate(master, address_short = stringr::str_squish(address_short))
+    master <- dplyr::select(master, -STREETTYPE, -SUFDIR)
+    master <- dplyr::distinct(master, address, .keep_all = TRUE)
+    master <- dplyr::select(master, -address)
 
     sub <- dplyr::distinct(master, address_short, x, y, .keep_all = TRUE)
 
-    sub %>%
-      janitor::get_dupes(address_short) %>%
-      dplyr::distinct(address_short) %>%
-      dplyr::mutate(flag = TRUE) -> dupes
+    dupes <- janitor::get_dupes(sub, address_short) %>%
+    dupes <- dplyr::distinct(dupes, address_short) %>%
+    dupes <- dplyr::mutate(dupes, flag = TRUE) -> dupes
 
     master <- dplyr::left_join(sub, dupes, by = "address_short")
     master <- dplyr::filter(master, is.na(flag) == TRUE)
