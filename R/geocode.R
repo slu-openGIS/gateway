@@ -269,19 +269,44 @@ gw_geocode <- function(.data, type, var, class, side = "right", geocoder, thresh
   # rename variables
   .data <- dplyr::rename(.data, ...address := !!varQ)
 
+  # identify observations
+  .data <- gw_geocode_identify(.data)
+
+  # subset distinct observations
+  target <- gw_geocode_prep(.data)
+
   # geocode
   if (type == "local"){
-    .data <- gw_geocode_local(.data, class = class, geocoder = geocoder, side = side)
+    target <- gw_geocode_local(target, class = class, geocoder = geocoder, side = side)
   } else if (type == "local short"){
+    stop("functionality not enabled")
     .data <- gw_geocode_local_short(.data, class = class, geocoder = geocoder, side = side)
   } else if (type == "city batch"){
+    stop("functionality not enabled")
     .data <- gw_geocode_city_batch(.data)
   } else if (type == "city candidate"){
+    stop("functionality not enabled")
     .data <- gw_geocode_city_candidate(.data, threshold)
   } else if (type == "census"){
     stop("functionality not enabled")
   } else if (type == "osm"){
+    stop("functionality not enabled")
     .data <- gw_geocode_osm(.data)
+  }
+
+  # rebuild data
+  .data <- gw_geocode_replace(source = .data, target = target)
+
+  # move ID column
+  if (type == "local" & side == "left"){
+    .data <- dplyr::select(.data, addrrecnum, dplyr::everything())
+  }
+
+  # set-up output
+  if (class == "sf"){
+    .data <- sf::st_as_sf(.data)
+  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
+    .data <- dplyr::select(.data, -geometry)
   }
 
   # rename variables again
@@ -304,35 +329,14 @@ gw_geocode_local <- function(.data, class, geocoder, side = "right"){
   # set global bindings
   address = addrrecnum = geometry = out = NULL
 
-  # identify observations
-  .data <- gw_geocode_identify(.data)
-
-  # subset distinct observations
-  target <- gw_geocode_prep(.data)
-
   # rename geocoder address column
   geocoder <- dplyr::rename(geocoder, ...address = address)
 
   # geocode
-  target <- dplyr::left_join(target, geocoder, by = "...address")
+  .data <- dplyr::left_join(.data, geocoder, by = "...address")
 
   # include result
-  target <- dplyr::mutate(target, source = ifelse(is.na(addrrecnum) == FALSE, "local geocoder", NA))
-
-  # rebuild data
-  .data <- gw_geocode_replace(source = .data, target = target)
-
-  # move ID column
-  if (side == "left"){
-    .data <- dplyr::select(.data, addrrecnum, dplyr::everything())
-  }
-
-  # set-up output
-  if (class == "sf"){
-    .data <- sf::st_as_sf(.data)
-  } else if (class == "tibble" & "geometry" %in% names(out) == TRUE){
-    .data <- dplyr::select(.data, -geometry)
-  }
+  .data <- dplyr::mutate(.data, source = ifelse(is.na(addrrecnum) == FALSE, "local geocoder", NA))
 
   # return output
   return(.data)
