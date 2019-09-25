@@ -22,6 +22,7 @@
 #'   \item{\code{Ortho Tile Boundaries}}{SLU OpenGIS; Eest-West Gateway Orthoimagery Tile Boundaries (\code{sf} or tibble)}
 #'   \item{\code{Parcels}}{City of St. Louis; parcel data (\code{sf} or tibble)}
 #'   \item{\code{Parks}}{City of St. Louis; public parks (\code{sf} or tibble)}
+#'   \item{\code{Placenames}}{SLU OpenGIS; place name data set (\code{sf} or tibble)}
 #'   \item{\code{Police Districts}}{City of St. Louis; police districts (\code{sf} or tibble)}
 #'   \item{\code{Police Districts, Pre-2014}}{City of St. Louis; police districts prior to 2014
 #'       reorganization (\code{sf} or tibble)}
@@ -53,7 +54,8 @@ gw_get_data <- function(data, class, ...){
                 "Zoning, Multi")
 
   # vector of items for slu openGIS data sources
-  sluData <- c("Grids", "Grids, Clipped", "Grids, Exploded", "Mississippi River, Illinois", "Mississippi River, Islands", "Ortho Tile Boundaries")
+  sluData <- c("Grids", "Grids, Clipped", "Grids, Exploded", "Mississippi River, Illinois",
+               "Mississippi River, Islands", "Ortho Tile Boundaries", "Placenames")
 
   # vector of items for tigris data
   tigrisData <- c("Tracts")
@@ -90,6 +92,9 @@ gw_get_data <- function(data, class, ...){
     if (data == "Land Records"){
       output <- foreign::read.dbf(filepath, as.is = TRUE)
       output <- dplyr::as_tibble(output)
+    } else if (data == "Placenames") {
+      output <- suppressMessages(readr::read_csv(file = filepath))
+      output <- sf::st_as_sf(output, coords = c("longitude", "latitude"), crs = 4269)
     } else {
       output <- sf::st_read(dsn = filepath, stringsAsFactors = FALSE, quiet = TRUE)
     }
@@ -200,6 +205,9 @@ gw_get_slu <- function(data){
   else if (data == "Ortho Tile Boundaries") {
     url <- "https://github.com/slu-openGIS/MO_STL_STLTiles/archive/master.zip"
     path <- "/MO_STL_STLTiles-master/Shapefile/STLTiles.shp"
+  } else if (data == "Placenames"){
+    url <- "https://github.com/slu-openGIS/STL_GEOCODER_Placename/archive/master.zip"
+    path <- "/STL_GEOCODER_Placename-master/data/STL_GEOCODER_Placename.csv"
   }
 
   # create list
