@@ -193,12 +193,22 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   }
 
+  if (crs != 102696){
+
+    out <- sf::st_as_sf(out, coords = c("x", "y"), crs = 102696)
+    out <- sf::st_transform(out, crs = 4269)
+    out <- gw_get_coords(out, crs = crs)
+    sf::st_geometry(out) <- NULL
+    out <- dplyr::as_tibble(out)
+
+  }
+
   return(out)
 
 }
 
 
-gw_batch_call <- function(.data, id, address, threshold, vars = "minimal", crs){
+gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
 
   # global bindings
   . = address_match = match_address = x = y = score = comp_score = add_num_from = add_num_to = country =
@@ -228,7 +238,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal", crs){
   url <- utils::URLencode(url)
 
   response <- httr::GET(url)
-  message(paste0("Status Code: ",httr::status_code(response)))
+  # message(paste0("Status Code: ",httr::status_code(response)))
   content <- httr::content(response, "text")
 
   # parse json to data.frame
