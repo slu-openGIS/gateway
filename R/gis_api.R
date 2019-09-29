@@ -233,11 +233,12 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
   query <- jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
-  baseurl <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
-  url <- paste0(baseurl, "?addresses=", query, "&category=&sourceCountry=&outSR=", "&f=json") # always return json
-  url <- utils::URLencode(url)
+  url <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
 
-  response <- httr::GET(url)
+  response <- httr::POST(url,
+                         body = list(addresses = query,
+                                     f = "json")
+                         )
   # message(paste0("Status Code: ",httr::status_code(response)))
   content <- httr::content(response, "text")
 
