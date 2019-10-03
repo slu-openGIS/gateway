@@ -1,29 +1,28 @@
 # Access to the City's ArcGIS REST API
 
-#' City Address Candidates API Access
-#'
-#' @description Provides access to the City of Saint Louis\href{https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates}{Address Candidates API}
-#'
-#'
-#' @usage gw_add_candidates(street, zip, address, n, threshold, crs, sf)
-#'
-#' @param street Name of street
-#' @param zip 5-digit zipcode
-#' @param address Single line address
-#' @param n Number of candidates to return
-#' @param threshold Numeric from 1 to 100, specifying how precise returned matches should be
-#' @param crs Output spatial reference (CRS, WKID, ESRI Code)
-#' @param sf Logical, output as simple feature object
-#'
-#' @return A data.frame or sf containing candidate addresses, x and y coordinates, and score of match
-#'
-#' @importFrom dplyr bind_rows filter
-#' @importFrom httr content GET
-#' @importFrom utils URLencode
-#' @importFrom jsonlite parse_json
-#' @importFrom sf st_as_sf
-#'
-#' @export
+# City Address Candidates API Access
+#
+# @description Provides access to the City of Saint Louis\href{https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates}{Address Candidates API}
+#
+#
+# @usage gw_add_candidates(street, zip, address, n, threshold, crs, sf)
+#
+# @param street Name of street
+# @param zip 5-digit zipcode
+# @param address Single line address
+# @param n Number of candidates to return
+# @param threshold Numeric from 1 to 100, specifying how precise returned matches should be
+# @param crs Output spatial reference (CRS, WKID, ESRI Code)
+# @param sf Logical, output as simple feature object
+#
+# @return A data.frame or sf containing candidate addresses, x and y coordinates, and score of match
+#
+# @importFrom dplyr bind_rows filter
+# @importFrom httr content GET
+# @importFrom utils URLencode
+# @importFrom jsonlite parse_json
+# @importFrom sf st_as_sf
+#
 gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALSE){
 
   # global bindings
@@ -120,26 +119,25 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 }
 
 
-#' City Address Batch API
-#'
-#' @param .data Name of data.frame containing address and id variables
-#' @param id Name of column with unique identifier
-#' @param address Vector containing addresses (List or Data.frame column)
-#' @param threshold Numeric from 1 to 100, specifying how precise returned matches should be
-#' @param vars How many variables should be returned? Choices are \code{"minmal"}, \code{"moderate"},
-#'     or \code{"all"}.
-#' @param crs Output spatial reference (Not yet implemented)
-#'
-#' @return Returns a data.frame with the API response
-#'
-#' @importFrom dplyr rename_at select as_tibble filter rename
-#' @importFrom httr GET content status_code
-#' @importFrom rlang := enquo quo quo_name sym
-#' @importFrom janitor clean_names
-#' @importFrom jsonlite toJSON minify flatten
-#' @importFrom utils URLencode
-#'
-#' @export
+# City Address Batch API
+#
+# @param .data Name of data.frame containing address and id variables
+# @param id Name of column with unique identifier
+# @param address Vector containing addresses (List or Data.frame column)
+# @param threshold Numeric from 1 to 100, specifying how precise returned matches should be
+# @param vars How many variables should be returned? Choices are \code{"minmal"}, \code{"moderate"},
+#     or \code{"all"}.
+# @param crs Output spatial reference (Not yet implemented)
+#
+# @return Returns a data.frame with the API response
+#
+# @importFrom dplyr rename_at select as_tibble filter rename
+# @importFrom httr GET content status_code
+# @importFrom rlang := enquo quo quo_name sym
+# @importFrom janitor clean_names
+# @importFrom jsonlite toJSON minify flatten
+# @importFrom utils URLencode
+#
 gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   # global bindings
@@ -280,14 +278,13 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
 
 }
 
-#' City Reverse Geocoder
-#' @param x Numeric X coordinate of the location to reverse geocode
-#' @param y Numeric Y coordinate of the location to reverse geocode
-#' @param distance The distance in meters from the given location within which a matching address should be searched. If this parameter is not provided or an invalid value is provided, a default value of 0 meters is used.
-#' @param crs Numeric CRS or WKID for spatial projection
-#' @param intersection Logical, Return nearest Address (FALSE) or Intersection (TRUE)
-#'
-#' @export
+# City Reverse Geocoder
+# @param x Numeric X coordinate of the location to reverse geocode
+# @param y Numeric Y coordinate of the location to reverse geocode
+# @param distance The distance in meters from the given location within which a matching address should be searched. If this parameter is not provided or an invalid value is provided, a default value of 0 meters is used.
+# @param crs Numeric CRS or WKID for spatial projection
+# @param intersection Logical, Return nearest Address (FALSE) or Intersection (TRUE)
+#
 gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALSE){
 
   # build a query

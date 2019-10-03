@@ -5,7 +5,7 @@
 \title{Build Local Geocoder}
 \usage{
 gw_build_geocoder(style, crs = 4269, return = c("coords", "parcel", "zip"),
-    include_units = FALSE)
+    include_units = FALSE, appendix)
 }
 \arguments{
 \item{style}{One of either \code{"full"} (\code{"123 Main St"}) or \code{"short"} (\code{"123 Main"}).}
@@ -19,6 +19,8 @@ parcel identification numbers (\code{handle}), zip-codes, and x and y coordinate
 
 \item{include_units}{A logical scalar; if \code{TRUE}, all individual records for apartment units will
 be included. If \code{FALSE} (default), only records for the overall building will be retained.}
+
+\item{appendix}{An object with additional address or placename data to append to the geocoder.}
 }
 \value{
 A tibble with the requested data in the \code{return} argument as well as

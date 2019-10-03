@@ -44,7 +44,8 @@ gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", 
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
-    SUFDIR = UNITNUM = ZIP = address = address_short = x = y = flag = NULL
+    SUFDIR = UNITNUM = ZIP = address = address_short = x = y = flag =
+    geonameid = zip = id = name = addrrecnum = gw_addrrecnum = NULL
 
   # check for optional return argument
   if (missing(return)){
@@ -270,8 +271,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, var, class, side = "right", geocoder, threshold,
-#'     include_source = TRUE)
+#' @usage gw_geocode(.data, type, var, zip, class, local, local_short, local_place, threshold)
 #'
 #' @param .data A target data set
 #' @param type Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
@@ -280,16 +280,16 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    both local and the remote geocoders are also available by using \code{"composite, local"} or
 #'    \code{"composite, full"} respectively.
 #' @param var Address variable in the target data set, which should contain the house number,
-#'    street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
-#'    names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
-#'    creates units.
+#'    street directionals, name, and suffix.
+#' @param zip Name of zipcode variable in the taget data set (optional).
 #' @param class Output class; one of either \code{"sf"} or \code{"tibble"}.
-#' @param side One of either \code{"right"} or \code{"left"} indicating where the identifier variable
-#'     should be placed in the
-#' @param geocoder Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}
+#' @param local Name of object containing a local geocoder built with
+#'     \code{\link{gw_build_geocoder}}
+#' @param local_short Name of object containing a local, short style geocoder
+#'     built with \code{\link{gw_build_geocoder}}
+#' @param local_place Name of object containing a local, placename style geocoder
+#'     built with \code{\link{gw_build_geocoder}}
 #' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
-#' @param include_source Logical scalar; if \code{TRUE} (default), a column describing how each
-#'    observation was geocoded is included in the output.
 #'
 #' @return A copy of the target data with georeferenced data applied to it.
 #'
@@ -310,10 +310,10 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'
 #' @export
 gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_place,
-                       threshold, side = "right", include_source = TRUE){
+                       threshold){
 
   # set global bindings
-  . = ...address = out = addrrecnum = geometry = NULL
+  . = ...address = out = addrrecnum = geometry = ...zip = gw_address = NULL
 
   # set global variables
   batch <- FALSE
@@ -366,11 +366,10 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
     target <- gw_geocode_local_placename(target, geocoder = local_place)
   } else if (type == "city batch"){
     batch <- TRUE
-    target <- gw_geocode_city_batch(target, crs = 4269)
+    target <- gw_geocode_city_batch(target, crs = 4269, zip = zipPresent)
   } else if (type == "city candidate"){
-    target <- gw_geocode_city_candidate(target, threshold = threshold)
+    target <- gw_geocode_city_candidate(target, threshold = threshold, zip = zipPresent)
   } else if (type == "census"){
-    stop("Functionality not currently enabled!")
     target <- gw_geocode_census_xy(target, zip = zipPresent)
   } else if (type == "composite, local"){
     target <- gw_geocode_composite(target, zip = zipPresent, local = local,
@@ -385,15 +384,11 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
   # rebuild data
   .data <- gw_geocode_replace(source = .data, target = target, zip = zipPresent, batch = batch)
 
-  # move ID column
-  if (type %in% c("local", "local short", "composite, local", "composite, full") & side == "left"){
-    .data <- dplyr::select(.data, addrrecnum, dplyr::everything())
-  }
+  # re-order variables
+  vars <- gw_reorder_target(.data)
 
-  # set-up output
-  if (class == "sf"){
-    .data <- sf::st_as_sf(.data, coords = c("gw_x", "gw_y"), crs = 4269)
-  }
+  # re-order data
+  .data <- dplyr::select(.data, vars$source.vars, vars$gw.vars)
 
   # rename variables again
   .data <- dplyr::rename(.data, !!varQ := ...address)
@@ -407,9 +402,9 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
     .data <- dplyr::mutate(.data, gw_address = stringr::str_to_title(gw_address, locale = "en"))
   }
 
-  # optionally remove source
-  if (include_source == FALSE){
-    .data <- dplyr::select(.data, -source)
+  # set-up output
+  if (class == "sf"){
+    .data <- sf::st_as_sf(.data, coords = c("gw_x", "gw_y"), crs = 4269)
   }
 
   # return output
@@ -422,7 +417,7 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
 gw_geocode_local <- function(.data, geocoder){
 
   # set global bindings
-  # address = addrrecnum = geometry = out = NULL
+  gw_address = gw_x = NULL
 
   # rename geocoder address column
   geocoder <- dplyr::rename(geocoder, ...address = gw_address)
@@ -442,7 +437,7 @@ gw_geocode_local <- function(.data, geocoder){
 gw_geocode_local_short <- function(.data, geocoder){
 
   # set global bindings
-  # address = addrrecnum = geometry = out = NULL
+  gw_address = gw_x = NULL
 
   # rename geocoder address column
   geocoder <- dplyr::rename(geocoder, ...address = gw_address)
@@ -461,6 +456,9 @@ gw_geocode_local_short <- function(.data, geocoder){
 # placename geocoder
 gw_geocode_local_placename <- function(.data, geocoder){
 
+  # global variables
+  gw_name = gw_x = NULL
+
   # rename geocoder address column
   geocoder <- dplyr::rename(geocoder, ...address = gw_name)
 
@@ -476,10 +474,11 @@ gw_geocode_local_placename <- function(.data, geocoder){
 }
 
 # city api, batch geocoder
-gw_geocode_city_batch <- function(.data, crs){
+gw_geocode_city_batch <- function(.data, crs, zip){
 
   # global bindings
-  # ...uid = result_id = address = x = y = address_match = score = NULL
+  ...uid = score = address = x = y = address_match = score = gw_x = gw_y =
+    gw_address = gw_score = gw_source = NULL
 
   # geocode
   target <- gw_add_batch(.data, id = "...uid", address = "...address", threshold = 100, vars = "minimal", crs = crs)
@@ -493,16 +492,20 @@ gw_geocode_city_batch <- function(.data, crs){
   # include result
   target <- dplyr::mutate(target, gw_source = "city api, batch")
 
+  # reorder
+  target <- dplyr::select(target, ...uid, gw_address, gw_score, gw_x, gw_y, gw_source)
+
   # return output
   return(target)
 
 }
 
 # city api, candidate geocoder
-gw_geocode_city_candidate <- function(.data, threshold){
+gw_geocode_city_candidate <- function(.data, threshold, zip){
 
   # global bindings
-  # ...address = geo = NULL
+  ...address = geo = x = y = address_match = score = ...uid = ...zip =
+    gw_address = gw_score = gw_x = gw_y = gw_source = NULL
 
   # generate candidates
   target <- dplyr::mutate(.data, geo = purrr::map(...address, ~
@@ -512,7 +515,7 @@ gw_geocode_city_candidate <- function(.data, threshold){
   target <- dplyr::filter(target, is.na(geo) == FALSE)
 
   # unnest results
-  target <- tidyr::unnest(target)
+  target <- tidyr::unnest(target, cols = c(geo))
 
   # rename
   target <- dplyr::rename(target,
@@ -523,6 +526,13 @@ gw_geocode_city_candidate <- function(.data, threshold){
 
   # include result
   target <- dplyr::mutate(target, gw_source = "city api, candidate")
+
+  # reorder
+  if (zip == TRUE){
+    target <- dplyr::select(target, ...uid, ...address, ...zip, gw_address, gw_score, gw_x, gw_y, gw_source)
+  } else if (zip == FALSE){
+    target <- dplyr::select(target, ...uid, ...address, gw_address, gw_score, gw_x, gw_y, gw_source)
+  }
 
   # return output
   return(target)
@@ -549,34 +559,66 @@ gw_create_candidates <- function(address, style, threshold){
 # census xy
 gw_geocode_census_xy <- function(.data, zip){
 
+  # global variables
+  ...uid = ...address = ...zip = gw_i_uid = gw_i_address = lon = lat =
+    cxy_match = cxy_quality = gw_x = gw_y = gw_i_city = gw_i_state =
+    cxy_status = gw_i_zip = gw_address = gw_score = gw_source = NULL
+
+  # rename id
+  .data <- dplyr::rename(.data,
+                         gw_i_uid = ...uid,
+                         gw_i_address = ...address)
+
   # construct data
   if (zip == TRUE){
     .data <- dplyr::mutate(.data,
-                           ...city = "St. Louis",
-                           ...state = "MO"
-    )
+                           gw_i_city = "St. Louis",
+                           gw_i_state = "MO")
+
+    .data <- dplyr::rename(.data, gw_i_zip = ...zip)
+
   } else if (zip == FALSE){
     .data <- dplyr::mutate(.data,
-                           ...city = "St. Louis",
-                           ...state = "MO",
-                           ...zip = NA
-    )
+                           gw_i_city = "St. Louis",
+                           gw_i_state = "MO",
+                           gw_i_zip = NA)
   }
 
+
   # geocode
-  .data <- censusxy::cxy_geocode(.data, address = "...address", city = "...city",
-                                 state  = "...state", zip = "....zip",
+  .data <- censusxy::cxy_geocode(.data, address = "gw_i_address", city = "gw_i_city",
+                                 state  = "gw_i_state", zip = "gw_i_zip",
                                  style = "minimal", output = "tibble", timeout = 30)
 
   # rename
   .data <- dplyr::rename(.data,
+                         ...uid = gw_i_uid,
+                         ...address = gw_i_address,
                          gw_x = lon,
                          gw_y = lat,
                          gw_address = cxy_match,
                          gw_score = cxy_quality)
 
-  # remove status
-  .data <- dplyr::select(.data, -cxy_status)
+  # include result
+  .data <- dplyr::mutate(.data, gw_source = ifelse(is.na(gw_x) == FALSE, "census api", NA))
+
+  # remove uneeded columns and reorder
+  .data <- dplyr::select(.data, -gw_i_city, -gw_i_state, -cxy_status)
+
+  if (zip == TRUE){
+
+    # rename
+    .data <- dplyr::rename(.data, ...zip = gw_i_zip)
+
+    # re-order
+    .data <- dplyr::select(.data, ...uid, ...address, ...zip, gw_address, gw_score, gw_x, gw_y, gw_source)
+
+  } else if (zip == FALSE){
+
+    # re-order
+    .data <- dplyr::select(.data, ...uid, ...address, gw_address, gw_score, gw_x, gw_y, gw_source)
+
+  }
 
   # return output
   return(.data)
@@ -584,6 +626,10 @@ gw_geocode_census_xy <- function(.data, zip){
 }
 
 gw_geocode_composite <- function(.data, zip, local, local_short, local_place, threshold, offline){
+
+  # global binding
+  gw_x = gw_y = gw_addrrecnum = gw_source = gw_id = gw_address = gw_score =
+    ...address = ...zip = NULL
 
   # local geocoder
   .data <- gw_geocode_local(.data, geocoder = local)
@@ -634,7 +680,7 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
         unmatched <- dplyr::select(unmatched, -gw_addrrecnum, -gw_x, -gw_y, -gw_source, -gw_id, -gw_address)
 
         # geocode
-        results <- gw_geocode_city_batch(unmatched, crs = 4269)
+        results <- gw_geocode_city_batch(unmatched, crs = 4269, zip = zip)
 
         # put results back into unmatched data
         unmatched <- dplyr::left_join(unmatched, results, by = "...uid")
@@ -654,7 +700,7 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
           unmatched <- dplyr::select(unmatched, -gw_addrrecnum, -gw_x, -gw_y, -gw_source, -gw_id, -gw_address, -gw_score)
 
           # geocode
-          results <- gw_geocode_city_candidate(unmatched, threshold = threshold)
+          results <- gw_geocode_city_candidate(unmatched, threshold = threshold, zip = zip)
 
           # put results back into unmatched data
           if (zip == TRUE){
@@ -665,6 +711,29 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
 
           unmatched <- dplyr::left_join(unmatched, results, by = "...uid")
 
+          # check results
+          result2 <- any(is.na(unmatched$gw_x))
+
+          # censusxy geocoder
+          if (result2 == TRUE){
+
+            # rebuild results
+            .data <- dplyr::bind_rows(matched, unmatched)
+
+            # subset results
+            matched <- dplyr::filter(.data, is.na(gw_x) == FALSE)
+            unmatched <- dplyr::filter(.data, is.na(gw_x) == TRUE)
+            unmatched <- dplyr::select(unmatched, -gw_addrrecnum, -gw_x, -gw_y, -gw_source, -gw_id, -gw_address, -gw_score)
+
+            # geocode
+            result <- try(gw_geocode_census_xy(unmatched, zip = zip), silent = TRUE)
+
+            # check for error
+            if ("try-error" %in% class(result) == FALSE){
+              unmatched <- result
+            }
+
+          }
         }
 
       }
@@ -701,7 +770,7 @@ gw_geocode_identify <- function(.data){
 gw_geocode_prep <- function(.data, zip){
 
   # set global bindings
-  ...uid = ...address = NULL
+  ...uid = ...address = ...zip = NULL
 
   # return only distinct addresses
   .data <- dplyr::distinct(.data, ...uid, .keep_all = TRUE)
@@ -719,7 +788,7 @@ gw_geocode_prep <- function(.data, zip){
 gw_geocode_replace <- function(source, target, zip, batch = FALSE){
 
   # set global bindings
-  . = ...id = ...uid = ...address = NULL
+  . = ...id = ...uid = ...address = ...zip = NULL
 
   # optionally prepare
   if (batch == FALSE){
@@ -737,82 +806,43 @@ gw_geocode_replace <- function(source, target, zip, batch = FALSE){
 
 }
 
+# re-order variables
+gw_reorder_target <- function(.data){
 
-#' Additional Geocoder
-#' @export
-gw_geocode2 <- function(.data, type, var, zip, class, local, local_short, local_place,
-                       threshold, side = "right", include_source = TRUE){
+  # create vector of current gw variables in data
+  .data %>%
+    dplyr::select(dplyr::starts_with("gw_")) %>%
+    names() -> gwVarsCurrent
 
-  # set global bindings
-  . = ...address = out = addrrecnum = geometry = NULL
+  # create vector of original source data variables
+  .data %>%
+    dplyr::select(-dplyr::starts_with("gw_")) %>%
+    names() -> sourceVars
 
-  # set global variables
-  batch <- FALSE
+  # master list of variables for pm objects
+  master <- data.frame(
+    master.vars = c("gw_addrrecnum", "gw_id","gw_address", "gw_score",
+                    "gw_x", "gw_y", "gw_source"),
+    stringsAsFactors = FALSE)
 
-  # save parameters to list
-  paramList <- as.list(match.call())
+  # create data frame of current variables
+  working <- data.frame(
+    master.vars = c(gwVarsCurrent),
+    working.vars = c(gwVarsCurrent),
+    stringsAsFactors = FALSE
+  )
 
-  # unquote
-  if (!is.character(paramList$var)) {
-    varQ <- rlang::enquo(var)
-  } else if (is.character(paramList$var)) {
-    varQ <- rlang::quo(!! rlang::sym(var))
-  }
+  # join master and working data
+  joined <- dplyr::left_join(master, working, by = "master.vars")
 
-  if (missing(zip) == FALSE){
-    if (!is.character(paramList$zip)) {
-      zipQ <- rlang::enquo(zip)
-    } else if (is.character(paramList$zip)) {
-      zipQ <- rlang::quo(!! rlang::sym(zip))
-    }
-  }
+  # create vector of re-ordered variables
+  vars <- stats::na.omit(joined$working.vars)
 
-  # ensure sf objects are converted to a-spatial data
-  if ("sf" %in% class(.data)){
-    sf::st_geometry(.data) <- NULL
-  }
+  out <- list(
+    gw.vars = c(vars),
+    source.vars = c(sourceVars)
+  )
 
-  # rename variables
-  .data <- dplyr::rename(.data, ...address := !!varQ)
-
-  if (missing(zip) == FALSE){
-    .data <- dplyr::rename(.data, ...zip := !!zipQ)
-    zipPresent <- TRUE
-  } else if (missing(zip) == TRUE){
-    zipPresent <- FALSE
-  }
-
-  # identify observations
-  .data <- gw_geocode_identify(.data)
-
-  # subset distinct observations
-  target <- gw_geocode_prep(.data, zip = zipPresent)
-
-  # geocode
-  if (type == "local"){
-    target <- gw_geocode_local(target, geocoder = local)
-  } else if (type == "local short"){
-    target <- gw_geocode_local_short(target, geocoder = local_short)
-  } else if (type == "local placename"){
-    target <- gw_geocode_local_placename(target, geocoder = local_place)
-  } else if (type == "city batch"){
-    batch <- TRUE
-    target <- gw_geocode_city_batch(target, crs = 4269)
-  } else if (type == "city candidate"){
-    target <- gw_geocode_city_candidate(target, threshold = threshold)
-  } else if (type == "census"){
-    target <- gw_geocode_census_xy(target, zip = zipPresent)
-  } else if (type == "composite, local"){
-    target <- gw_geocode_composite(target, zip = zipPresent, local = local,
-                                   local_short = local_short, local_place = local_place,
-                                   threshold = threshold, offline = TRUE)
-  } else if (type == "composite, full"){
-    target <- gw_geocode_composite(target, zip = zipPresent, local = local,
-                                   local_short = local_short, local_place = local_place,
-                                   threshold = threshold, offline = FALSE)
-  }
-
-  # return output
-  return(target)
+  return(out)
 
 }

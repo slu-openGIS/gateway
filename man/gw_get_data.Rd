@@ -41,6 +41,7 @@ The following data are currently available:
   \item{\code{Ortho Tile Boundaries}}{SLU OpenGIS; Eest-West Gateway Orthoimagery Tile Boundaries (\code{sf} or tibble)}
   \item{\code{Parcels}}{City of St. Louis; parcel data (\code{sf} or tibble)}
   \item{\code{Parks}}{City of St. Louis; public parks (\code{sf} or tibble)}
+  \item{\code{Placenames}}{SLU OpenGIS; place name data set (\code{sf} or tibble)}
   \item{\code{Police Districts}}{City of St. Louis; police districts (\code{sf} or tibble)}
   \item{\code{Police Districts, Pre-2014}}{City of St. Louis; police districts prior to 2014
       reorganization (\code{sf} or tibble)}

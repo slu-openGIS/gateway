@@ -4,31 +4,34 @@
 \alias{gw_geocode}
 \title{Geocode Addresses}
 \usage{
-gw_geocode(.data, type, var, class, side = "right", geocoder, threshold,
-    include_source = TRUE)
+gw_geocode(.data, type, var, zip, class, local, local_short, local_place, threshold)
 }
 \arguments{
 \item{.data}{A target data set}
 
 \item{type}{Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
-\code{"city candidate"}, \code{"census"}, or \code{"osm"}.}
+\code{"city candidate"}, \code{"census"}, or \code{"osm"}. Composite geocoders consisting of
+only local geocoders (\code{"local"}, \code{"local short"}, and \code{"local placename"}) or
+both local and the remote geocoders are also available by using \code{"composite, local"} or
+\code{"composite, full"} respectively.}
 
 \item{var}{Address variable in the target data set, which should contain the house number,
-street directionals, name, and suffix, and optionally unit types and numbers as well. Unit
-names should be replaced with \code{#} to match how \code{\link{gw_build_geocoder}}
-creates units.}
+street directionals, name, and suffix.}
+
+\item{zip}{Name of zipcode variable in the taget data set (optional).}
 
 \item{class}{Output class; one of either \code{"sf"} or \code{"tibble"}.}
 
-\item{side}{One of either \code{"right"} or \code{"left"} indicating where the identifier variable
-should be placed in the}
+\item{local}{Name of object containing a local geocoder built with
+\code{\link{gw_build_geocoder}}}
 
-\item{geocoder}{Name of object containing a geocoder built with \code{\link{gw_build_geocoder}}}
+\item{local_short}{Name of object containing a local, short style geocoder
+built with \code{\link{gw_build_geocoder}}}
+
+\item{local_place}{Name of object containing a local, placename style geocoder
+built with \code{\link{gw_build_geocoder}}}
 
 \item{threshold}{For the city candidate geocoder, what score is the minimum acceptable?}
-
-\item{include_source}{Logical scalar; if \code{TRUE} (default), a column describing how each
-observation was geocoded is included in the output.}
 }
 \value{
 A copy of the target data with georeferenced data applied to it.

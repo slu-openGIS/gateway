@@ -3,7 +3,7 @@ devtools::load_all()
 
 test <- tibble(
   address = c("1416 Delmar Blvd", "3803 E Dr Martin Luther King Dr", "3700 Lindell Blvd", "3700 Lindell",
-              "Lindell Blvd at S Vandeventer Ave", "1420 Delmar Blvd", "Calvary Cemetery")
+              "Lindell Blvd at S Vandeventer Ave", "1420 Delmar Blvd", "Calvary Cemetery", "O'Fallon Park")
 )
 
 geocoder <- gw_build_geocoder(style = "full", return = "coords")
@@ -41,6 +41,3 @@ gw_geocode(test, type = "composite, local", var = address, zip = "zip", class = 
 
 gw_geocode(test, type = "composite, full", var = address, zip = "zip", class = "tibble",
            local = geocoder, local_short = geocoder_s, local_place = geocoder_p, threshold = 90)
-
-
-
