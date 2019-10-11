@@ -122,51 +122,33 @@ gw_get_data <- function(data, class, ...){
 # Create Calls for City Data
 gw_get_city <- function(data){
 
-  # create vectors
-  if (data == "Addresses") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/pargeocd.zip"
-    path <- "/pargeocd.shp"
-  }
-  else if (data == "Neighborhoods") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip"
-    path <- "/nbrhds_wards/BND_Nhd88_cw.shp"
-  }
-  else if (data == "Land Records") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/par.zip"
-    path <- "/par.dbf"
-  }
-  else if (data == "Land Use") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/slup.zip"
-    path <- "/slup.shp"
-  }
-  else if (data == "Parcels") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/prcl_shape.zip"
-    path <- "/prcl.shp"
-  }
-  else if (data == "Parks") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/parks.zip"
-    path <- "/parks.shp"
-  }
-  else if (data == "Police Districts") {
-    url <- "https://www.stlouis-mo.gov/data/boundaries/upload/STL-Police-Districts-2014-2.zip"
-    path <- "/STL POLICE DISTRICTS/GIS.STL.POLICE_DISTRICTS_2014.shp"
-  }
-  else if (data == "Police Districts, Pre-2014") {
-    url <- "https://www.stlouis-mo.gov/data/boundaries/upload/STL-Police-Districts-pre-2014.zip"
-    path <- "/STL Police Districts - pre-2014/STLPOLICEDISTRICTSPRE2014.shp"
-  }
-  else if (data == "Voting Precincts") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip"
-    path <- "/nbrhds_wards/POL_WRD_2010_Prec.shp"
-  }
-  else if (data == "Zoning") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/zoning.zip"
-    path <- "/prclz.shp"
-  }
-  else if (data == "Zoning, Multi") {
-    url <- "https://www.stlouis-mo.gov/data/upload/data-files/zoning.zip"
-    path <- "/prclzm.shp"
-  }
+  data <- tolower(data)
+  url <- switch (data,
+    addresses = "https://www.stlouis-mo.gov/data/upload/data-files/pargeocd.zip",
+    neighborhoods = "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip",
+    `land records` = "https://www.stlouis-mo.gov/data/upload/data-files/par.zip",
+    `land use` = "https://www.stlouis-mo.gov/data/upload/data-files/slup.zip",
+    parcels = "https://www.stlouis-mo.gov/data/upload/data-files/prcl_shape.zip",
+    parks = "https://www.stlouis-mo.gov/data/upload/data-files/parks.zip",
+    `police districts` = "https://www.stlouis-mo.gov/data/boundaries/upload/STL-Police-Districts-2014-2.zip",
+    `police districts, pre-2014` = "https://www.stlouis-mo.gov/data/boundaries/upload/STL-Police-Districts-pre-2014.zip",
+    `voting precincts` = "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip",
+    zoning = "https://www.stlouis-mo.gov/data/upload/data-files/zoning.zip",
+    `zoning, multi` = "https://www.stlouis-mo.gov/data/upload/data-files/zoning.zip"
+  )
+  path <- switch(data,
+    addresses = "/pargeocd.shp",
+    neighborhoods = "/nbrhds_wards/BND_Nhd88_cw.shp"
+    `land records` = "/par.dbf",
+    `land use` = "/slup.shp",
+    parcels = "/prcl.shp",
+    parks = "/parks.shp",
+    `police districts` = "/STL POLICE DISTRICTS/GIS.STL.POLICE_DISTRICTS_2014.shp",
+    `police districts, pre-2014` = "/STL Police Districts - pre-2014/STLPOLICEDISTRICTSPRE2014.shp",
+    `voting precincts` = "/nbrhds_wards/POL_WRD_2010_Prec.shp",
+    zoning = "/prclz.shp",
+    `zoning, multi` = "/prclzm.shp"
+  )
 
   # create list
   call <- list(
