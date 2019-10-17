@@ -138,7 +138,7 @@ gw_get_city <- function(data){
   )
   path <- switch(data,
     addresses = "/pargeocd.shp",
-    neighborhoods = "/nbrhds_wards/BND_Nhd88_cw.shp"
+    neighborhoods = "/nbrhds_wards/BND_Nhd88_cw.shp",
     `land records` = "/par.dbf",
     `land use` = "/slup.shp",
     parcels = "/prcl.shp",
