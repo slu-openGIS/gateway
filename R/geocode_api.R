@@ -2,7 +2,7 @@
 
 # City Address Candidates API Access
 #
-# @description Provides access to the City of Saint Louis\href{https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates}{Address Candidates API}
+# @description Provides access to the City of Saint Louis\href{https://stlgis3.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE_v4/GeocodeServer/findAddressCandidates}{Address Candidates API}
 #
 #
 # @usage gw_add_candidates(street, zip, address, n, threshold, crs, sf)
@@ -34,7 +34,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
   }
 
   # build a query
-  query <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates?"
+  query <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE_v4/GeocodeServer/findAddressCandidates?"
 
   if(!missing(street)){
     query <- paste0(query, "Street=", utils::URLencode(street), "&")
@@ -231,7 +231,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
   query <- jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
-  url <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
+  url <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE_v4/GeocodeServer/geocodeAddresses"
 
   response <- httr::POST(url,
                          body = list(addresses = query,
@@ -289,7 +289,7 @@ gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALS
 
   # build a query
   location <- paste0("{x:", x, ",y:", y, "}")
-  baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/reverseGeocode"
+  baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE_v4/GeocodeServer/reverseGeocode"
   query <- paste0(baseURL, "?location=", location, "&distance=", distance, "&outSR=", crs, "&returnIntersection=", intersection,
                   "&f=pjson")
   url <- utils::URLencode(query)
