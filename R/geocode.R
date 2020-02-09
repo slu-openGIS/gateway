@@ -427,6 +427,7 @@ gw_geocode_local <- function(.data, geocoder){
 
   # include result
   .data <- dplyr::mutate(.data, gw_source = ifelse(is.na(gw_x) == FALSE, "local", NA))
+  .data <- dplyr::mutate(.data, gw_score = ifelse(is.na(gw_x) == FALSE, 100, NA))
 
   # return output
   return(.data)
@@ -447,6 +448,7 @@ gw_geocode_local_short <- function(.data, geocoder){
 
   # include result
   .data <- dplyr::mutate(.data, gw_source = ifelse(is.na(gw_x) == FALSE, "local, short", NA))
+  .data <- dplyr::mutate(.data, gw_score = ifelse(is.na(gw_x) == FALSE, 100, NA))
 
   # return output
   return(.data)
@@ -467,6 +469,7 @@ gw_geocode_local_placename <- function(.data, geocoder){
 
   # include result
   .data <- dplyr::mutate(.data, gw_source = ifelse(is.na(gw_x) == FALSE, "local, placename", NA))
+  .data <- dplyr::mutate(.data, gw_score = ifelse(is.na(gw_x) == FALSE, 100, NA))
 
   # return output
   return(.data)
