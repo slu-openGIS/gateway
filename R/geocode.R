@@ -514,24 +514,29 @@ gw_geocode_city_candidate <- function(.data, threshold, zip){
   # remove NAs
   target <- dplyr::filter(target, is.na(geo) == FALSE)
 
-  # unnest results
-  target <- tidyr::unnest(target, cols = c(geo))
+  # modify based on results
+  if (nrow(target) > 0){
 
-  # rename
-  target <- dplyr::rename(target,
-                          gw_x = x,
-                          gw_y = y,
-                          gw_address = address_match,
-                          gw_score = score)
+    # unnest results
+    target <- tidyr::unnest(target, cols = c(geo))
 
-  # include result
-  target <- dplyr::mutate(target, gw_source = "city api, candidate")
+    # rename
+    target <- dplyr::rename(target,
+                            gw_x = x,
+                            gw_y = y,
+                            gw_address = address_match,
+                            gw_score = score)
 
-  # reorder
-  if (zip == TRUE){
-    target <- dplyr::select(target, ...uid, ...address, ...zip, gw_address, gw_score, gw_x, gw_y, gw_source)
-  } else if (zip == FALSE){
-    target <- dplyr::select(target, ...uid, ...address, gw_address, gw_score, gw_x, gw_y, gw_source)
+    # include result
+    target <- dplyr::mutate(target, gw_source = "city api, candidate")
+
+    # reorder
+    if (zip == TRUE){
+      target <- dplyr::select(target, ...uid, ...address, ...zip, gw_address, gw_score, gw_x, gw_y, gw_source)
+    } else if (zip == FALSE){
+      target <- dplyr::select(target, ...uid, ...address, gw_address, gw_score, gw_x, gw_y, gw_source)
+    }
+
   }
 
   # return output
@@ -703,16 +708,24 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
           results <- gw_geocode_city_candidate(unmatched, threshold = threshold, zip = zip)
 
           # put results back into unmatched data
-          if (zip == TRUE){
-            results <- dplyr::select(results, -...address, -...zip)
-          } else if (zip == FALSE){
-            results <- dplyr::select(results, -...address)
+          if (nrow(results) > 0){
+
+            if (zip == TRUE){
+              results <- dplyr::select(results, -...address, -...zip)
+            } else if (zip == FALSE){
+              results <- dplyr::select(results, -...address)
+            }
+
+            unmatched <- dplyr::left_join(unmatched, results, by = "...uid")
+
           }
 
-          unmatched <- dplyr::left_join(unmatched, results, by = "...uid")
-
           # check results
-          result2 <- any(is.na(unmatched$gw_x))
+          if (nrow(results) > 0){
+            result2 <- any(is.na(unmatched$gw_x))
+          } else if (nrow(results) == 0){
+            result2 <- TRUE
+          }
 
           # censusxy geocoder
           if (result2 == TRUE){
