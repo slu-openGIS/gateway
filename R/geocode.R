@@ -589,12 +589,10 @@ gw_geocode_census_xy <- function(.data, zip){
                            gw_i_zip = NA)
   }
 
-
   # geocode
   .data <- censusxy::cxy_geocode(.data, address = "gw_i_address", city = "gw_i_city",
                                  state  = "gw_i_state", zip = "gw_i_zip",
                                  style = "minimal", output = "tibble", timeout = 30)
-
   # rename
   .data <- dplyr::rename(.data,
                          ...uid = gw_i_uid,
@@ -744,6 +742,8 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
             # check for error
             if ("try-error" %in% class(result) == FALSE){
               unmatched <- result
+            } else if ("try-error" %in% class(result) == TRUE){
+              warning("The final stage of the geocoder, censusxy, returned an error. Results from this stage are not included.")
             }
 
           }
@@ -753,6 +753,7 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
     }
 
     # re-construct data
+    matched <- mutate(matched, gw_score = as.character(gw_score))
     .data <- dplyr::bind_rows(matched, unmatched)
 
   }
