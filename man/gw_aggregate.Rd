@@ -4,8 +4,7 @@
 \alias{gw_aggregate}
 \title{Aggregate Point Data to Selected Areal Units}
 \usage{
-gw_aggregate(.data, to, sf = TRUE, replace_na = TRUE,
-  keep_na = FALSE)
+gw_aggregate(.data, to, sf = TRUE, replace_na = TRUE, keep_na = FALSE)
 }
 \arguments{
 \item{.data}{A \code{sf} object}
