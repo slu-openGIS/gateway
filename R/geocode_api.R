@@ -93,7 +93,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
       sf <- sf::st_transform(sf, crs = 4269)
       sf <- gw_get_coords(sf)
       sf::st_geometry(sf) <- NULL
-      # sf <- dplyr::select(sf, address_match, x, y, score)
+      sf <- dplyr::select(sf, address_match, x, y, score)
 
       # return sf if specified
       # if(sf == TRUE){
