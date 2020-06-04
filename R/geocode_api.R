@@ -34,7 +34,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
   }
 
   # build a query
-  query <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/findAddressCandidates?"
+  query <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE/GeocodeServer/findAddressCandidates?"
 
   if(!missing(street)){
     query <- paste0(query, "Street=", utils::URLencode(street), "&")
@@ -93,7 +93,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
       sf <- sf::st_transform(sf, crs = 4269)
       sf <- gw_get_coords(sf)
       sf::st_geometry(sf) <- NULL
-      sf <- dplyr::select(sf, address_match, x, y, score)
+      # sf <- dplyr::select(sf, address_match, x, y, score)
 
       # return sf if specified
       # if(sf == TRUE){
@@ -231,7 +231,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
   query <- jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
-  url <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/geocodeAddresses"
+  url <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE/GeocodeServer/geocodeAddresses"
 
   response <- httr::POST(url,
                          body = list(addresses = query,
@@ -289,7 +289,7 @@ gw_add_reverse <- function(x, y, distance = 0, crs = 102696, intersection = FALS
 
   # build a query
   location <- paste0("{x:", x, ",y:", y, "}")
-  baseURL <- "https://stlgis3.stlouis-mo.gov/arcgis/rest/services/PUBLIC/COMPPARSTRZIPHANDLE/GeocodeServer/reverseGeocode"
+  baseURL <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE/GeocodeServer/reverseGeocode"
   query <- paste0(baseURL, "?location=", location, "&distance=", distance, "&outSR=", crs, "&returnIntersection=", intersection,
                   "&f=pjson")
   url <- utils::URLencode(query)
