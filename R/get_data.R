@@ -129,7 +129,7 @@ gw_get_city <- function(data){
   }
   else if (data == "Neighborhoods") {
     url <- "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip"
-    path <- "/nbrhds_wards/Neighborhood_Boundaries.shp"
+    path <- "/Neighborhood_Boundaries.shp"
   }
   else if (data == "Land Records") {
     url <- "https://www.stlouis-mo.gov/data/upload/data-files/par.zip"
@@ -157,7 +157,7 @@ gw_get_city <- function(data){
   }
   else if (data == "Voting Precincts") {
     url <- "https://www.stlouis-mo.gov/data/upload/data-files/nbrhds_wards.zip"
-    path <- "/nbrhds_wards/WARDS_2010.shp"
+    path <- "/WARDS_2010.shp"
   }
   else if (data == "Zoning") {
     url <- "https://www.stlouis-mo.gov/data/upload/data-files/zoning.zip"
