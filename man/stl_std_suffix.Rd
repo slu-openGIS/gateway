@@ -4,12 +4,14 @@
 \name{stl_std_suffix}
 \alias{stl_std_suffix}
 \title{Standardized Street Suffix Names}
-\format{A data frame with 76 rows and 3 variables:
+\format{
+A data frame with 76 rows and 3 variables:
 \describe{
   \item{suf.type}{suffix type}
   \item{suf.input}{input suffix}
   \item{suf.output}{output suffix}
-  }}
+  }
+}
 \usage{
 stl_std_suffix
 }

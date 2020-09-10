@@ -19,7 +19,7 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/slu-openGIS/gateway
 BugReports: https://github.com/slu-openGIS/gateway/issues
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Imports:
     censusxy,
     dplyr,

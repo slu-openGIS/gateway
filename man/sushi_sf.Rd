@@ -4,13 +4,15 @@
 \name{sushi_sf}
 \alias{sushi_sf}
 \title{Sushi Resturants in the Ciy of St. Louis, sf Format}
-\format{A \code{sf} object with 15 rows and 4 variables:
+\format{
+A \code{sf} object with 15 rows and 4 variables:
 \describe{
   \item{name}{resturant name}
   \item{address}{street address}
   \item{visit}{visit date}
   \item{geometry}{sf geometric data}
-}}
+}
+}
 \usage{
 data(sushi_sf)
 }

@@ -4,11 +4,13 @@
 \name{stl_std_streets}
 \alias{stl_std_streets}
 \title{Standardized Street Names}
-\format{A data frame with 12 rows and 2 variables:
+\format{
+A data frame with 12 rows and 2 variables:
 \describe{
   \item{st.output}{standardized street name}
   \item{st.input}{alternative street name}
-  }}
+  }
+}
 \usage{
 stl_std_streets
 }

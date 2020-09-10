@@ -4,12 +4,14 @@
 \name{sample_geocoder}
 \alias{sample_geocoder}
 \title{Sample Geocoder, sf Format}
-\format{A tibble with 6050 rows and 3 variables:
+\format{
+A tibble with 6050 rows and 3 variables:
 \describe{
   \item{addrrecnum}{address identification number}
   \item{address}{street address}
   \item{geometry}{sf geometric data}
-}}
+}
+}
 \usage{
 data(sample_geocoder)
 }

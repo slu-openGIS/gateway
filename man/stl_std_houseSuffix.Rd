@@ -4,11 +4,13 @@
 \name{stl_std_houseSuffix}
 \alias{stl_std_houseSuffix}
 \title{Standardized House Suffix Values}
-\format{A data frame with 5 rows and 2 variables:
+\format{
+A data frame with 5 rows and 2 variables:
 \describe{
   \item{houseSuf.output}{standardized abbreviation for house suffix}
   \item{houseSuf.input}{alternative house suffix}
-  }}
+  }
+}
 \usage{
 stl_std_houseSuffix
 }

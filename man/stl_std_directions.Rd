@@ -4,11 +4,13 @@
 \name{stl_std_directions}
 \alias{stl_std_directions}
 \title{Standardized Directions}
-\format{A data frame with 7 rows and 2 variables:
+\format{
+A data frame with 7 rows and 2 variables:
 \describe{
   \item{dir.output}{directional abbreviation}
   \item{dir.input}{directional abbreviation}
-  }}
+  }
+}
 \usage{
 stl_std_directions
 }

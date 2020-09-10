@@ -4,12 +4,14 @@
 \name{sushi}
 \alias{sushi}
 \title{Sushi Resturants in the Ciy of St. Louis, Tibble Format}
-\format{A tibble with 15 rows and 3 variables:
+\format{
+A tibble with 15 rows and 3 variables:
 \describe{
   \item{name}{resturant name}
   \item{address}{street address}
   \item{visit}{visit date}
-}}
+}
+}
 \usage{
 data(sushi)
 }
