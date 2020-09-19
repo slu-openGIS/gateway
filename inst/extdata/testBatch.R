@@ -11,6 +11,11 @@ df <- tibble(
   address = c("Not an Address", "Really not an address")
 )
 
-gw_add_batch(df, id, address)
+gw_add_batch(df, id = id, address = address, threshold = 90, crs = 102696)
 
-gw_geocode(df, type = "city batch")
+
+
+gw_add_batch(df, id = id, address = address, threshold = 90, crs = 4269)
+
+gw_geocode(df, var = address, type = "city batch", class = "tibble")
+

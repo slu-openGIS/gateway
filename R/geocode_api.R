@@ -193,7 +193,7 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   if (crs != 102696){
 
-    out <- sf::st_as_sf(out, coords = c("x", "y"), crs = 102696)
+    out <- sf::st_as_sf(out, coords = c("x", "y"), crs = "+proj=tmerc +lat_0=35.83333333333334 +lon_0=-90.5 +k=0.9999333333333333 +x_0=250000 +y_0=0 +datum=NAD83 +units=us-ft +no_defs")
     out <- sf::st_transform(out, crs = 4269)
     out <- gw_get_coords(out, crs = crs)
     sf::st_geometry(out) <- NULL
@@ -244,9 +244,9 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
   return <- jsonlite::fromJSON(content)$locations
   return <- jsonlite::flatten(return, recursive = TRUE)
 
-  # clean-up data frame ### funs() is deprecated!
+  # clean-up data frame
   return <- dplyr::rename_at(return, .vars = dplyr::vars(dplyr::starts_with("attributes.")),
-                          .funs = dplyr::funs(sub("^attributes[.]", "", .)))
+                         ~ sub("^attributes[.]", "", .))
   return <- dplyr::select(return, -dplyr::starts_with("location."))
   return <- janitor::clean_names(return, case = "snake")
 

@@ -248,16 +248,15 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 
   # create coordinate columns
   ret <- do.call(rbind,sf::st_geometry(.data))
-  ret <- dplyr::as_tibble(ret)
 
   # ensure two columns are returned
   stopifnot(length(names) == ncol(ret))
 
   # name columns with coordinate data
-  ret <- stats::setNames(ret, names)
+  ret <- dplyr::as_tibble(ret, .name_repair = ~names)
 
   # combine coordinate data with source data
-  out <- cbind(.data, ret) # %>%
+  out <- cbind(.data, ret)
   out <- dplyr::select(out, -geometry, dplyr::everything())
 
   # return output
