@@ -5,21 +5,20 @@
 #'    and will error if your computer is offline. Since the actual geocoding is done with a second
 #'    function, however, it is possible to build a geocoder and store it offline for repeated use.
 #'
-#' @usage gw_build_geocoder(style, crs = 4269, return = c("coords", "parcel", "zip"),
-#'     include_units = FALSE, appendix)
+#' @usage gw_build_geocoder(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE,
+#'     appendix)
 #'
-#' @param style One of either \code{"full"} (\code{"123 Main St"}) or \code{"short"} (\code{"123 Main"}).
-#' @param crs A numeric code corresponding to the desired coordinate system for the column output if
-#'    \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.
 #' @param return Optional; A character scalar or vector that describes the type of information to be applied
 #'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
 #'    parcel identification numbers (\code{handle}), zip-codes, and x and y coordinates (in decimal degrees).
+#' @param crs A numeric code corresponding to the desired coordinate system for the column output if
+#'    \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will
 #'    be included. If \code{FALSE} (default), only records for the overall building will be retained.
 #' @param appendix An object with additional address or placename data to append to the geocoder.
 #'
-#' @return A tibble with the requested data in the \code{return} argument as well as
-#'    a \code{address} variable containing the full street address string.
+#' @return A list containing the \code{"full"} (\code{"123 Main St"}), \code{"short"} (\code{"123 Main"}),
+#'    and \code{"placename"} geocoders for St. Louis, MO.
 #'
 #' @seealso \code{\link{gw_geocode}}, \href{https://www.stlouis-mo.gov/data/geocode-service.cfm}{City of St. Louis Geocode Service}
 #'
@@ -39,8 +38,7 @@
 #' @importFrom tidyr unite
 #'
 #' @export
-gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", "zip"),
-                              include_units = FALSE, appendix){
+gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE, appendix){
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
@@ -52,152 +50,145 @@ gw_build_geocoder <- function(style, crs = 4269, return = c("coords", "parcel", 
     return <- NULL
   }
 
-  if (style == "full" | style == "short"){
+  # download master list
+  full <- gw_get_data(data = "Addresses", class = "sf")
 
-    # obtain master list if none is provided
-    master <- gw_get_data(data = "Addresses", class = "sf")
+  # initial tidy
+  ## clean address data
+  full <- dplyr::select(full, ADDRRECNUM, HANDLE:ZIP)
 
-    # clean address data
-    master <- dplyr::select(master, ADDRRECNUM, HANDLE:ZIP)
-
-    # optionally filter out units
-    if (include_units == FALSE){
-      master <- dplyr::filter(master, is.na(UNITNUM) == TRUE)
-    }
-
-    # optionally drop unneeded data
-    if ("parcel" %in% return == FALSE){
-      master <- dplyr::select(master, -HANDLE)
-    }
-
-    if ("zip" %in% return == FALSE){
-      master <- dplyr::select(master, -ZIP)
-    }
-
-    # store coordinates
-    coords <- sf::st_crs(master)$epsg
-
-    if (is.na(coords) == TRUE){
-      coords <- 0
-    }
-
-    # create coordinates if class is tibble
-    if ("coords" %in% return == TRUE){
-      master <- gw_get_coords(master, crs = crs)
-      sf::st_geometry(master) <- NULL
-      master <- dplyr::as_tibble(master)
-    } else if ("coords" %in% return == FALSE){
-      sf::st_geometry(master) <- NULL
-      master <- dplyr::as_tibble(master)
-    }
-
-    # clean-up data
-    if (style == "full"){
-
-      master <- dplyr::mutate(master, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
-      master <- dplyr::mutate(master, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
-      master <- postmastr::pm_street_std(master, var = STREETNAME, locale = "us")
-      master <- postmastr::pm_streetSuf_std(master, var = STREETTYPE, locale = "us")
-      master <- tidyr::unite(master, address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE)
-      master <- dplyr::mutate(master,
-                              address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
-      master <- dplyr::mutate(master, address = stringr::str_squish(address))
-      master <- dplyr::distinct(master, address, .keep_all = TRUE)
-
-      # rename variables
-      master <- dplyr::rename(master,
-                              gw_addrrecnum = ADDRRECNUM,
-                              gw_address = address,
-                              gw_x = x,
-                              gw_y = y)
-
-    } else if (style == "short"){
-
-      master <- dplyr::mutate(master, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
-      master <- dplyr::mutate(master, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
-      master <- postmastr::pm_street_std(master, var = STREETNAME, locale = "us")
-      master <- postmastr::pm_streetSuf_std(master, var = STREETTYPE, locale = "us")
-      master <- tidyr::unite(master, address, HOUSENUM:SUFDIR, sep = " ", remove = FALSE)
-      master <- dplyr::mutate(master,
-                              address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
-      master <- dplyr::mutate(master, address = stringr::str_squish(address))
-      master <- tidyr::unite(master, address_short, HOUSENUM:STREETNAME, sep = " ", remove = TRUE)
-      master <- dplyr::mutate(master,
-                              address_short = stringr::str_replace_all(address_short, pattern = "\\bNA\\b", replacement = ""))
-      master <- dplyr::mutate(master, address_short = stringr::str_squish(address_short))
-      master <- dplyr::select(master, -STREETTYPE, -SUFDIR)
-      master <- dplyr::distinct(master, address, .keep_all = TRUE)
-      master <- dplyr::select(master, -address)
-
-      sub <- dplyr::distinct(master, address_short, x, y, .keep_all = TRUE)
-
-      dupes <- janitor::get_dupes(sub, address_short)
-      dupes <- dplyr::distinct(dupes, address_short)
-      dupes <- dplyr::mutate(dupes, flag = TRUE)
-
-      master <- dplyr::left_join(sub, dupes, by = "address_short")
-      master <- dplyr::filter(master, is.na(flag) == TRUE)
-      master <- dplyr::select(master, -flag)
-
-      # rename variables
-      master <- dplyr::rename(master,
-                              gw_addrrecnum = ADDRRECNUM,
-                              gw_address = address_short,
-                              gw_x = x,
-                              gw_y = y)
-
-    }
-
-  } else if (style == "placename"){
-
-    # obtain master list
-    master <- gw_get_data(data = "Placenames", class = "sf")
-
-    # remove geonameid
-    master <- dplyr::select(master, -geonameid)
-
-    # optionally drop unneeded data
-    # if ("parcel" %in% return == FALSE){
-    #  master <- dplyr::select(master, -HANDLE)
-    #}
-
-    if ("zip" %in% return == FALSE){
-      master <- dplyr::select(master, -zip)
-    }
-
-    # store coordinates
-    coords <- sf::st_crs(master)$epsg
-
-    if (is.na(coords) == TRUE){
-      coords <- 0
-    }
-
-    # create coordinates if class is tibble
-    if ("coords" %in% return == TRUE){
-      master <- gw_get_coords(master, crs = crs)
-      sf::st_geometry(master) <- NULL
-      master <- dplyr::as_tibble(master)
-    } else if ("coords" %in% return == FALSE){
-      sf::st_geometry(master) <- NULL
-      master <- dplyr::as_tibble(master)
-    }
-
-    # rename variables
-    master <- dplyr::rename(master,
-                            gw_id = id,
-                            gw_name = name,
-                            gw_addrrecnum = addrrecnum,
-                            gw_address = address,
-                            gw_x = x,
-                            gw_y = y)
-
-    # convert addrrecnum to character
-    master <- dplyr::mutate(master, gw_addrrecnum = as.character(gw_addrrecnum))
-
+  ## optionally filter out units
+  if (include_units == FALSE){
+    full <- dplyr::filter(full, is.na(UNITNUM) == TRUE)
   }
 
+  ## optionally drop unneeded data
+  ### parcel IDs
+  if ("parcel" %in% return == FALSE){
+    full <- dplyr::select(full, -HANDLE)
+  }
+
+  ### zip codes
+  if ("zip" %in% return == FALSE){
+    full <- dplyr::select(full, -ZIP)
+  }
+
+  ### xy coordinates
+  if ("coords" %in% return == TRUE){
+    full <- gw_get_coords(full, crs = crs)
+    sf::st_geometry(full) <- NULL
+  } else if ("coords" %in% return == FALSE){
+    sf::st_geometry(full) <- NULL
+  }
+
+  ## convert to tibble
+  full <- dplyr::as_tibble(full)
+
+  # create copy of master data
+  short <- full
+
+  # create full geocoder
+  ## tidy
+  full <- dplyr::mutate(full, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
+  full <- dplyr::mutate(full, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
+  full <- postmastr::pm_street_std(full, var = STREETNAME, locale = "us")
+  full <- postmastr::pm_streetSuf_std(full, var = STREETTYPE, locale = "us")
+  full <- tidyr::unite(full, address, HOUSENUM:SUFDIR, sep = " ", remove = TRUE)
+  full <- dplyr::mutate(full, address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
+  full <- dplyr::mutate(full, address = stringr::str_squish(address))
+  full <- dplyr::distinct(full, address, .keep_all = TRUE)
+
+  ## rename variables
+  full <- dplyr::rename(full,
+                          gw_addrrecnum = ADDRRECNUM,
+                          gw_address = address,
+                          gw_x = x,
+                          gw_y = y)
+
+  # create short geocoder
+  ## tidy
+  short <- dplyr::mutate(short, UNITNUM = ifelse(HOUSESUF == "E", "E", UNITNUM))
+  short <- dplyr::mutate(short, HOUSESUF = ifelse(HOUSESUF == "E", NA, HOUSESUF))
+  short <- postmastr::pm_street_std(short, var = STREETNAME, locale = "us")
+  short <- postmastr::pm_streetSuf_std(short, var = STREETTYPE, locale = "us")
+  short <- tidyr::unite(short, address, HOUSENUM:SUFDIR, sep = " ", remove = FALSE)
+  short <- dplyr::mutate(short,
+                          address = stringr::str_replace_all(address, pattern = "\\bNA\\b", replacement = ""))
+  short <- dplyr::mutate(short, address = stringr::str_squish(address))
+  short <- tidyr::unite(short, address_short, HOUSENUM:STREETNAME, sep = " ", remove = TRUE)
+  short <- dplyr::mutate(short,
+                          address_short = stringr::str_replace_all(address_short, pattern = "\\bNA\\b", replacement = ""))
+  short <- dplyr::mutate(short, address_short = stringr::str_squish(address_short))
+  short <- dplyr::select(short, -STREETTYPE, -SUFDIR)
+  short <- dplyr::distinct(short, address, .keep_all = TRUE)
+  short <- dplyr::select(short, -address)
+
+  sub <- dplyr::distinct(short, address_short, x, y, .keep_all = TRUE)
+
+  dupes <- janitor::get_dupes(sub, address_short)
+  dupes <- dplyr::distinct(dupes, address_short)
+  dupes <- dplyr::mutate(dupes, flag = TRUE)
+
+  short <- dplyr::left_join(sub, dupes, by = "address_short")
+  short <- dplyr::filter(short, is.na(flag) == TRUE)
+  short <- dplyr::select(short, -flag)
+
+  ## rename variables
+  short <- dplyr::rename(short,
+                          gw_addrrecnum = ADDRRECNUM,
+                          gw_address = address_short,
+                          gw_x = x,
+                          gw_y = y)
+
+  # create placename geocoder
+  ## obtain master list
+  place <- gw_get_data(data = "Placenames", class = "sf")
+
+  ## remove geonameid
+  place <- dplyr::select(place, -geonameid)
+
+  ## optionally drop unneeded data
+  # if ("parcel" %in% return == FALSE){
+  #  place <- dplyr::select(place, -HANDLE)
+  #}
+
+  if ("zip" %in% return == FALSE){
+    place <- dplyr::select(place, -zip)
+  }
+
+
+  ## create coordinates if class is tibble
+  if ("coords" %in% return == TRUE){
+    place <- gw_get_coords(place, crs = crs)
+    sf::st_geometry(place) <- NULL
+  } else if ("coords" %in% return == FALSE){
+    sf::st_geometry(place) <- NULL
+  }
+
+  ## conver to tibble
+  place <- dplyr::as_tibble(place)
+
+  ## rename variables
+  place <- dplyr::rename(place,
+                          gw_id = id,
+                          gw_name = name,
+                          gw_addrrecnum = addrrecnum,
+                          gw_address = address,
+                          gw_x = x,
+                          gw_y = y)
+
+  ## convert addrrecnum to character
+  place <- dplyr::mutate(place, gw_addrrecnum = as.character(gw_addrrecnum))
+
+  # construct output
+  out <- list(
+    full = full,
+    short = short,
+    placename = place
+  )
+
   # return output
-  return(master)
+  return(out)
 
 }
 
@@ -270,7 +261,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    apply whatever unique variables exist in the geocoder. See \code{\link{gw_build_geocoder}}
 #'    for options.
 #'
-#' @usage gw_geocode(.data, type, var, zip, class, local, local_short, local_place, threshold)
+#' @usage gw_geocode(.data, type, var, zip, class, geocoder, threshold)
 #'
 #' @param .data A target data set
 #' @param type Geocoder type; one of either \code{"local"}, \code{"local short"}, \code{"city batch"},
@@ -280,14 +271,9 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #'    \code{"composite, full"} respectively.
 #' @param var Address variable in the target data set, which should contain the house number,
 #'    street directionals, name, and suffix.
-#' @param zip Name of zipcode variable in the taget data set (optional).
+#' @param zip Name of zipcode variable in the target data set (optional).
 #' @param class Output class; one of either \code{"sf"} or \code{"tibble"}.
-#' @param local Name of object containing a local geocoder built with
-#'     \code{\link{gw_build_geocoder}}
-#' @param local_short Name of object containing a local, short style geocoder
-#'     built with \code{\link{gw_build_geocoder}}
-#' @param local_place Name of object containing a local, placename style geocoder
-#'     built with \code{\link{gw_build_geocoder}}
+#' @param geocoder Name of object containing a local geocoder built with \code{\link{gw_build_geocoder}}
 #' @param threshold For the city candidate geocoder, what score is the minimum acceptable?
 #'
 #' @return A copy of the target data with georeferenced data applied to it.
@@ -308,8 +294,7 @@ gw_get_coords <- function(.data, names = c("x","y"), crs = 4269){
 #' @importFrom tmaptools geocode_OSM
 #'
 #' @export
-gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_place,
-                       threshold){
+gw_geocode <- function(.data, type, var, zip, class, geocoder, threshold){
 
   # set global bindings
   . = ...address = out = addrrecnum = geometry = ...zip = gw_address = NULL
@@ -358,11 +343,11 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
 
   # geocode
   if (type == "local"){
-    target <- gw_geocode_local(target, geocoder = local)
+    target <- gw_geocode_local(target, geocoder = geocoder$full)
   } else if (type == "local short"){
-    target <- gw_geocode_local_short(target, geocoder = local_short)
+    target <- gw_geocode_local_short(target, geocoder = geocoder$short)
   } else if (type == "local placename"){
-    target <- gw_geocode_local_placename(target, geocoder = local_place)
+    target <- gw_geocode_local_placename(target, geocoder = geocoder$placename)
   } else if (type == "city batch"){
     batch <- TRUE
     target <- gw_geocode_city_batch(target, crs = 4269, zip = zipPresent)
@@ -371,12 +356,10 @@ gw_geocode <- function(.data, type, var, zip, class, local, local_short, local_p
   } else if (type == "census"){
     target <- gw_geocode_census_xy(target, zip = zipPresent)
   } else if (type == "composite, local"){
-    target <- gw_geocode_composite(target, zip = zipPresent, local = local,
-                                   local_short = local_short, local_place = local_place,
+    target <- gw_geocode_composite(target, zip = zipPresent, geocoder = geocoder,
                                    threshold = threshold, offline = TRUE)
   } else if (type == "composite, full"){
-    target <- gw_geocode_composite(target, zip = zipPresent, local = local,
-                                   local_short = local_short, local_place = local_place,
+    target <- gw_geocode_composite(target, zip = zipPresent, geocoder = geocoder,
                                    threshold = threshold, offline = FALSE)
   }
 
@@ -592,23 +575,21 @@ gw_geocode_census_xy <- function(.data, zip){
   }
 
   # geocode
-  .data <- censusxy::cxy_geocode(.data, address = "gw_i_address", city = "gw_i_city",
+  .data <- censusxy::cxy_geocode(.data, street = "gw_i_address", city = "gw_i_city",
                                  state  = "gw_i_state", zip = "gw_i_zip",
-                                 style = "minimal", output = "tibble", timeout = 30)
+                                 class = "dataframe", output = "simple", timeout = 30)
   # rename
   .data <- dplyr::rename(.data,
                          ...uid = gw_i_uid,
                          ...address = gw_i_address,
-                         gw_x = lon,
-                         gw_y = lat,
-                         gw_address = cxy_match,
-                         gw_score = cxy_quality)
+                         gw_x = cxy_lon,
+                         gw_y = cxy_lat)
 
   # include result
   .data <- dplyr::mutate(.data, gw_source = ifelse(is.na(gw_x) == FALSE, "census api", NA))
 
   # remove uneeded columns and reorder
-  .data <- dplyr::select(.data, -gw_i_city, -gw_i_state, -cxy_status)
+  .data <- dplyr::select(.data, -gw_i_city, -gw_i_state)
 
   if (zip == TRUE){
 
@@ -616,12 +597,12 @@ gw_geocode_census_xy <- function(.data, zip){
     .data <- dplyr::rename(.data, ...zip = gw_i_zip)
 
     # re-order
-    .data <- dplyr::select(.data, ...uid, ...address, ...zip, gw_address, gw_score, gw_x, gw_y, gw_source)
+    .data <- dplyr::select(.data, ...uid, ...address, ...zip, gw_x, gw_y, gw_source)
 
   } else if (zip == FALSE){
 
     # re-order
-    .data <- dplyr::select(.data, ...uid, ...address, gw_address, gw_score, gw_x, gw_y, gw_source)
+    .data <- dplyr::select(.data, ...uid, ...address, gw_x, gw_y, gw_source)
 
   }
 
@@ -630,14 +611,14 @@ gw_geocode_census_xy <- function(.data, zip){
 
 }
 
-gw_geocode_composite <- function(.data, zip, local, local_short, local_place, threshold, offline){
+gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
 
   # global binding
   gw_x = gw_y = gw_addrrecnum = gw_source = gw_id = gw_address = gw_score =
     ...address = ...zip = NULL
 
   # local geocoder
-  .data <- gw_geocode_local(.data, geocoder = local)
+  .data <- gw_geocode_local(.data, geocoder = geocoder$full)
 
   # check results
   result <- any(is.na(.data$gw_x))
@@ -651,7 +632,7 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
     unmatched <- dplyr::select(unmatched, -gw_addrrecnum, -gw_x, -gw_y, -gw_source)
 
     # geocode
-    unmatched <- gw_geocode_local_short(unmatched, geocoder = local_short)
+    unmatched <- gw_geocode_local_short(unmatched, geocoder = geocoder$short)
 
     # check results
     result2 <- any(is.na(unmatched$gw_x))
@@ -668,7 +649,7 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
       unmatched <- dplyr::select(unmatched, -gw_addrrecnum, -gw_x, -gw_y, -gw_source)
 
       # geocode
-      unmatched <- gw_geocode_local_placename(unmatched, geocoder = local_place)
+      unmatched <- gw_geocode_local_placename(unmatched, geocoder = geocoder$placename)
 
       # check results
       result2 <- any(is.na(unmatched$gw_x))
@@ -754,8 +735,8 @@ gw_geocode_composite <- function(.data, zip, local, local_short, local_place, th
       }
     }
 
-    # re-construct data
-    matched <- mutate(matched, gw_score = as.character(gw_score))
+    # re-construct datadev
+    # matched <- mutate(matched, gw_score = as.character(gw_score))
     .data <- dplyr::bind_rows(matched, unmatched)
 
   }

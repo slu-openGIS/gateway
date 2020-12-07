@@ -34,7 +34,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
   }
 
   # build a query
-  query <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE/GeocodeServer/findAddressCandidates?"
+  query <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODERS/COMPOSITE_GEOCODE/GeocodeServer/findAddressCandidates?"
 
   if(!missing(street)){
     query <- paste0(query, "Street=", utils::URLencode(street), "&")
@@ -88,21 +88,8 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
     }
 
     if (nrow(df) > 0){
-      # convert coordinates
-      sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = 102696)
-      sf <- sf::st_transform(sf, crs = 4269)
-      sf <- gw_get_coords(sf)
-      sf::st_geometry(sf) <- NULL
-      sf <- dplyr::select(sf, address_match, x, y, score)
 
-      # return sf if specified
-      # if(sf == TRUE){
-      #  sf <- sf::st_as_sf(df, coords = c("x", "y"), crs = 102696)
-      #  return(sf)
-      #}
-      # else{return(df)}
-
-      return(sf)
+      return(df)
 
     } else if (nrow(df) == 0){
 
@@ -138,7 +125,7 @@ gw_add_candidates <- function(street, zip, address, n, threshold, crs, sf = FALS
 # @importFrom jsonlite toJSON minify flatten
 # @importFrom utils URLencode
 #
-gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
+gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs = 102696){
 
   # global bindings
   result_id = NULL
@@ -201,6 +188,8 @@ gw_add_batch <- function(.data, id, address, threshold, vars = "minimal", crs){
 
   }
 
+  out <- dplyr::mutate(out, x = ifelse(score == 0, NA, x), y = ifelse(score == 0, NA, y))
+
   return(out)
 
 }
@@ -231,7 +220,7 @@ gw_batch_call <- function(.data, id, address, threshold, vars = "minimal"){
   query <- jsonlite::toJSON(x)
   query <- jsonlite::minify(query)
 
-  url <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODE/COMPOSITEGEOCODE/GeocodeServer/geocodeAddresses"
+  url <- "https://maps6.stlouis-mo.gov/arcgis/rest/services/GEOCODERS/COMPOSITE_GEOCODE/GeocodeServer/geocodeAddresses"
 
   response <- httr::POST(url,
                          body = list(addresses = query,
