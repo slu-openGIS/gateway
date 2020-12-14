@@ -32,8 +32,8 @@ test <- tibble(
 gw_geocode(test, type = "local", var = address, zip = "zip", class = "tibble", local = geocoder)
 gw_geocode(test, type = "local short", var = address, zip = "zip", class = "tibble", local_short = geocoder_s)
 gw_geocode(test, type = "local placename", var = address, zip = "zip", class = "tibble", local_place = geocoder_p)
-gw_geocode(test, type = "city batch", var = address, zip = "zip", class = "tibble")
-gw_geocode(test, type = "city candidate", var = address, zip = "zip", class = "tibble", threshold = 90)
+gw_geocode(test, type = "city batch", var = address, class = "tibble")
+gw_geocode(test, type = "city candidate", var = address, class = "tibble", threshold = 90)
 gw_geocode(test, type = "census", var = address, zip = "zip", class = "tibble")
 
 gw_geocode(test, type = "composite, local", var = address, zip = "zip", class = "tibble",

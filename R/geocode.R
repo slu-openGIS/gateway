@@ -533,11 +533,11 @@ gw_create_candidates <- function(address, style, threshold){
 
   if (style == "top"){
 
-    api_result <- gw_add_candidates(address = address, n = 1, threshold = threshold)
+    api_result <- gw_add_candidates(address = address, n = 1, threshold = threshold, crs = 4269)
 
   } else if (style == "all"){
 
-    api_result <- gw_add_candidates(address = address)
+    api_result <- gw_add_candidates(address = address, crs = 4269)
     api_result <- tibble::rowid_to_column(api_result, var = "result_id")
 
   }
