@@ -641,6 +641,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
     if (result2 == TRUE){
 
       # rebuild results
+      unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
       .data <- dplyr::bind_rows(matched, unmatched)
 
       # subset results
@@ -658,6 +659,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
       if (result2 == TRUE & offline == FALSE){
 
         # rebuild results
+        unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
         .data <- dplyr::bind_rows(matched, unmatched)
 
         # subset results
@@ -678,6 +680,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
         if (result2 == TRUE){
 
           # rebuild results
+          unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
           .data <- dplyr::bind_rows(matched, unmatched)
 
           # subset results
@@ -712,6 +715,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
           if (result2 == TRUE){
 
             # rebuild results
+            unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
             .data <- dplyr::bind_rows(matched, unmatched)
 
             # subset results
@@ -735,8 +739,9 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
       }
     }
 
-    # re-construct datadev
+    # re-construct data
     # matched <- mutate(matched, gw_score = as.character(gw_score))
+    unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
     .data <- dplyr::bind_rows(matched, unmatched)
 
   }
