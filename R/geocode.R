@@ -5,8 +5,7 @@
 #'    and will error if your computer is offline. Since the actual geocoding is done with a second
 #'    function, however, it is possible to build a geocoder and store it offline for repeated use.
 #'
-#' @usage gw_build_geocoder(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE,
-#'     appendix)
+#' @usage gw_build_geocoder(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE)
 #'
 #' @param return Optional; A character scalar or vector that describes the type of information to be applied
 #'    to the target data. Options include the City's address identification numbers (\code{addrrecnum}),
@@ -15,7 +14,6 @@
 #'    \code{return} includes \code{"coords"} as well as the object output if \code{class} is \code{"sf"}.
 #' @param include_units A logical scalar; if \code{TRUE}, all individual records for apartment units will
 #'    be included. If \code{FALSE} (default), only records for the overall building will be retained.
-#' @param appendix An object with additional address or placename data to append to the geocoder.
 #'
 #' @return A list containing the \code{"full"} (\code{"123 Main St"}), \code{"short"} (\code{"123 Main"}),
 #'    and \code{"placename"} geocoders for St. Louis, MO.
@@ -38,7 +36,7 @@
 #' @importFrom tidyr unite
 #'
 #' @export
-gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE, appendix){
+gw_build_geocoder <- function(return = c("coords", "parcel", "zip"), crs = 4269, include_units = FALSE){
 
   # set global bindings
   ADDRRECNUM = HANDLE = HOUSENUM = HOUSESUF = PREDIR = STREETNAME = STREETTYPE =
@@ -641,7 +639,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
     if (result2 == TRUE){
 
       # rebuild results
-      unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
+      unmatched <- dplyr::mutate(unmatched, gw_source = as.character(gw_source))
       .data <- dplyr::bind_rows(matched, unmatched)
 
       # subset results
@@ -659,7 +657,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
       if (result2 == TRUE & offline == FALSE){
 
         # rebuild results
-        unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
+        unmatched <- dplyr::mutate(unmatched, gw_source = as.character(gw_source))
         .data <- dplyr::bind_rows(matched, unmatched)
 
         # subset results
@@ -680,7 +678,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
         if (result2 == TRUE){
 
           # rebuild results
-          unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
+          unmatched <- dplyr::mutate(unmatched, gw_source = as.character(gw_source))
           .data <- dplyr::bind_rows(matched, unmatched)
 
           # subset results
@@ -715,7 +713,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
           if (result2 == TRUE){
 
             # rebuild results
-            unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
+            unmatched <- dplyr::mutate(unmatched, gw_source = as.character(gw_source))
             .data <- dplyr::bind_rows(matched, unmatched)
 
             # subset results
@@ -741,7 +739,7 @@ gw_geocode_composite <- function(.data, zip, geocoder, threshold, offline){
 
     # re-construct data
     # matched <- mutate(matched, gw_score = as.character(gw_score))
-    unmatched <- dplyr::mutate(unmatch, gw_source = as.character(gw_source))
+    unmatched <- dplyr::mutate(unmatched, gw_source = as.character(gw_source))
     .data <- dplyr::bind_rows(matched, unmatched)
 
   }
