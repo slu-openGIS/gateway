@@ -3,7 +3,7 @@
 
 # gateway <img src="man/figures/gatewayLogo.png" align="right" />
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![lifecycle](https://img.shields.io/badge/lifecycle-deprecated-orange.svg)](https://www.tidyverse.org/lifecycle/#deprecated)
 [![Travis-CI Build
 Status](https://travis-ci.org/slu-openGIS/gateway.svg?branch=master)](https://travis-ci.org/slu-openGIS/gateway)
 [![AppVeyor Build
@@ -12,7 +12,12 @@ Status](https://ci.appveyor.com/api/projects/status/github/slu-openGIS/gateway?b
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/gateway)](https://cran.r-project.org/package=gateway)
 
 The `gateway` package contains tools for manipulating spatial data for
-the City of St. Louis
+the City of St. Louis. It was never published, though it was described in
+the following publication:
+
+```r
+Prener, Christopher G., and Branson Fox. "Creating open source composite geocoders: Pitfalls and opportunities." Transactions in GIS 25.4 (2021): 1868-1887.
+```
 
 ## Installation
 
